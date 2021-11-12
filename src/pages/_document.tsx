@@ -1,10 +1,6 @@
 /* eslint-disable react/no-danger */
 import Document, { DocumentContext, Head, Html, Main, NextScript } from 'next/document'
-import {
-  APPLICATION_SHORT_NAME,
-  CANONICAL_URL,
-  PRIMARY_BACKGROUND_COLOR,
-} from 'src/models/constants'
+import { ALPACA_SALON_COLOR, APPLICATION_SHORT_NAME, CANONICAL_URL } from 'src/models/constants'
 import { GOOGLE_ANALYTICS_ID } from 'src/utils/google-analytics'
 import { ServerStyleSheet } from 'styled-components'
 
@@ -107,7 +103,7 @@ export default class AlpacaSalonDocument extends Document {
           <meta name="author" content="sindy" />
           <meta name="keywords" content={keywords} />
           <meta name="application-name" content={APPLICATION_SHORT_NAME} />
-          <meta name="theme-color" content={PRIMARY_BACKGROUND_COLOR} />
+          <meta name="theme-color" content={ALPACA_SALON_COLOR} />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-title" content={APPLICATION_SHORT_NAME} />
           <meta name="apple-mobile-web-app-capable" content="yes" />

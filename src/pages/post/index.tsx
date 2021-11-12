@@ -1,10 +1,7 @@
 import Image from 'next/image'
-import { ReactElement, useState } from 'react'
+import { ReactElement } from 'react'
 import { useRecoilValue } from 'recoil'
-import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import { useFeedListByTownQuery } from 'src/graphql/generated/types-and-hooks'
-import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import HomeLayout from 'src/layouts/HomeLayout'
 import NavigationLayout from 'src/layouts/NavigationLayout'
 import { currentTown } from 'src/models/recoil'
@@ -61,42 +58,8 @@ const GridContainerUl = styled.ul`
   gap: 1rem;
 `
 
-const limit = 4
-
 export default function FeedPage() {
   const townName = useRecoilValue(currentTown)
-
-  const { data, loading, fetchMore } = useFeedListByTownQuery({
-    onError: toastApolloError,
-    notifyOnNetworkStatusChange: true,
-    skip: !townName,
-    variables: { town: townName, pagination: { limit } },
-  })
-
-  const feedList = data?.feedListByTown
-
-  const [hasMoreData, setHasMoreData] = useState(true)
-
-  async function fetchMoreFeedList() {
-    if (feedList && feedList.length > 0) {
-      const lastFeed = feedList[feedList.length - 1]
-      const response = await fetchMore({
-        variables: {
-          pagination: {
-            lastId: lastFeed.id,
-            limit,
-          },
-        },
-      }).catch(() => setHasMoreData(false))
-
-      if (response?.data.feedListByTown?.length !== limit) setHasMoreData(false)
-    }
-  }
-
-  const infiniteScrollRef = useInfiniteScroll({
-    hasMoreData,
-    onIntersecting: fetchMoreFeedList,
-  })
 
   return (
     <PageHead title={`${townName} 피드 - 알파카살롱`} description={description}>
@@ -111,9 +74,6 @@ export default function FeedPage() {
             <Image src="/images/add-button.min.svg" alt="add-button" width="24" height="24px" />
           </AddButtonWrapper>
         </FeedHeader>
-
-        {loading && <div>loading...</div>}
-        {!loading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
       </FeedContainer>
     </PageHead>
   )

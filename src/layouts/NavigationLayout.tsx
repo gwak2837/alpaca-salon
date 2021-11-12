@@ -1,15 +1,11 @@
 import { useRouter } from 'next/router'
 import { ReactNode } from 'react'
-import { useRecoilValue } from 'recoil'
-import { useMeQuery } from 'src/graphql/generated/types-and-hooks'
 import {
+  ALPACA_SALON_ACHROMATIC_COLOR,
+  ALPACA_SALON_TEXT_COLOR,
   NAVIGATION_HEIGHT,
-  SOBOK_ACHROMATIC_COLOR,
-  SOBOK_COLOR,
-  SOBOK_TEXT_COLOR,
 } from 'src/models/constants'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
-import { currentUser } from 'src/models/recoil'
 import styled from 'styled-components'
 
 const Padding = styled.div`
@@ -37,7 +33,7 @@ const SClientSideLink = styled.a<{ color: string }>`
   color: ${(p) => p.color};
 
   :hover {
-    color: ${SOBOK_TEXT_COLOR};
+    color: ${ALPACA_SALON_TEXT_COLOR};
   }
 
   display: flex;
@@ -50,33 +46,15 @@ const SClientSideLink = styled.a<{ color: string }>`
   font-size: 0.9rem;
 `
 
-const IconWrapper = styled.div`
-  width: 1.5rem;
-  height: 1.5rem;
-`
-
 type Props = {
   children: ReactNode
 }
 
 export default function NavigationLayout({ children }: Props) {
-  const { uniqueName: localUserUniqueName } = useRecoilValue(currentUser)
-
-  const { data, loading } = useMeQuery({ skip: Boolean(localUserUniqueName) })
-
-  const userUniqueName = data?.me?.uniqueName
-
   const { asPath } = useRouter()
-
-  const storeBucketUrl = `/@${(localUserUniqueName || userUniqueName) ?? ''}/store-buckets`
-  const menuBucketUrl = `/@${(localUserUniqueName || userUniqueName) ?? ''}/menu-buckets`
-  const myPageUrl = `/@${(localUserUniqueName || userUniqueName) ?? ''}`
 
   const doesNewsSelected = asPath.startsWith('/news')
   const doesTrendSelected = asPath.startsWith('/trends')
-  const doesHomeSelected = asPath === '/' || asPath === '/menus' || asPath === '/feed'
-  const doesHeartSelected = asPath === storeBucketUrl || asPath === menuBucketUrl
-  const doesPersonSelected = asPath === myPageUrl
 
   return (
     <>
@@ -85,43 +63,17 @@ export default function NavigationLayout({ children }: Props) {
 
       <FixedNavigation>
         <SClientSideLink
-          color={doesNewsSelected ? SOBOK_TEXT_COLOR : SOBOK_ACHROMATIC_COLOR}
+          color={doesNewsSelected ? ALPACA_SALON_TEXT_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}
           href="/news"
         >
-          <IconWrapper></IconWrapper>
           <div>소식</div>
         </SClientSideLink>
 
         <SClientSideLink
-          color={doesTrendSelected ? SOBOK_TEXT_COLOR : SOBOK_ACHROMATIC_COLOR}
+          color={doesTrendSelected ? ALPACA_SALON_TEXT_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}
           href="/trends"
         >
-          <IconWrapper></IconWrapper>
           <div>트렌드</div>
-        </SClientSideLink>
-
-        <SClientSideLink
-          color={doesHomeSelected ? SOBOK_TEXT_COLOR : SOBOK_ACHROMATIC_COLOR}
-          href="/"
-        >
-          <IconWrapper></IconWrapper>
-          <div>홈</div>
-        </SClientSideLink>
-
-        <SClientSideLink
-          color={doesHeartSelected ? SOBOK_TEXT_COLOR : SOBOK_ACHROMATIC_COLOR}
-          href={storeBucketUrl}
-        >
-          <IconWrapper></IconWrapper>
-          <div>버킷 {loading && 'loading...'}</div>
-        </SClientSideLink>
-
-        <SClientSideLink
-          color={doesPersonSelected ? SOBOK_TEXT_COLOR : SOBOK_ACHROMATIC_COLOR}
-          href={myPageUrl}
-        >
-          <IconWrapper></IconWrapper>
-          <div>MY {loading && 'loading...'}</div>
         </SClientSideLink>
       </FixedNavigation>
     </>

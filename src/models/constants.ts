@@ -2,16 +2,11 @@ export const MOBILE_MIN_WIDTH = '280px'
 export const TABLET_MIN_WIDTH = '560px'
 export const DESKTOP_MIN_WIDTH = '1024px'
 
-export const TOP_HEADER_HEIGHT = '4rem'
-export const NAVIGATION_HEIGHT = '4.5rem'
+export const ALPACA_SALON_COLOR = '#F5827D' // manifest.json 파일의 theme_color 필드랑 일치
+export const ALPACA_SALON_TEXT_COLOR = '#111'
+export const ALPACA_SALON_ACHROMATIC_COLOR = '#A3A3A3'
 
-export const SOBOK_COLOR = '#ff9f74'
-export const SOBOK_TEXT_COLOR = '#111'
-export const SOBOK_ACHROMATIC_COLOR = '#B7B7B7'
-
-export const PRIMARY_BACKGROUND_COLOR = '#FF9A88' // manifest.json 파일의 theme_color 필드랑 일치
-export const PRIMARY_TEXT_COLOR = '#FF5E3D'
-export const PRIMARY_ACHROMATIC_BACKGROUND_COLOR = '#B5B5B5'
+export const NAVIGATION_HEIGHT = '4rem'
 
 export const SECONDARY_BACKGROUND_COLOR = '#2fccba'
 export const SECONDARY_TEXT_COLOR = '#2fccba'
@@ -21,5 +16,5 @@ export const APPLICATION_SHORT_NAME = '알파카살롱'
 export const APPLICATION_NAME = '알파카살롱 (Alpaca salon)'
 export const CANONICAL_URL =
   process.env.NODE_ENV === 'production'
-    ? process.env.NEXT_PUBLIC_VERCEL_URL
+    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
     : 'http://localhost:3000'

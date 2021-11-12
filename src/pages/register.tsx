@@ -1,15 +1,9 @@
-import { LockTwoTone, UnlockTwoTone } from '@ant-design/icons'
 import { Button, Input } from 'antd'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import {
-  Gender,
-  useIsEmailUniqueLazyQuery,
-  useIsUniqueNameUniqueLazyQuery,
-  useRegisterMutation,
-} from 'src/graphql/generated/types-and-hooks'
+import { useRegisterMutation } from 'src/graphql/generated/types-and-hooks'
 import { MarginH4, RedText } from 'src/styles'
 
 type RegisterFormValues = {
@@ -18,7 +12,6 @@ type RegisterFormValues = {
   passwordHash: string
   name: string
   phone: string
-  gender: Gender
 }
 
 export const validateUniqueNameOrEmail = {
@@ -80,17 +73,8 @@ export default function RegisterPage() {
       passwordHash: '',
       name: '',
       phone: '',
-      gender: Gender.Other,
     },
   })
-
-  const [isUniqueNameUnique, isUniqueNameUniqueResult] = useIsUniqueNameUniqueLazyQuery()
-  const isUniqueNameUniqueLoading = isUniqueNameUniqueResult.loading
-  const isUniqueNameUniqueData = isUniqueNameUniqueResult.data?.isUniqueNameUnique
-
-  const [isEmailUnique, isEmailUniqueResult] = useIsEmailUniqueLazyQuery()
-  const isEmailUniqueLoading = isEmailUniqueResult.loading
-  const isEmailUniqueData = isEmailUniqueResult.data?.isEmailUnique
 
   const [register, { loading }] = useRegisterMutation({
     onCompleted: ({ register }) => {
@@ -99,13 +83,6 @@ export default function RegisterPage() {
     },
     onError: toastApolloError,
   })
-
-  function verifyId() {
-    isUniqueNameUnique({ variables: { uniqueName: getValues('uniqueName') } })
-  }
-  function verifyEmail() {
-    isEmailUnique({ variables: { email: getValues('email') } })
-  }
 
   function onSubmit(input: RegisterFormValues) {
     console.log(input)
@@ -123,23 +100,12 @@ export default function RegisterPage() {
             control={control}
             name="uniqueName"
             render={({ field }) => (
-              <Input
-                disabled={isUniqueNameUniqueLoading}
-                placeholder="밥은 대충 먹더라도"
-                size="large"
-                {...field}
-              />
+              <Input placeholder="밥은 대충 먹더라도" size="large" {...field} />
             )}
             rules={validateId}
           />
           <RedText>{errors.uniqueName ? errors.uniqueName.message : <br />}</RedText>
         </label>
-
-        <Button loading={isUniqueNameUniqueLoading} onClick={verifyId} size="large">
-          아이디 중복 검사
-        </Button>
-        {isUniqueNameUniqueData &&
-          (isUniqueNameUniqueData ? <div>사용 가능</div> : <RedText>중복</RedText>)}
 
         <label htmlFor="email">
           <MarginH4>이메일</MarginH4>
@@ -147,23 +113,12 @@ export default function RegisterPage() {
             control={control}
             name="email"
             render={({ field }) => (
-              <Input
-                disabled={isEmailUniqueLoading}
-                placeholder="밥은 대충 먹더라도"
-                size="large"
-                type="email"
-                {...field}
-              />
+              <Input placeholder="밥은 대충 먹더라도" size="large" type="email" {...field} />
             )}
             rules={validateEmail}
           />
           <RedText>{errors.email ? errors.email.message : <br />}</RedText>
         </label>
-
-        <Button loading={isEmailUniqueLoading} onClick={verifyEmail} size="large">
-          이메일 중복 검사
-        </Button>
-        {isEmailUniqueData && (isEmailUniqueData ? <div>사용 가능</div> : <RedText>중복</RedText>)}
       </form>
     </PageHead>
   )
