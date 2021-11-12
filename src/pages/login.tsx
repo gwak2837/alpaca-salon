@@ -12,7 +12,6 @@ import { RedText } from 'src/styles'
 import { ko2en } from 'src/utils'
 import styled from 'styled-components'
 
-import SobokLogo from '../svgs/sobok-logo.svg'
 import { validateId, validatePassword } from './register'
 
 const Padding = styled.div`
@@ -134,10 +133,6 @@ export default function LoginPage() {
   return (
     <PageHead title="로그인 - 알파카살롱" description={description}>
       <Padding>
-        <LogoWrapper>
-          <SobokLogo onClick={() => router.push('/')} />
-        </LogoWrapper>
-
         <form onSubmit={handleSubmit(login)}>
           <GridContainer>
             <Controller
