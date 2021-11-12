@@ -45,19 +45,6 @@ const GridContainer = styled.div`
   background: #fff;
 `
 
-const LogoWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 1fr 1fr 0.5fr;
-
-  svg {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-    width: 100%; // for safari
-    cursor: pointer;
-  }
-`
-
 const BlackText = styled.span`
   color: black;
   cursor: pointer;
