@@ -1,0 +1,14 @@
+query StoreDetail($storeId: ID!) {
+  store(id: $storeId) {
+    id
+    tel
+    address
+    latitude
+    longitude
+    registrationNumber
+    businessHours
+    holidays
+    categories
+    hashtags
+  }
+}

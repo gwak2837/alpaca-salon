@@ -1,0 +1,6 @@
+mutation Login($uniqueNameOrEmail: NonEmptyString!, $passwordHash: NonEmptyString!) {
+  login(uniqueNameOrEmail: $uniqueNameOrEmail, passwordHash: $passwordHash) {
+    userUniqueName
+    jwt
+  }
+}

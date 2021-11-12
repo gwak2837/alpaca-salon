@@ -1,0 +1,11 @@
+import PageHead from 'src/components/PageHead'
+
+const description = ''
+
+export default function CommentPage() {
+  return (
+    <PageHead title=" - 알파카살롱" description={description}>
+      피드 댓글
+    </PageHead>
+  )
+}
