@@ -1,3 +1,0 @@
-query IsUniqueNameUnique($uniqueName: NonEmptyString!) {
-  isUniqueNameUnique(uniqueName: $uniqueName)
-}
