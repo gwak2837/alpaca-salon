@@ -1,0 +1,12 @@
+fragment postCard on Post {
+  id
+  creationTime
+  modificationTime
+  title
+  contents
+  category
+  user {
+    id
+    nickname
+  }
+}
