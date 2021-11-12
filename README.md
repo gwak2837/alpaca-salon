@@ -124,3 +124,9 @@ $ yarn build
 ```
 
 결과물에 웹 서버가 포함되도록 동적으로 빌드합니다. 이 경우 결과물에 웹 서버 로직, JSON, HTML, CSS, JS 등이 포함됩니다.
+
+```
+# https://github.com/integrations/slack#subscribing-and-unsubscribing
+/github subscribe rmfpdlxmtidl/alpaca-salon commits:* reviews comments
+/github unsubscribe rmfpdlxmtidl/alpaca-salon deployments
+```
