@@ -12,7 +12,7 @@ type Props = {
 export default function PageHead({
   children,
   title = APPLICATION_NAME,
-  description = '알파카살롱은 내가 원하는 디저트를 쉽고 빠르게 고를 수 있는 온라인 디저트 검색 서비스입니다.',
+  description = '알파카살롱은 X세대가 모여서 자유롭게 자신의 이야기를 하면서 놀 수 있는 공간입니다.',
 }: Props) {
   const { pathname } = useRouter()
 
