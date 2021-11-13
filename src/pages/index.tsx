@@ -1,14 +1,21 @@
 import { Carousel } from 'antd'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { ReactElement, useState } from 'react'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
 import { usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
-import HomeLayout from 'src/layouts/HomeLayout'
 import NavigationLayout from 'src/layouts/NavigationLayout'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
 import styled from 'styled-components'
+
+const FlexContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+  padding: 1rem;
+`
 
 const CarouselDiv = styled.div`
   position: relative;
@@ -34,6 +41,7 @@ const limit = 2
 
 export default function HomePage() {
   const [hasMoreData, setHasMoreData] = useState(true)
+  const router = useRouter()
 
   // 데이터 요청
   const { data, loading, fetchMore } = usePostsQuery({
@@ -76,25 +84,22 @@ export default function HomePage() {
 
   return (
     <PageHead>
+      <FlexContainer>
+        <h3>알파카살롱</h3>
+        <button onClick={() => router.push('/login')}>로그인</button>
+      </FlexContainer>
+
       <Carousel autoplay>
-        <CarouselDiv>
-          <Image src="/images/carousel@3x.webp" alt="carousel" layout="fill" />
-        </CarouselDiv>
-        <CarouselDiv>
-          <Image src="/images/carousel@3x.webp" alt="carousel" layout="fill" />
-        </CarouselDiv>
-        <CarouselDiv>
-          <Image src="/images/carousel@3x.webp" alt="carousel" layout="fill" />
-        </CarouselDiv>
-        <CarouselDiv>
-          <Image src="/images/carousel@3x.webp" alt="carousel" layout="fill" />
-        </CarouselDiv>
+        <CarouselDiv>배너1</CarouselDiv>
+        <CarouselDiv>배너2</CarouselDiv>
+        <CarouselDiv>배너3</CarouselDiv>
+        <CarouselDiv>배너4</CarouselDiv>
       </Carousel>
 
       <GridContainerStore>
         {posts
           ? posts.map((post, i) => <div key={i}>{JSON.stringify(post, null, 2)}</div>)
-          : !loading && <div>매장이 없어요</div>}
+          : !loading && <div>글이 없어요</div>}
         {loading && <div>loading...</div>}
       </GridContainerStore>
 
@@ -104,9 +109,5 @@ export default function HomePage() {
 }
 
 HomePage.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <NavigationLayout>
-      <HomeLayout>{page}</HomeLayout>
-    </NavigationLayout>
-  )
+  return <NavigationLayout>{page}</NavigationLayout>
 }
