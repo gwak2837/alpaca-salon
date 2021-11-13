@@ -98,7 +98,7 @@ export default function HomePage() {
 
       <GridContainerStore>
         {posts
-          ? posts.map((post, i) => <div key={i}>{JSON.stringify(post, null, 2)}</div>)
+          ? posts.map((post, i) => <pre key={i}>{JSON.stringify(post, null, 2)}</pre>)
           : !loading && <div>글이 없어요</div>}
         {loading && <div>loading...</div>}
       </GridContainerStore>
