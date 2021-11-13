@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { ReactNode } from 'react'
 import {
@@ -18,7 +19,7 @@ const FixedNavigation = styled.nav`
   z-index: 1;
 
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   justify-items: center;
   align-items: center;
 
@@ -29,7 +30,7 @@ const FixedNavigation = styled.nav`
   background-color: #fff;
 `
 
-const SClientSideLink = styled.a<{ color: string }>`
+const A = styled.a<{ color: string }>`
   color: ${(p) => p.color};
 
   :hover {
@@ -53,8 +54,8 @@ type Props = {
 export default function NavigationLayout({ children }: Props) {
   const { asPath } = useRouter()
 
-  const doesNewsSelected = asPath.startsWith('/news')
-  const doesTrendSelected = asPath.startsWith('/trends')
+  const doesPostListSelected = asPath === '/'
+  const doesEventListSelected = asPath.startsWith('/event')
 
   return (
     <>
@@ -62,19 +63,19 @@ export default function NavigationLayout({ children }: Props) {
       <Padding />
 
       <FixedNavigation>
-        <SClientSideLink
-          color={doesNewsSelected ? ALPACA_SALON_TEXT_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}
-          href="/news"
-        >
-          <div>소식</div>
-        </SClientSideLink>
+        <Link href="/" passHref>
+          <A color={doesPostListSelected ? ALPACA_SALON_TEXT_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}>
+            <div>게시판</div>
+          </A>
+        </Link>
 
-        <SClientSideLink
-          color={doesTrendSelected ? ALPACA_SALON_TEXT_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}
-          href="/trends"
-        >
-          <div>트렌드</div>
-        </SClientSideLink>
+        <Link href="/event" passHref>
+          <A
+            color={doesEventListSelected ? ALPACA_SALON_TEXT_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}
+          >
+            <div>생생 수다</div>
+          </A>
+        </Link>
       </FixedNavigation>
     </>
   )
