@@ -1,10 +1,12 @@
 import { Button, Input } from 'antd'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useSetRecoilState } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
+import Checkbox from 'src/components/atoms/Checkbox'
 import PageHead from 'src/components/PageHead'
 import { useLoginMutation } from 'src/graphql/generated/types-and-hooks'
 import { currentUser } from 'src/models/recoil'
@@ -12,6 +14,8 @@ import { RedText } from 'src/styles'
 import { ko2en } from 'src/utils'
 import styled from 'styled-components'
 
+import EmailIcon from '../svgs/EmailIcon'
+import PasswordIcon from '../svgs/PasswordIcon'
 import { validateId, validatePassword } from './register'
 
 const Padding = styled.div`
@@ -45,10 +49,43 @@ const GridContainer = styled.div`
   background: #fff;
 `
 
+const LogoWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr 0.5fr;
+
+  position: relative;
+
+  > span {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    width: 100%; // for safari
+    cursor: pointer;
+  }
+`
+
 const BlackText = styled.span`
   color: black;
   cursor: pointer;
   padding: 0.5rem;
+`
+
+const EmailIconWraptper = styled.div`
+  width: 1.5rem;
+
+  svg {
+    display: block;
+    margin: auto;
+  }
+`
+
+const PasswordIconWraptper = styled.div`
+  width: 1rem;
+
+  svg {
+    display: block;
+    margin: auto;
+  }
 `
 
 const HorizontalLine = styled.div`
@@ -85,10 +122,11 @@ export default function LoginPage() {
     formState: { errors },
     getValues,
     handleSubmit,
+    watch,
   } = useForm<LoginFormValues>({
     defaultValues: {
-      uniqueNameOrEmail: 'bok@sindy.in',
-      password: 'sobok123!',
+      uniqueNameOrEmail: 'alpacasalon@alpacasalon.in',
+      password: 'alpacasalon@alpacasalon.in',
       remember: false,
     },
   })
@@ -118,10 +156,17 @@ export default function LoginPage() {
   }
 
   return (
-    <PageHead title="로그인 - 알파카살롱" description={description}>
+    <PageHead title="로그인 - 소복" description={description}>
       <Padding>
+        <LogoWrapper>
+          <Image src="/images/icon.png" alt="/images/icon.png" width="300" height="300" />
+        </LogoWrapper>
+
         <form onSubmit={handleSubmit(login)}>
           <GridContainer>
+            <EmailIconWraptper>
+              <EmailIcon colored={Boolean(watch('uniqueNameOrEmail'))} />
+            </EmailIconWraptper>
             <Controller
               control={control}
               name="uniqueNameOrEmail"
@@ -133,6 +178,9 @@ export default function LoginPage() {
 
             <HorizontalLine />
 
+            <PasswordIconWraptper>
+              <PasswordIcon colored={Boolean(watch('password'))} />
+            </PasswordIconWraptper>
             <Controller
               control={control}
               name="password"
@@ -151,15 +199,29 @@ export default function LoginPage() {
 
           <RedText>{errors.uniqueNameOrEmail?.message || errors.password?.message}</RedText>
 
+          <Padding1>
+            <Controller
+              control={control}
+              name="remember"
+              render={({ field }) => (
+                <Checkbox checked={field.value} disabled={loading} {...field}>
+                  로그인 유지
+                </Checkbox>
+              )}
+            />
+          </Padding1>
+
           <StyledButton loading={loading} htmlType="submit" size="large" type="primary">
             로그인
           </StyledButton>
 
           <Padding4 />
 
-          <StyledButton loading={loading} htmlType="submit" size="large">
-            간편 로그인
-          </StyledButton>
+          <a
+            href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`}
+          >
+            카카오 간편 로그인
+          </a>
 
           <Padding1 />
 
