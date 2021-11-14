@@ -3,6 +3,11 @@ import React, { useEffect, useState } from 'react'
 import PageHead from 'src/components/PageHead'
 import styled from 'styled-components'
 
+type RegisterFormValues = {
+  nickname: string
+  phone: string
+}
+
 const description = ''
 
 export default function EventDetailPage() {

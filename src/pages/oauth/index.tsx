@@ -5,7 +5,6 @@ import styled from 'styled-components'
 
 const description = ''
 
-
 export default function EventDetailPage() {
   const [userInfo, setUserInfo] = useState('')
 

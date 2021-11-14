@@ -10,13 +10,13 @@ const httpLink = createHttpLink({
 
 // Authenticate using HTTP header
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('token') ?? sessionStorage.getItem('token')
+  const jwt = localStorage.getItem('jwt') ?? sessionStorage.getItem('jwt')
 
   // return the headers to the context so httpLink can read them
   return {
     headers: {
       ...headers,
-      authorization: token || '',
+      authorization: jwt || '',
     },
   }
 })

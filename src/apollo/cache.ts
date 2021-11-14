@@ -20,18 +20,6 @@ const cache = new InMemoryCache({
           merge: infiniteScroll,
           keyArgs: ['town', 'category', 'order'],
         },
-        feedListByTown: {
-          merge: infiniteScroll,
-          keyArgs: ['town', 'option', 'order'],
-        },
-        newsListByTown: {
-          merge: infiniteScroll,
-          keyArgs: ['categories', 'option', 'order', 'town'],
-        },
-        newsListByStore: {
-          merge: infiniteScroll,
-          keyArgs: ['categories', 'storeId', 'order'],
-        },
       },
     },
   },
