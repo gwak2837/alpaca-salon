@@ -1,14 +1,10 @@
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import PageHead from 'src/components/PageHead'
-import useQueryString from 'src/hooks/useQueryString'
 import styled from 'styled-components'
 
 const description = ''
 
-const Div = styled.div`
-  max-width: 400px;
-`
 
 export default function EventDetailPage() {
   const [userInfo, setUserInfo] = useState('')
