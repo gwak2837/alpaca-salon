@@ -15,6 +15,7 @@ import { ko2en } from 'src/utils'
 import styled from 'styled-components'
 
 import EmailIcon from '../svgs/EmailIcon'
+import KakaoIcon from '../svgs/kakao-icon.svg'
 import PasswordIcon from '../svgs/PasswordIcon'
 import { validateId, validatePassword } from './register'
 
@@ -104,6 +105,31 @@ const CenterText = styled.div`
   text-align: center;
 `
 
+const KakaoButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+
+  width: 100%;
+  background: #fee500;
+  padding: 1rem;
+  transition: background 0.3s ease-in;
+  border-radius: 2px;
+
+  :hover {
+    background: #fee500c0;
+  }
+
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+  }
+`
+
 type LoginFormValues = {
   uniqueNameOrEmail: string
   password: string
@@ -125,8 +151,8 @@ export default function LoginPage() {
     watch,
   } = useForm<LoginFormValues>({
     defaultValues: {
-      uniqueNameOrEmail: 'alpacasalon@alpacasalon.in',
-      password: 'alpacasalon@alpacasalon.in',
+      uniqueNameOrEmail: 'alpaca@salon.in',
+      password: 'alpaca@salon.in',
       remember: false,
     },
   })
@@ -217,11 +243,16 @@ export default function LoginPage() {
 
           <Padding4 />
 
-          <a
-            href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`}
+          <KakaoButton
+            onClick={() =>
+              router.push(
+                `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`
+              )
+            }
           >
-            카카오 간편 로그인
-          </a>
+            <KakaoIcon />
+            카카오 로그인
+          </KakaoButton>
 
           <Padding1 />
 
