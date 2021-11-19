@@ -2,12 +2,14 @@ import { Carousel } from 'antd'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { ReactElement, useState } from 'react'
+import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
 import { usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import NavigationLayout from 'src/layouts/NavigationLayout'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
+import { currentUser } from 'src/models/recoil'
 import styled from 'styled-components'
 
 const FlexContainer = styled.div`
@@ -42,6 +44,7 @@ const limit = 2
 export default function HomePage() {
   const [hasMoreData, setHasMoreData] = useState(true)
   const router = useRouter()
+  const { uniqueName } = useRecoilValue(currentUser)
 
   // 데이터 요청
   const { data, loading, fetchMore } = usePostsQuery({
@@ -86,7 +89,11 @@ export default function HomePage() {
     <PageHead>
       <FlexContainer>
         <h3>알파카살롱</h3>
-        <button onClick={() => router.push('/login')}>로그인</button>
+        {uniqueName ? (
+          <button onClick={() => router.push(`/@${uniqueName}`)}>마이페이지</button>
+        ) : (
+          <button onClick={() => router.push('/login')}>로그인</button>
+        )}
       </FlexContainer>
 
       <Carousel autoplay>

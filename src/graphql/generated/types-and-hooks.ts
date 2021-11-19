@@ -41,8 +41,15 @@ export type Comment = {
   user: User
 }
 
+export enum Gender {
+  Female = 'FEMALE',
+  Male = 'MALE',
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
+  createPost?: Maybe<Post>
+  deletePost?: Maybe<Post>
   /** 고유 이름 또는 이메일과 비밀번호를 전송하면 JWT 인증 토큰을 반환함 */
   login?: Maybe<UserAuthentication>
   /** JWT 인증 토큰과 같이 요청하면 로그아웃 성공 여부를 반환함 */
@@ -50,7 +57,17 @@ export type Mutation = {
   /** 회원가입에 필요한 정보를 주면 성공했을 때 인증 토큰을 반환함 */
   register?: Maybe<UserAuthentication>
   /** 회원탈퇴 시 사용자 정보가 모두 초기화됩 */
-  unregister: Scalars['Boolean']
+  unregister?: Maybe<User>
+  updatePost?: Maybe<Post>
+  updateUser?: Maybe<User>
+}
+
+export type MutationCreatePostArgs = {
+  input: PostCreationInput
+}
+
+export type MutationDeletePostArgs = {
+  id: Scalars['ID']
 }
 
 export type MutationLoginArgs = {
@@ -60,6 +77,14 @@ export type MutationLoginArgs = {
 
 export type MutationRegisterArgs = {
   input: RegisterInput
+}
+
+export type MutationUpdatePostArgs = {
+  input: PostModificationInput
+}
+
+export type MutationUpdateUserArgs = {
+  input: UserModificationInput
 }
 
 /** 기본값: 내림차순 */
@@ -76,6 +101,7 @@ export type Pagination = {
 export type Post = {
   __typename?: 'Post'
   category: PostCategory
+  commentCount: Scalars['PositiveInt']
   contents: Scalars['NonEmptyString']
   creationTime: Scalars['DateTime']
   /** 피드에 달린 해시태그 */
@@ -92,6 +118,19 @@ export type Post = {
 export enum PostCategory {
   FreeTopic = 'FREE_TOPIC',
   Menopause = 'MENOPAUSE',
+}
+
+export type PostCreationInput = {
+  category?: Maybe<PostCategory>
+  contents?: Maybe<Scalars['String']>
+  title?: Maybe<Scalars['String']>
+}
+
+export type PostModificationInput = {
+  category?: Maybe<PostCategory>
+  contents?: Maybe<Scalars['String']>
+  id: Scalars['ID']
+  title?: Maybe<Scalars['String']>
 }
 
 /** OAuth 공급자 */
@@ -111,7 +150,7 @@ export type Query = {
   /** 좋아요 누른 댓글 */
   likedComments?: Maybe<Array<Comment>>
   /** 인증 토큰과 같이 요청하면 사용자 정보를 반환 */
-  me: User
+  me?: Maybe<User>
   /** 내가 쓴 댓글 */
   myComments?: Maybe<Array<Comment>>
   /** 글 상세 */
@@ -161,29 +200,40 @@ export type RegisterInput = {
 
 export type User = {
   __typename?: 'User'
-  bio?: Maybe<Scalars['String']>
-  birth?: Maybe<Scalars['Date']>
+  ageRange?: Maybe<Scalars['NonEmptyString']>
+  bio?: Maybe<Scalars['NonEmptyString']>
+  birthday?: Maybe<Scalars['NonEmptyString']>
   creationTime: Scalars['DateTime']
   email: Scalars['EmailAddress']
   feedCount: Scalars['Int']
   followerCount: Scalars['Int']
   followingCount: Scalars['Int']
+  gender?: Maybe<Gender>
   id: Scalars['UUID']
   imageUrl?: Maybe<Scalars['URL']>
-  isEmailVerified: Scalars['Boolean']
-  isStarUser: Scalars['Boolean']
   modificationTime: Scalars['DateTime']
-  name: Scalars['NonEmptyString']
-  nickname?: Maybe<Scalars['String']>
-  phone: Scalars['NonEmptyString']
+  nickname: Scalars['NonEmptyString']
+  phone?: Maybe<Scalars['NonEmptyString']>
   providers: Array<Provider>
-  uniqueName: Scalars['NonEmptyString']
+  uniqueName?: Maybe<Scalars['NonEmptyString']>
 }
 
 export type UserAuthentication = {
   __typename?: 'UserAuthentication'
   jwt: Scalars['JWT']
   userUniqueName: Scalars['NonEmptyString']
+}
+
+export type UserModificationInput = {
+  ageRange?: Maybe<Scalars['NonEmptyString']>
+  bio?: Maybe<Scalars['String']>
+  birthday?: Maybe<Scalars['NonEmptyString']>
+  email?: Maybe<Scalars['EmailAddress']>
+  gender?: Maybe<Gender>
+  imageUrl?: Maybe<Scalars['URL']>
+  nickname?: Maybe<Scalars['NonEmptyString']>
+  phoneNumber?: Maybe<Scalars['NonEmptyString']>
+  uniqueName?: Maybe<Scalars['NonEmptyString']>
 }
 
 export type PostCardFragment = {
@@ -194,7 +244,7 @@ export type PostCardFragment = {
   title: any
   contents: any
   category: PostCategory
-  user: { __typename?: 'User'; id: any; nickname?: string | null | undefined }
+  user: { __typename?: 'User'; id: any; nickname: any }
 }
 
 export type LoginMutationVariables = Exact<{
@@ -220,6 +270,25 @@ export type RegisterMutation = {
   register?: { __typename?: 'UserAuthentication'; userUniqueName: any; jwt: any } | null | undefined
 }
 
+export type UpdateUserMutationVariables = Exact<{
+  input: UserModificationInput
+}>
+
+export type UpdateUserMutation = {
+  __typename?: 'Mutation'
+  updateUser?:
+    | { __typename?: 'User'; id: any; uniqueName?: any | null | undefined }
+    | null
+    | undefined
+}
+
+export type MeQueryVariables = Exact<{ [key: string]: never }>
+
+export type MeQuery = {
+  __typename?: 'Query'
+  me?: { __typename?: 'User'; id: any; uniqueName?: any | null | undefined } | null | undefined
+}
+
 export type PostsQueryVariables = Exact<{
   pagination: Pagination
 }>
@@ -235,7 +304,7 @@ export type PostsQuery = {
         title: any
         contents: any
         category: PostCategory
-        user: { __typename?: 'User'; id: any; nickname?: string | null | undefined }
+        user: { __typename?: 'User'; id: any; nickname: any }
       }>
     | null
     | undefined
@@ -369,6 +438,88 @@ export type RegisterMutationOptions = Apollo.BaseMutationOptions<
   RegisterMutation,
   RegisterMutationVariables
 >
+export const UpdateUserDocument = gql`
+  mutation UpdateUser($input: UserModificationInput!) {
+    updateUser(input: $input) {
+      id
+      uniqueName
+    }
+  }
+`
+export type UpdateUserMutationFn = Apollo.MutationFunction<
+  UpdateUserMutation,
+  UpdateUserMutationVariables
+>
+
+/**
+ * __useUpdateUserMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserMutation, { data, loading, error }] = useUpdateUserMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateUserMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(
+    UpdateUserDocument,
+    options
+  )
+}
+export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>
+export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>
+export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
+  UpdateUserMutation,
+  UpdateUserMutationVariables
+>
+export const MeDocument = gql`
+  query Me {
+    me {
+      id
+      uniqueName
+    }
+  }
+`
+
+/**
+ * __useMeQuery__
+ *
+ * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options)
+}
+export function useMeLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options)
+}
+export type MeQueryHookResult = ReturnType<typeof useMeQuery>
+export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>
+export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>
 export const PostsDocument = gql`
   query Posts($pagination: Pagination!) {
     posts(pagination: $pagination) {

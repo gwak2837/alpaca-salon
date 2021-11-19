@@ -11,11 +11,15 @@ import type { AppProps } from 'next/app'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import type { ReactElement, ReactNode } from 'react'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { ToastContainer, cssTransition } from 'react-toastify'
-import { RecoilRoot } from 'recoil'
+import { RecoilRoot, useRecoilState } from 'recoil'
 import { client } from 'src/apollo/client'
+import { toastApolloError } from 'src/apollo/error'
+import CurrentUser from 'src/components/CurrentUser'
+import { useMeQuery } from 'src/graphql/generated/types-and-hooks'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
+import { currentUser } from 'src/models/recoil'
 import { pageview } from 'src/utils/google-analytics'
 import styled from 'styled-components'
 
@@ -36,9 +40,8 @@ type AppPropsWithLayout = AppProps & {
 }
 
 export default function AlpacaSalonApp({ Component, pageProps }: AppPropsWithLayout) {
-  const router = useRouter()
-
   const getLayout = Component.getLayout
+  const router = useRouter()
 
   // Google Analytics 초기 설정
   useEffect(() => {
@@ -59,7 +62,9 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppPropsWithLay
       <MaxWidth>
         <ApolloProvider client={client}>
           <RecoilRoot>
-            {getLayout ? getLayout(<Component {...pageProps} />) : <Component {...pageProps} />}
+            <CurrentUser>
+              {getLayout ? getLayout(<Component {...pageProps} />) : <Component {...pageProps} />}
+            </CurrentUser>
           </RecoilRoot>
         </ApolloProvider>
       </MaxWidth>
