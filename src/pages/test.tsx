@@ -36,7 +36,7 @@ function randomNotification() {
     icon: notifImg,
   }
   new Notification(notifTitle, options)
-  setTimeout(randomNotification, 30000)
+  setTimeout(randomNotification, 5000)
 }
 
 export default function TestPage() {

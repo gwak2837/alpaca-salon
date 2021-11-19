@@ -140,7 +140,6 @@ const description = '알파카살롱에 로그인하세요'
 
 export default function LoginPage() {
   const setCurrentUser = useSetRecoilState(currentUser)
-
   const router = useRouter()
 
   const {
@@ -182,7 +181,7 @@ export default function LoginPage() {
   }
 
   return (
-    <PageHead title="로그인 - 소복" description={description}>
+    <PageHead title="로그인 - 알파카살롱" description={description}>
       <Padding>
         <LogoWrapper>
           <Image src="/images/icon.png" alt="/images/icon.png" width="300" height="300" />
