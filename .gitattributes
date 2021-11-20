@@ -9,3 +9,8 @@
 *.ico binary
 *.webp binary
 *.pdf binary
+
+*.otf binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
