@@ -15,15 +15,26 @@ import styled from 'styled-components'
 const FlexContainer = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
 
   padding: 1rem;
 `
 
-const CarouselDiv = styled.div`
+const PageTitle = styled.h2`
+  font-family: 'tvN EnjoystoriesOTF';
+`
+
+const Button = styled.button`
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+`
+
+const Frame16to11 = styled.div`
   position: relative;
-  height: 9.7rem;
-  line-height: 160px;
-  text-align: center;
+  padding-top: 68.75%;
+
   background: #f6f6f6;
 `
 
@@ -88,19 +99,24 @@ export default function HomePage() {
   return (
     <PageHead>
       <FlexContainer>
-        <h3>알파카살롱</h3>
+        <PageTitle>알파카살롱</PageTitle>
         {uniqueName ? (
-          <button onClick={() => router.push(`/@${uniqueName}`)}>마이페이지</button>
+          <Button onClick={() => router.push(`/@${uniqueName}`)}>마이페이지</Button>
         ) : (
-          <button onClick={() => router.push('/login')}>로그인</button>
+          <Button onClick={() => router.push('/login')}>로그인</Button>
         )}
       </FlexContainer>
 
       <Carousel autoplay>
-        <CarouselDiv>배너1</CarouselDiv>
-        <CarouselDiv>배너2</CarouselDiv>
-        <CarouselDiv>배너3</CarouselDiv>
-        <CarouselDiv>배너4</CarouselDiv>
+        <Frame16to11>
+          <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="cover" />
+        </Frame16to11>
+        <Frame16to11>
+          <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="cover" />
+        </Frame16to11>
+        <Frame16to11>
+          <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="cover" />
+        </Frame16to11>
       </Carousel>
 
       <GridContainerStore>

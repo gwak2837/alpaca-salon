@@ -30,10 +30,7 @@ export default function EventDetailPage() {
 
   return (
     <PageHead title=" - 알파카살롱" description={description}>
-      소셜 로그인 성공
-      <Link href="/" passHref>
-        <a>홈으로</a>
-      </Link>
+      소셜 로그인 성공. 잠시만 기다려주세요
     </PageHead>
   )
 }
