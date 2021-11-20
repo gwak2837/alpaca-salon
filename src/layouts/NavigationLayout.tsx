@@ -1,12 +1,32 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { ReactNode } from 'react'
-import { ALPACA_SALON_ACHROMATIC_COLOR, NAVIGATION_HEIGHT } from 'src/models/constants'
+import {
+  ALPACA_SALON_ACHROMATIC_COLOR,
+  ALPACA_SALON_COLOR,
+  NAVIGATION_HEIGHT,
+} from 'src/models/constants'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
+import PostIcon from 'src/svgs/PostIcon'
+import VideoIcon from 'src/svgs/VideoIcon'
 import styled from 'styled-components'
 
 const Padding = styled.div`
   padding-top: ${NAVIGATION_HEIGHT};
+`
+
+const PostIconWrapper = styled.div`
+  width: 1.1rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+`
+
+const VideoIconWrapper = styled.div`
+  width: 1.3rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
 `
 
 const FixedNavigation = styled.nav`
@@ -30,11 +50,11 @@ const A = styled.a<{ color: string }>`
   color: ${(p) => p.color};
 
   :hover {
-    color: #000;
+    color: ${ALPACA_SALON_COLOR};
   }
 
   display: flex;
-  flex-flow: column nowrap;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
@@ -60,13 +80,19 @@ export default function NavigationLayout({ children }: Props) {
 
       <FixedNavigation>
         <Link href="/" passHref>
-          <A color={doesPostListSelected ? '#000' : ALPACA_SALON_ACHROMATIC_COLOR}>
+          <A color={doesPostListSelected ? ALPACA_SALON_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}>
+            <PostIconWrapper>
+              <PostIcon selected={doesPostListSelected} />
+            </PostIconWrapper>
             <div>게시판</div>
           </A>
         </Link>
 
         <Link href="/event" passHref>
-          <A color={doesEventListSelected ? '#000' : ALPACA_SALON_ACHROMATIC_COLOR}>
+          <A color={doesEventListSelected ? ALPACA_SALON_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}>
+            <VideoIconWrapper>
+              <VideoIcon selected={doesEventListSelected} />
+            </VideoIconWrapper>
             <div>생생 수다</div>
           </A>
         </Link>

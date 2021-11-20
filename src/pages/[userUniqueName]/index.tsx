@@ -1,15 +1,11 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React, { ReactElement } from 'react'
 import { PrimaryButton } from 'src/components/atoms/Button'
 import PageHead from 'src/components/PageHead'
 import { useUserByNameQuery } from 'src/graphql/generated/types-and-hooks'
 import NavigationLayout from 'src/layouts/NavigationLayout'
-import {
-  ALPACA_SALON_BACKGROUND_COLOR,
-  ALPACA_SALON_COLOR,
-  NAVIGATION_HEIGHT,
-} from 'src/models/constants'
+import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
+import BackIcon from 'src/svgs/back-icon.svg'
 import HeartIcon from 'src/svgs/HeartIcon'
 import { getUserUniqueName } from 'src/utils'
 import styled from 'styled-components'
@@ -17,18 +13,22 @@ import styled from 'styled-components'
 const FlexContainerHeight100 = styled.div`
   display: flex;
   flex-flow: column;
-  height: calc(100vh - ${NAVIGATION_HEIGHT});
+  height: 100vh;
 
   > :last-child {
     flex-grow: 1;
   }
 `
 
-const PageTitle = styled.h2`
-  margin: 0.5rem;
+const TitleIconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  margin: 1rem;
 `
 
-const GridContainer2 = styled.div`
+const GridContainerTemplate = styled.div`
   display: grid;
   grid-template-columns: 1fr 1.1fr 1fr;
   grid-template-rows: 0.5fr 1fr;
@@ -41,13 +41,11 @@ const GridContainer2 = styled.div`
   }
 `
 
-const GridContainer = styled.div`
+const GridContainerButtons = styled.div`
   display: grid;
   gap: 1rem;
-  padding: 0.5rem;
 
-  position: sticky;
-  bottom: 0;
+  padding: 1rem 0.5rem;
 `
 
 const Wrapper = styled.div`
@@ -85,6 +83,7 @@ const PrimaryColorText = styled.h4`
 `
 
 const description = '알파카의 정보를 알아보세요'
+
 export default function UserPage() {
   const router = useRouter()
   const userUniqueName = getUserUniqueName(router)
@@ -96,20 +95,27 @@ export default function UserPage() {
 
   const user = data?.userByName
 
+  function goBack() {
+    router.back()
+  }
+
   return (
     <PageHead title={`@${userUniqueName} - 알파카살롱`} description={description}>
       <FlexContainerHeight100>
         <div>
-          <PageTitle>마이페이지</PageTitle>
+          <TitleIconWrapper onClick={goBack}>
+            <BackIcon />
+            <h2>마이페이지</h2>
+          </TitleIconWrapper>
 
-          <GridContainer2>
+          <GridContainerTemplate>
             <Image
               src={user?.imageUrl ?? '/images/default-profile-image.webp'}
               alt="profile-image"
               width="200"
               height="200"
             />
-          </GridContainer2>
+          </GridContainerTemplate>
 
           <Nickname>{user?.nickname ?? '닉네임'}</Nickname>
 
@@ -124,16 +130,12 @@ export default function UserPage() {
         </div>
 
         <FlexContainerEnd>
-          <GridContainer>
+          <GridContainerButtons>
             <PrimaryButton>로그아웃</PrimaryButton>
             <PrimaryButton disabled>회원탈퇴</PrimaryButton>
-          </GridContainer>
+          </GridContainerButtons>
         </FlexContainerEnd>
       </FlexContainerHeight100>
     </PageHead>
   )
-}
-
-UserPage.getLayout = function getLayout(page: ReactElement) {
-  return <NavigationLayout>{page}</NavigationLayout>
 }

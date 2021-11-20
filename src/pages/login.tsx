@@ -37,7 +37,7 @@ const KakaoButton = styled.div`
   background: #fee500;
   padding: 1rem;
   transition: background 0.3s ease-in;
-  border-radius: 2px;
+  border-radius: 10px;
 
   :hover {
     background: #fee500c0;

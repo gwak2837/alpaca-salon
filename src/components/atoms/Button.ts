@@ -1,8 +1,8 @@
-import { ALPACA_SALON_ACHROMATIC_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
 import styled from 'styled-components'
 
 export const PrimaryButton = styled.button<{ disabled?: boolean }>`
-  background: ${(p) => (p.disabled ? ALPACA_SALON_ACHROMATIC_COLOR : ALPACA_SALON_COLOR)};
+  background: ${(p) => (p.disabled ? ALPACA_SALON_GREY_COLOR : ALPACA_SALON_COLOR)};
   border: none;
   border-radius: 10px;
   color: #fff;
@@ -12,7 +12,7 @@ export const PrimaryButton = styled.button<{ disabled?: boolean }>`
   cursor: pointer;
 
   :hover {
-    background: ${(p) => (p.disabled ? ALPACA_SALON_ACHROMATIC_COLOR : ALPACA_SALON_COLOR)}e0;
+    background: ${(p) => (p.disabled ? ALPACA_SALON_GREY_COLOR : ALPACA_SALON_COLOR)}e0;
   }
   transition: background 0.3s ease-out;
 `
