@@ -42,8 +42,13 @@ export default class AlpacaSalonDocument extends Document {
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
           <link
-            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Roboto:wght@300;400;500;700&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Roboto&display=swap"
             rel="stylesheet"
+          />
+          <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard-dynamic-subset.css"
           />
           <link rel="shortcut icon" href="/images/shortcut-icon.png" />
           <link rel="icon" href="/images/icon.png" />

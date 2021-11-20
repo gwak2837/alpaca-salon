@@ -1,21 +1,20 @@
 html,
 body {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 @media (max-width: 560px) {
   html,
   body {
-    font-size: 14px;
+    font-size: 16px;
   }
 }
 
 body {
   padding: 0;
-  color: #111;
-  background-color: #fcfcfc;
-  font-family: 'Noto Sans KR', 'Roboto', -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
-    sans-serif;
+  color: #000;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue',
+    'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   line-height: normal;
   word-break: keep-all;
 }
@@ -50,4 +49,9 @@ a {
 
 a:hover {
   color: #111;
+}
+
+@font-face {
+  font-family: 'tvN EnjoystoriesOTF';
+  src: url('/tvN EnjoystoriesOTF.otf') format('opentype');
 }
