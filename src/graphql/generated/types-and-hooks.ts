@@ -136,9 +136,7 @@ export type PostModificationInput = {
 /** OAuth 공급자 */
 export enum Provider {
   AlpacaSalon = 'ALPACA_SALON',
-  Google = 'GOOGLE',
   Kakao = 'KAKAO',
-  Naver = 'NAVER',
 }
 
 export type Query = {
@@ -161,6 +159,7 @@ export type Query = {
   searchPosts?: Maybe<Array<Post>>
   /** 대댓글 */
   subComments?: Maybe<Array<Maybe<Comment>>>
+  userByName?: Maybe<User>
 }
 
 export type QueryCommentsByPostArgs = {
@@ -187,6 +186,10 @@ export type QuerySubCommentsArgs = {
   id: Scalars['ID']
 }
 
+export type QueryUserByNameArgs = {
+  uniqueName: Scalars['NonEmptyString']
+}
+
 export type RegisterInput = {
   bio?: Maybe<Scalars['String']>
   birth?: Maybe<Scalars['Date']>
@@ -200,20 +203,21 @@ export type RegisterInput = {
 
 export type User = {
   __typename?: 'User'
-  ageRange?: Maybe<Scalars['NonEmptyString']>
   bio?: Maybe<Scalars['NonEmptyString']>
   birthday?: Maybe<Scalars['NonEmptyString']>
+  birthyear?: Maybe<Scalars['Int']>
   creationTime: Scalars['DateTime']
-  email: Scalars['EmailAddress']
+  email?: Maybe<Scalars['EmailAddress']>
   feedCount: Scalars['Int']
   followerCount: Scalars['Int']
   followingCount: Scalars['Int']
   gender?: Maybe<Gender>
   id: Scalars['UUID']
   imageUrl?: Maybe<Scalars['URL']>
+  likedCount: Scalars['Int']
   modificationTime: Scalars['DateTime']
-  nickname: Scalars['NonEmptyString']
-  phone?: Maybe<Scalars['NonEmptyString']>
+  nickname?: Maybe<Scalars['NonEmptyString']>
+  phoneNumber?: Maybe<Scalars['NonEmptyString']>
   providers: Array<Provider>
   uniqueName?: Maybe<Scalars['NonEmptyString']>
 }
@@ -244,7 +248,7 @@ export type PostCardFragment = {
   title: any
   contents: any
   category: PostCategory
-  user: { __typename?: 'User'; id: any; nickname: any }
+  user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
 }
 
 export type LoginMutationVariables = Exact<{
@@ -304,8 +308,26 @@ export type PostsQuery = {
         title: any
         contents: any
         category: PostCategory
-        user: { __typename?: 'User'; id: any; nickname: any }
+        user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
       }>
+    | null
+    | undefined
+}
+
+export type UserByNameQueryVariables = Exact<{
+  uniqueName: Scalars['NonEmptyString']
+}>
+
+export type UserByNameQuery = {
+  __typename?: 'Query'
+  userByName?:
+    | {
+        __typename?: 'User'
+        id: any
+        nickname?: any | null | undefined
+        imageUrl?: any | null | undefined
+        likedCount: number
+      }
     | null
     | undefined
 }
@@ -568,3 +590,45 @@ export function usePostsLazyQuery(
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>
+export const UserByNameDocument = gql`
+  query UserByName($uniqueName: NonEmptyString!) {
+    userByName(uniqueName: $uniqueName) {
+      id
+      nickname
+      imageUrl
+      likedCount
+    }
+  }
+`
+
+/**
+ * __useUserByNameQuery__
+ *
+ * To run a query within a React component, call `useUserByNameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserByNameQuery({
+ *   variables: {
+ *      uniqueName: // value for 'uniqueName'
+ *   },
+ * });
+ */
+export function useUserByNameQuery(
+  baseOptions: Apollo.QueryHookOptions<UserByNameQuery, UserByNameQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<UserByNameQuery, UserByNameQueryVariables>(UserByNameDocument, options)
+}
+export function useUserByNameLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<UserByNameQuery, UserByNameQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<UserByNameQuery, UserByNameQueryVariables>(UserByNameDocument, options)
+}
+export type UserByNameQueryHookResult = ReturnType<typeof useUserByNameQuery>
+export type UserByNameLazyQueryHookResult = ReturnType<typeof useUserByNameLazyQuery>
+export type UserByNameQueryResult = Apollo.QueryResult<UserByNameQuery, UserByNameQueryVariables>

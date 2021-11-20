@@ -1,0 +1,8 @@
+query UserByName($uniqueName: NonEmptyString!) {
+  userByName(uniqueName: $uniqueName) {
+    id
+    nickname
+    imageUrl
+    likedCount
+  }
+}
