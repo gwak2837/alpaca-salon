@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { toast } from 'react-toastify'
 import PageHead from 'src/components/PageHead'
 
 const description = ''
@@ -68,6 +69,13 @@ export default function TestPage() {
         }}
       >
         click
+      </button>
+      <button
+        onClick={() => {
+          toast.success('asdf')
+        }}
+      >
+        toast
       </button>
     </PageHead>
   )

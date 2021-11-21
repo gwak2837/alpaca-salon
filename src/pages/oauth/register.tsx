@@ -62,7 +62,7 @@ export default function EventDetailPage() {
 
   return (
     <PageHead title=" - 알파카살롱" description={description}>
-      소셜 로그인 정보 입력
+      알파카 살롱에 오신 걸 환영해요 우아한 알파카님의 멋진 닉네임을 알려주세요
       <form onSubmit={handleSubmit(updateRegister)}>
         <label htmlFor="nickname">닉네임</label>
         <input placeholder="세련된 알파카" {...register('nickname', { required: true })} />

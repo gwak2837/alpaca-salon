@@ -1,5 +1,5 @@
 import 'react-toastify/dist/ReactToastify.min.css'
-import 'animate.css/animate.min.css'
+import 'src/styles/animate.css'
 import 'antd/dist/antd.css'
 import 'src/styles/custom-antd.css'
 import 'normalize.css'
@@ -13,19 +13,16 @@ import { useRouter } from 'next/router'
 import type { ReactElement, ReactNode } from 'react'
 import React, { useEffect } from 'react'
 import { ToastContainer, cssTransition } from 'react-toastify'
-import { RecoilRoot, useRecoilState } from 'recoil'
+import { RecoilRoot } from 'recoil'
 import { client } from 'src/apollo/client'
-import { toastApolloError } from 'src/apollo/error'
 import CurrentUser from 'src/components/CurrentUser'
-import { useMeQuery } from 'src/graphql/generated/types-and-hooks'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
-import { currentUser } from 'src/models/recoil'
 import { pageview } from 'src/utils/google-analytics'
 import styled from 'styled-components'
 
-export const fade = cssTransition({
-  enter: 'animate__animated animate__fadeIn',
-  exit: 'animate__animated animate__fadeOut',
+const fade = cssTransition({
+  enter: 'animate_fadeIn',
+  exit: 'animate_fadeOut',
 })
 
 const MaxWidth = styled.main`
@@ -68,7 +65,7 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppPropsWithLay
           </RecoilRoot>
         </ApolloProvider>
       </MaxWidth>
-      <ToastContainer autoClose={2500} hideProgressBar position="top-center" transition={fade} />
+      <ToastContainer autoClose={2000} hideProgressBar position="top-center" transition={fade} />
     </>
   )
 }
