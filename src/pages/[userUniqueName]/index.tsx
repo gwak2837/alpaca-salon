@@ -1,10 +1,12 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { PrimaryButton } from 'src/components/atoms/Button'
+import { useResetRecoilState } from 'recoil'
+import { toastApolloError } from 'src/apollo/error'
+import { PrimaryButton, RedButton } from 'src/components/atoms/Button'
 import PageHead from 'src/components/PageHead'
-import { useUserByNameQuery } from 'src/graphql/generated/types-and-hooks'
-import NavigationLayout from 'src/layouts/NavigationLayout'
+import { useLogoutMutation, useUserByNameQuery } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
+import { currentUser } from 'src/models/recoil'
 import BackIcon from 'src/svgs/back-icon.svg'
 import HeartIcon from 'src/svgs/HeartIcon'
 import { getUserUniqueName } from 'src/utils'
@@ -67,7 +69,7 @@ const FlexContainer = styled.div`
   border-radius: 20px;
 `
 
-const FlexContainerEnd = styled.div`
+export const FlexContainerColumnEnd = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -87,16 +89,34 @@ const description = '알파카의 정보를 알아보세요'
 export default function UserPage() {
   const router = useRouter()
   const userUniqueName = getUserUniqueName(router)
+  const resetCurrentUser = useResetRecoilState(currentUser)
 
   const { data } = useUserByNameQuery({
+    onError: toastApolloError,
     skip: !userUniqueName,
     variables: { uniqueName: userUniqueName },
+  })
+
+  const [logoutMutation, { loading }] = useLogoutMutation({
+    onCompleted: ({ logout }) => {
+      if (logout) {
+        localStorage.removeItem('jwt')
+        sessionStorage.removeItem('jwt')
+        resetCurrentUser()
+        router.push('/')
+      }
+    },
+    onError: toastApolloError,
   })
 
   const user = data?.userByName
 
   function goBack() {
     router.back()
+  }
+
+  function logout() {
+    logoutMutation()
   }
 
   return (
@@ -126,15 +146,17 @@ export default function UserPage() {
             받은 공감 개수
             <PrimaryColorText>{user?.likedCount}</PrimaryColorText>
           </FlexContainer>
-          <div>사용자 아이디: {userUniqueName}</div>
+          <div>검색용 이름: {userUniqueName}</div>
         </div>
 
-        <FlexContainerEnd>
+        <FlexContainerColumnEnd>
           <GridContainerButtons>
-            <PrimaryButton>로그아웃</PrimaryButton>
-            <PrimaryButton disabled>회원탈퇴</PrimaryButton>
+            <PrimaryButton disabled={loading} onClick={logout}>
+              로그아웃
+            </PrimaryButton>
+            <RedButton>회원탈퇴</RedButton>
           </GridContainerButtons>
-        </FlexContainerEnd>
+        </FlexContainerColumnEnd>
       </FlexContainerHeight100>
     </PageHead>
   )
