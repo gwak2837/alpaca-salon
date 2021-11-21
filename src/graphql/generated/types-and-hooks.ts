@@ -2,6 +2,7 @@
 import { gql } from '@apollo/client'
 import * as Apollo from '@apollo/client'
 export type Maybe<T> = T | null
+export type InputMaybe<T> = Maybe<T>
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> }
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> }
@@ -93,8 +94,8 @@ export enum OrderDirection {
 }
 
 export type Pagination = {
-  lastId?: Maybe<Scalars['ID']>
-  lastValue?: Maybe<Scalars['LastValue']>
+  lastId?: InputMaybe<Scalars['ID']>
+  lastValue?: InputMaybe<Scalars['LastValue']>
   limit: Scalars['PositiveInt']
 }
 
@@ -121,16 +122,16 @@ export enum PostCategory {
 }
 
 export type PostCreationInput = {
-  category?: Maybe<PostCategory>
-  contents?: Maybe<Scalars['String']>
-  title?: Maybe<Scalars['String']>
+  category?: InputMaybe<PostCategory>
+  contents?: InputMaybe<Scalars['String']>
+  title?: InputMaybe<Scalars['String']>
 }
 
 export type PostModificationInput = {
-  category?: Maybe<PostCategory>
-  contents?: Maybe<Scalars['String']>
+  category?: InputMaybe<PostCategory>
+  contents?: InputMaybe<Scalars['String']>
   id: Scalars['ID']
-  title?: Maybe<Scalars['String']>
+  title?: InputMaybe<Scalars['String']>
 }
 
 /** OAuth 공급자 */
@@ -191,10 +192,10 @@ export type QueryUserByNameArgs = {
 }
 
 export type RegisterInput = {
-  bio?: Maybe<Scalars['String']>
-  birth?: Maybe<Scalars['Date']>
+  bio?: InputMaybe<Scalars['String']>
+  birth?: InputMaybe<Scalars['Date']>
   email: Scalars['EmailAddress']
-  imageUrl?: Maybe<Scalars['URL']>
+  imageUrl?: InputMaybe<Scalars['URL']>
   name: Scalars['NonEmptyString']
   passwordHash: Scalars['NonEmptyString']
   phone: Scalars['NonEmptyString']
@@ -229,15 +230,15 @@ export type UserAuthentication = {
 }
 
 export type UserModificationInput = {
-  ageRange?: Maybe<Scalars['NonEmptyString']>
-  bio?: Maybe<Scalars['String']>
-  birthday?: Maybe<Scalars['NonEmptyString']>
-  email?: Maybe<Scalars['EmailAddress']>
-  gender?: Maybe<Gender>
-  imageUrl?: Maybe<Scalars['URL']>
-  nickname?: Maybe<Scalars['NonEmptyString']>
-  phoneNumber?: Maybe<Scalars['NonEmptyString']>
-  uniqueName?: Maybe<Scalars['NonEmptyString']>
+  ageRange?: InputMaybe<Scalars['NonEmptyString']>
+  bio?: InputMaybe<Scalars['String']>
+  birthday?: InputMaybe<Scalars['NonEmptyString']>
+  email?: InputMaybe<Scalars['EmailAddress']>
+  gender?: InputMaybe<Gender>
+  imageUrl?: InputMaybe<Scalars['URL']>
+  nickname?: InputMaybe<Scalars['NonEmptyString']>
+  phoneNumber?: InputMaybe<Scalars['NonEmptyString']>
+  uniqueName?: InputMaybe<Scalars['NonEmptyString']>
 }
 
 export type PostCardFragment = {
@@ -272,6 +273,13 @@ export type RegisterMutationVariables = Exact<{
 export type RegisterMutation = {
   __typename?: 'Mutation'
   register?: { __typename?: 'UserAuthentication'; userUniqueName: any; jwt: any } | null | undefined
+}
+
+export type UnregisterMutationVariables = Exact<{ [key: string]: never }>
+
+export type UnregisterMutation = {
+  __typename?: 'Mutation'
+  unregister?: { __typename?: 'User'; id: any } | null | undefined
 }
 
 export type UpdateUserMutationVariables = Exact<{
@@ -459,6 +467,49 @@ export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<
   RegisterMutation,
   RegisterMutationVariables
+>
+export const UnregisterDocument = gql`
+  mutation Unregister {
+    unregister {
+      id
+    }
+  }
+`
+export type UnregisterMutationFn = Apollo.MutationFunction<
+  UnregisterMutation,
+  UnregisterMutationVariables
+>
+
+/**
+ * __useUnregisterMutation__
+ *
+ * To run a mutation, you first call `useUnregisterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnregisterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unregisterMutation, { data, loading, error }] = useUnregisterMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUnregisterMutation(
+  baseOptions?: Apollo.MutationHookOptions<UnregisterMutation, UnregisterMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<UnregisterMutation, UnregisterMutationVariables>(
+    UnregisterDocument,
+    options
+  )
+}
+export type UnregisterMutationHookResult = ReturnType<typeof useUnregisterMutation>
+export type UnregisterMutationResult = Apollo.MutationResult<UnregisterMutation>
+export type UnregisterMutationOptions = Apollo.BaseMutationOptions<
+  UnregisterMutation,
+  UnregisterMutationVariables
 >
 export const UpdateUserDocument = gql`
   mutation UpdateUser($input: UserModificationInput!) {

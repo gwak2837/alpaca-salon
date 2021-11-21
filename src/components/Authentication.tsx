@@ -8,7 +8,7 @@ type Props = {
   children: ReactNode
 }
 
-function CurrentUser({ children }: Props) {
+function Authentication({ children }: Props) {
   const [{ uniqueName }, setCurrentUser] = useRecoilState(currentUser)
 
   useMeQuery({
@@ -27,4 +27,4 @@ function CurrentUser({ children }: Props) {
   return <>{children}</>
 }
 
-export default CurrentUser
+export default Authentication

@@ -23,7 +23,6 @@ const PostIconWrapper = styled.div`
 
   svg {
     width: 100%; // for Safari
-    height: 100%; // for Safari
   }
 `
 
@@ -35,7 +34,6 @@ const VideoIconWrapper = styled.div`
 
   svg {
     width: 100%; // for Safari
-    height: 100%; // for Safari
   }
 `
 

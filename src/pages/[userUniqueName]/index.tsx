@@ -4,7 +4,11 @@ import { useResetRecoilState } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { PrimaryButton, RedButton } from 'src/components/atoms/Button'
 import PageHead from 'src/components/PageHead'
-import { useLogoutMutation, useUserByNameQuery } from 'src/graphql/generated/types-and-hooks'
+import {
+  useLogoutMutation,
+  useUnregisterMutation,
+  useUserByNameQuery,
+} from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import BackIcon from 'src/svgs/back-icon.svg'
@@ -54,6 +58,10 @@ const Wrapper = styled.div`
   width: 1.4rem;
   display: flex;
   align-items: center;
+
+  svg {
+    width: 100%; // for Safari
+  }
 `
 
 const FlexContainer = styled.div`
@@ -97,7 +105,9 @@ export default function UserPage() {
     variables: { uniqueName: userUniqueName },
   })
 
-  const [logoutMutation, { loading }] = useLogoutMutation({
+  const user = data?.userByName
+
+  const [logoutMutation, { loading: logoutLoading }] = useLogoutMutation({
     onCompleted: ({ logout }) => {
       if (logout) {
         localStorage.removeItem('jwt')
@@ -109,7 +119,17 @@ export default function UserPage() {
     onError: toastApolloError,
   })
 
-  const user = data?.userByName
+  const [unregisterMutation, { loading: unregisterLoading }] = useUnregisterMutation({
+    onCompleted: ({ unregister }) => {
+      if (unregister) {
+        localStorage.removeItem('jwt')
+        sessionStorage.removeItem('jwt')
+        resetCurrentUser()
+        router.push('/')
+      }
+    },
+    onError: toastApolloError,
+  })
 
   function goBack() {
     router.back()
@@ -117,6 +137,10 @@ export default function UserPage() {
 
   function logout() {
     logoutMutation()
+  }
+
+  function unregister() {
+    unregisterMutation()
   }
 
   return (
@@ -151,10 +175,12 @@ export default function UserPage() {
 
         <FlexContainerColumnEnd>
           <GridContainerButtons>
-            <PrimaryButton disabled={loading} onClick={logout}>
+            <PrimaryButton disabled={logoutLoading} onClick={logout}>
               로그아웃
             </PrimaryButton>
-            <RedButton>회원탈퇴</RedButton>
+            <RedButton disabled={unregisterLoading} onClick={unregister}>
+              회원탈퇴
+            </RedButton>
           </GridContainerButtons>
         </FlexContainerColumnEnd>
       </FlexContainerHeight100>

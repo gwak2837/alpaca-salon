@@ -15,7 +15,7 @@ import React, { useEffect } from 'react'
 import { ToastContainer, cssTransition } from 'react-toastify'
 import { RecoilRoot } from 'recoil'
 import { client } from 'src/apollo/client'
-import CurrentUser from 'src/components/CurrentUser'
+import Authentication from 'src/components/Authentication'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
 import { pageview } from 'src/utils/google-analytics'
 import styled from 'styled-components'
@@ -59,9 +59,9 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppPropsWithLay
       <MaxWidth>
         <ApolloProvider client={client}>
           <RecoilRoot>
-            <CurrentUser>
+            <Authentication>
               {getLayout ? getLayout(<Component {...pageProps} />) : <Component {...pageProps} />}
-            </CurrentUser>
+            </Authentication>
           </RecoilRoot>
         </ApolloProvider>
       </MaxWidth>
