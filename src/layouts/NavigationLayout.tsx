@@ -20,6 +20,11 @@ const PostIconWrapper = styled.div`
   height: 1.5rem;
   display: flex;
   align-items: center;
+
+  svg {
+    width: 100%; // for Safari
+    height: 100%; // for Safari
+  }
 `
 
 const VideoIconWrapper = styled.div`
@@ -27,6 +32,11 @@ const VideoIconWrapper = styled.div`
   height: 1.5rem;
   display: flex;
   align-items: center;
+
+  svg {
+    width: 100%; // for Safari
+    height: 100%; // for Safari
+  }
 `
 
 const FixedNavigation = styled.nav`
