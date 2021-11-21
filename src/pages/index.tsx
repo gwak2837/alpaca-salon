@@ -20,8 +20,8 @@ const FlexContainer = styled.div`
   padding: 1rem;
 `
 
-const PageTitle = styled.h2`
-  font-family: 'tvN EnjoystoriesOTF';
+const Title = styled.h2`
+  font-family: tvN EnjoystoriesOTF;
 `
 
 const Button = styled.button`
@@ -99,7 +99,7 @@ export default function HomePage() {
   return (
     <PageHead>
       <FlexContainer>
-        <PageTitle>알파카살롱</PageTitle>
+        <Title>알파카살롱</Title>
         {uniqueName ? (
           <Button onClick={() => router.push(`/@${uniqueName}`)}>마이페이지</Button>
         ) : (
