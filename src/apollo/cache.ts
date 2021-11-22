@@ -12,13 +12,9 @@ const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
-        storesByTownAndCategories: {
+        posts: {
           merge: infiniteScroll,
-          keyArgs: ['town', 'categories', 'order'],
-        },
-        menusByTownAndCategory: {
-          merge: infiniteScroll,
-          keyArgs: ['town', 'category', 'order'],
+          keyArgs: [],
         },
       },
     },
