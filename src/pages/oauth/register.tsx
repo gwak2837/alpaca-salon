@@ -98,7 +98,7 @@ export default function EventDetailPage() {
           <input
             placeholder="+82 10-1234-1234"
             type="tel"
-            {...register('phoneNumberConfirm', { required: true })}
+            // {...register('phoneNumberConfirm', { required: true })}
           />
           <div>
             당신처럼 멋진 여성분들이 기다리고 있어요! 따뜻하고 행복하게 일상을 채울 준비가 되셨나요?
