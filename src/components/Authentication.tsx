@@ -17,7 +17,12 @@ function Authentication({ children }: Props) {
         setCurrentUser({ uniqueName: me.uniqueName })
       }
     },
-    onError: toastApolloError,
+    onError: (error) => {
+      toastApolloError(error)
+      globalThis.sessionStorage?.removeItem('jwt')
+      globalThis.localStorage?.removeItem('jwt')
+    },
+    // localStorage(또는 sessionStorage)에 jwt가 존재하는데 uniqueName이 없을 때만 요청
     skip: Boolean(
       uniqueName ||
         !(globalThis.sessionStorage?.getItem('jwt') ?? globalThis.localStorage?.getItem('jwt'))

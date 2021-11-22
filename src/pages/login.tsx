@@ -46,7 +46,7 @@ const KakaoButton = styled.div`
   width: 100%;
   background: #fee500;
   padding: 1rem;
-  margin: 0 0 1rem;
+  margin: 0 0 2rem;
   transition: background 0.3s ease-in;
   border-radius: 10px;
 
@@ -125,7 +125,7 @@ export default function LoginPage() {
             }
           >
             <KakaoIcon />
-            카카오 로그인
+            카카오 계정으로 3초 만에 시작하기
           </KakaoButton>
         </FlexContainerColumnEnd>
       </Padding>
