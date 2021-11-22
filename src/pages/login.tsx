@@ -7,7 +7,7 @@ import { SquareFrame } from 'src/styles'
 import styled from 'styled-components'
 
 import KakaoIcon from '../svgs/kakao-icon.svg'
-import { FlexContainerColumnEnd } from './[userUniqueName]'
+import { FlexContainerColumnEnd } from './[userNickname]'
 
 const H2 = styled.h2`
   font-weight: 600;
@@ -125,7 +125,7 @@ export default function LoginPage() {
             }
           >
             <KakaoIcon />
-            카카오 계정으로 3초 만에 시작하기
+            카카오로 3초 만에 시작하기
           </KakaoButton>
         </FlexContainerColumnEnd>
       </Padding>

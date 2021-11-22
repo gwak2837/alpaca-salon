@@ -11,9 +11,8 @@ import { currentUser } from 'src/models/recoil'
 import styled from 'styled-components'
 
 type RegisterFormValues = {
-  nickname: string
   phoneNumber: string
-  uniqueName: string
+  nickname: string
 }
 
 const description = ''
@@ -31,7 +30,6 @@ export default function EventDetailPage() {
     defaultValues: {
       nickname: '',
       phoneNumber: '+82 10-',
-      uniqueName: '',
     },
   })
 
@@ -40,7 +38,7 @@ export default function EventDetailPage() {
       if (updateUser) {
         toast.success('정보 등록에 성공했어요')
 
-        setCurrentUser({ uniqueName: updateUser.uniqueName })
+        setCurrentUser({ nickname: updateUser.nickname })
 
         router.replace(sessionStorage.getItem('redirectionUrlAfterLogin') ?? '/')
         sessionStorage.removeItem('redirectionUrlAfterLogin')
@@ -62,7 +60,9 @@ export default function EventDetailPage() {
 
   return (
     <PageHead title=" - 알파카살롱" description={description}>
-      알파카 살롱에 오신 걸 환영해요 우아한 알파카님의 멋진 닉네임을 알려주세요
+      <h2>알파카 살롱에 오신 걸 환영해요</h2>
+      <h4>우아한 알파카님의 멋진 닉네임을 알려주세요</h4>
+
       <form onSubmit={handleSubmit(updateRegister)}>
         <label htmlFor="nickname">닉네임</label>
         <input placeholder="세련된 알파카" {...register('nickname', { required: true })} />
@@ -72,8 +72,8 @@ export default function EventDetailPage() {
           type="tel"
           {...register('phoneNumber', { required: true })}
         />
-        <label htmlFor="uniqueName">검색용 이름</label>
-        <input placeholder="세련된 알파카" {...register('uniqueName', { required: true })} />
+        <label htmlFor="nickname">검색용 이름</label>
+        <input placeholder="세련된 알파카" {...register('nickname', { required: true })} />
         <div>
           당신처럼 멋진 여성분들이 기다리고 있어요! 따뜻하고 행복하게 일상을 채울 준비가 되셨나요?
         </div>

@@ -7,13 +7,13 @@ import PageHead from 'src/components/PageHead'
 import {
   useLogoutMutation,
   useUnregisterMutation,
-  useUserByNameQuery,
+  useUserByNicknameQuery,
 } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import BackIcon from 'src/svgs/back-icon.svg'
 import HeartIcon from 'src/svgs/HeartIcon'
-import { getUserUniqueName } from 'src/utils'
+import { getUserNickname } from 'src/utils'
 import styled from 'styled-components'
 
 const FlexContainerHeight100 = styled.div`
@@ -51,7 +51,7 @@ const GridContainerButtons = styled.div`
   display: grid;
   gap: 1rem;
 
-  padding: 1rem 0.5rem;
+  padding: 2rem 0.5rem;
 `
 
 const Wrapper = styled.div`
@@ -96,21 +96,20 @@ const description = '알파카의 정보를 알아보세요'
 
 export default function UserPage() {
   const router = useRouter()
-  const userUniqueName = getUserUniqueName(router)
+  const userNickname = getUserNickname(router)
   const resetCurrentUser = useResetRecoilState(currentUser)
 
-  const { data } = useUserByNameQuery({
+  const { data } = useUserByNicknameQuery({
     onError: toastApolloError,
-    skip: !userUniqueName,
-    variables: { uniqueName: userUniqueName },
+    skip: !userNickname,
+    variables: { nickname: userNickname },
   })
 
-  const user = data?.userByName
+  const user = data?.userByNickname
 
   const [logoutMutation, { loading: logoutLoading }] = useLogoutMutation({
     onCompleted: ({ logout }) => {
       if (logout) {
-        localStorage.removeItem('jwt')
         sessionStorage.removeItem('jwt')
         resetCurrentUser()
         router.push('/')
@@ -122,7 +121,6 @@ export default function UserPage() {
   const [unregisterMutation, { loading: unregisterLoading }] = useUnregisterMutation({
     onCompleted: ({ unregister }) => {
       if (unregister) {
-        localStorage.removeItem('jwt')
         sessionStorage.removeItem('jwt')
         resetCurrentUser()
         router.push('/')
@@ -144,7 +142,7 @@ export default function UserPage() {
   }
 
   return (
-    <PageHead title={`@${userUniqueName} - 알파카살롱`} description={description}>
+    <PageHead title={`@${userNickname} - 알파카살롱`} description={description}>
       <FlexContainerHeight100>
         <div>
           <TitleIconWrapper onClick={goBack}>
@@ -170,7 +168,6 @@ export default function UserPage() {
             받은 공감 개수
             <PrimaryColorText>{user?.likedCount}</PrimaryColorText>
           </FlexContainer>
-          <div>검색용 이름: {userUniqueName}</div>
         </div>
 
         <FlexContainerColumnEnd>

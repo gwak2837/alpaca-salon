@@ -9,24 +9,20 @@ type Props = {
 }
 
 function Authentication({ children }: Props) {
-  const [{ uniqueName }, setCurrentUser] = useRecoilState(currentUser)
+  const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
 
   useMeQuery({
     onCompleted: ({ me }) => {
       if (me) {
-        setCurrentUser({ uniqueName: me.uniqueName })
+        setCurrentUser({ nickname: me.nickname })
       }
     },
     onError: (error) => {
       toastApolloError(error)
       globalThis.sessionStorage?.removeItem('jwt')
-      globalThis.localStorage?.removeItem('jwt')
     },
-    // localStorage(또는 sessionStorage)에 jwt가 존재하는데 uniqueName이 없을 때만 요청
-    skip: Boolean(
-      uniqueName ||
-        !(globalThis.sessionStorage?.getItem('jwt') ?? globalThis.localStorage?.getItem('jwt'))
-    ),
+    // sessionStorage에 jwt가 존재하는데 nickname이 없을 때만 요청
+    skip: Boolean(nickname || !globalThis.sessionStorage?.getItem('jwt')),
   })
 
   return <>{children}</>

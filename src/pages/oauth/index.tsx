@@ -18,7 +18,7 @@ export default function EventDetailPage() {
 
     const queryString = new URLSearchParams(window.location.search.substr(1))
     sessionStorage.setItem('jwt', queryString.get('jwt') ?? '')
-    setCurrentUser({ uniqueName: queryString.get('uniqueName') ?? '' })
+    setCurrentUser({ nickname: queryString.get('nickname') ?? '' })
 
     setUrl(sessionStorage.getItem('redirectionUrlAfterLogin') ?? '/')
     sessionStorage.removeItem('redirectionUrlAfterLogin')

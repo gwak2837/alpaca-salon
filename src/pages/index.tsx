@@ -83,7 +83,7 @@ const limit = 2
 export default function HomePage() {
   const [hasMoreData, setHasMoreData] = useState(true)
   const router = useRouter()
-  const { uniqueName } = useRecoilValue(currentUser)
+  const { nickname } = useRecoilValue(currentUser)
 
   // 데이터 요청
   const { data, loading, fetchMore } = usePostsQuery({
@@ -94,7 +94,7 @@ export default function HomePage() {
     },
     skip: !limit,
     variables: {
-      pagination: { lastId: '100', limit },
+      pagination: { limit },
     },
   })
 
@@ -121,15 +121,21 @@ export default function HomePage() {
   })
 
   function goToPostCreationPage() {
-    router.push('/post/create')
+    const jwt = window.sessionStorage.getItem('jwt')
+
+    if (jwt) {
+      router.push('/post/create')
+    } else {
+      router.push('/login')
+    }
   }
 
   return (
     <PageHead>
       <FlexContainer>
         <Title>알파카살롱</Title>
-        {uniqueName ? (
-          <WhiteButton onClick={() => router.push(`/@${uniqueName}`)}>마이페이지</WhiteButton>
+        {nickname ? (
+          <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
         ) : (
           <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
         )}
