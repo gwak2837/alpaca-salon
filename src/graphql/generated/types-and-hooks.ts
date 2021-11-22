@@ -45,18 +45,16 @@ export type Comment = {
 export enum Gender {
   Female = 'FEMALE',
   Male = 'MALE',
+  Other = 'OTHER',
+  Unknown = 'UNKNOWN',
 }
 
 export type Mutation = {
   __typename?: 'Mutation'
   createPost?: Maybe<Post>
   deletePost?: Maybe<Post>
-  /** 고유 이름 또는 이메일과 비밀번호를 전송하면 JWT 인증 토큰을 반환함 */
-  login?: Maybe<UserAuthentication>
   /** JWT 인증 토큰과 같이 요청하면 로그아웃 성공 여부를 반환함 */
   logout: Scalars['Boolean']
-  /** 회원가입에 필요한 정보를 주면 성공했을 때 인증 토큰을 반환함 */
-  register?: Maybe<UserAuthentication>
   /** 회원탈퇴 시 사용자 정보가 모두 초기화됩 */
   unregister?: Maybe<User>
   updatePost?: Maybe<Post>
@@ -69,15 +67,6 @@ export type MutationCreatePostArgs = {
 
 export type MutationDeletePostArgs = {
   id: Scalars['ID']
-}
-
-export type MutationLoginArgs = {
-  passwordHash: Scalars['NonEmptyString']
-  uniqueNameOrEmail: Scalars['NonEmptyString']
-}
-
-export type MutationRegisterArgs = {
-  input: RegisterInput
 }
 
 export type MutationUpdatePostArgs = {
@@ -144,11 +133,11 @@ export type Query = {
   __typename?: 'Query'
   /** 특정 게시글에 달린 댓글 */
   commentsByPost?: Maybe<Array<Maybe<Comment>>>
-  /** 사용자 고유 이름 중복 여부 검사 */
-  isUniqueNameUnique: Scalars['Boolean']
+  /** 사용자 닉네임 중복 여부 검사 */
+  isNicknameUnique: Scalars['Boolean']
   /** 좋아요 누른 댓글 */
   likedComments?: Maybe<Array<Comment>>
-  /** 인증 토큰과 같이 요청하면 사용자 정보를 반환 */
+  /** 현재 로그인된(JWT) 사용자 정보를 반환 */
   me?: Maybe<User>
   /** 내가 쓴 댓글 */
   myComments?: Maybe<Array<Comment>>
@@ -160,15 +149,16 @@ export type Query = {
   searchPosts?: Maybe<Array<Post>>
   /** 대댓글 */
   subComments?: Maybe<Array<Maybe<Comment>>>
-  userByName?: Maybe<User>
+  /** 닉네임으로 사용자 검색 */
+  userByNickname?: Maybe<User>
 }
 
 export type QueryCommentsByPostArgs = {
   postId: Scalars['ID']
 }
 
-export type QueryIsUniqueNameUniqueArgs = {
-  uniqueName: Scalars['NonEmptyString']
+export type QueryIsNicknameUniqueArgs = {
+  nickname: Scalars['NonEmptyString']
 }
 
 export type QueryPostArgs = {
@@ -187,19 +177,8 @@ export type QuerySubCommentsArgs = {
   id: Scalars['ID']
 }
 
-export type QueryUserByNameArgs = {
-  uniqueName: Scalars['NonEmptyString']
-}
-
-export type RegisterInput = {
-  bio?: InputMaybe<Scalars['String']>
-  birth?: InputMaybe<Scalars['Date']>
-  email: Scalars['EmailAddress']
-  imageUrl?: InputMaybe<Scalars['URL']>
-  name: Scalars['NonEmptyString']
-  passwordHash: Scalars['NonEmptyString']
-  phone: Scalars['NonEmptyString']
-  uniqueName: Scalars['NonEmptyString']
+export type QueryUserByNicknameArgs = {
+  nickname: Scalars['NonEmptyString']
 }
 
 export type User = {
@@ -209,9 +188,6 @@ export type User = {
   birthyear?: Maybe<Scalars['Int']>
   creationTime: Scalars['DateTime']
   email?: Maybe<Scalars['EmailAddress']>
-  feedCount: Scalars['Int']
-  followerCount: Scalars['Int']
-  followingCount: Scalars['Int']
   gender?: Maybe<Gender>
   id: Scalars['UUID']
   imageUrl?: Maybe<Scalars['URL']>
@@ -220,13 +196,12 @@ export type User = {
   nickname?: Maybe<Scalars['NonEmptyString']>
   phoneNumber?: Maybe<Scalars['NonEmptyString']>
   providers: Array<Provider>
-  uniqueName?: Maybe<Scalars['NonEmptyString']>
 }
 
 export type UserAuthentication = {
   __typename?: 'UserAuthentication'
   jwt: Scalars['JWT']
-  userUniqueName: Scalars['NonEmptyString']
+  nickname: Scalars['NonEmptyString']
 }
 
 export type UserModificationInput = {
@@ -238,7 +213,6 @@ export type UserModificationInput = {
   imageUrl?: InputMaybe<Scalars['URL']>
   nickname?: InputMaybe<Scalars['NonEmptyString']>
   phoneNumber?: InputMaybe<Scalars['NonEmptyString']>
-  uniqueName?: InputMaybe<Scalars['NonEmptyString']>
 }
 
 export type PostCardFragment = {
@@ -252,28 +226,18 @@ export type PostCardFragment = {
   user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
 }
 
-export type LoginMutationVariables = Exact<{
-  uniqueNameOrEmail: Scalars['NonEmptyString']
-  passwordHash: Scalars['NonEmptyString']
+export type CreatePostMutationVariables = Exact<{
+  input: PostCreationInput
 }>
 
-export type LoginMutation = {
+export type CreatePostMutation = {
   __typename?: 'Mutation'
-  login?: { __typename?: 'UserAuthentication'; userUniqueName: any; jwt: any } | null | undefined
+  createPost?: { __typename?: 'Post'; id: string } | null | undefined
 }
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never }>
 
 export type LogoutMutation = { __typename?: 'Mutation'; logout: boolean }
-
-export type RegisterMutationVariables = Exact<{
-  input: RegisterInput
-}>
-
-export type RegisterMutation = {
-  __typename?: 'Mutation'
-  register?: { __typename?: 'UserAuthentication'; userUniqueName: any; jwt: any } | null | undefined
-}
 
 export type UnregisterMutationVariables = Exact<{ [key: string]: never }>
 
@@ -289,7 +253,7 @@ export type UpdateUserMutationVariables = Exact<{
 export type UpdateUserMutation = {
   __typename?: 'Mutation'
   updateUser?:
-    | { __typename?: 'User'; id: any; uniqueName?: any | null | undefined }
+    | { __typename?: 'User'; id: any; nickname?: any | null | undefined }
     | null
     | undefined
 }
@@ -298,7 +262,7 @@ export type MeQueryVariables = Exact<{ [key: string]: never }>
 
 export type MeQuery = {
   __typename?: 'Query'
-  me?: { __typename?: 'User'; id: any; uniqueName?: any | null | undefined } | null | undefined
+  me?: { __typename?: 'User'; id: any; nickname?: any | null | undefined } | null | undefined
 }
 
 export type PostsQueryVariables = Exact<{
@@ -322,13 +286,13 @@ export type PostsQuery = {
     | undefined
 }
 
-export type UserByNameQueryVariables = Exact<{
-  uniqueName: Scalars['NonEmptyString']
+export type UserByNicknameQueryVariables = Exact<{
+  nickname: Scalars['NonEmptyString']
 }>
 
-export type UserByNameQuery = {
+export type UserByNicknameQuery = {
   __typename?: 'Query'
-  userByName?:
+  userByNickname?:
     | {
         __typename?: 'User'
         id: any
@@ -354,43 +318,50 @@ export const PostCardFragmentDoc = gql`
     }
   }
 `
-export const LoginDocument = gql`
-  mutation Login($uniqueNameOrEmail: NonEmptyString!, $passwordHash: NonEmptyString!) {
-    login(uniqueNameOrEmail: $uniqueNameOrEmail, passwordHash: $passwordHash) {
-      userUniqueName
-      jwt
+export const CreatePostDocument = gql`
+  mutation CreatePost($input: PostCreationInput!) {
+    createPost(input: $input) {
+      id
     }
   }
 `
-export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>
+export type CreatePostMutationFn = Apollo.MutationFunction<
+  CreatePostMutation,
+  CreatePostMutationVariables
+>
 
 /**
- * __useLoginMutation__
+ * __useCreatePostMutation__
  *
- * To run a mutation, you first call `useLoginMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useLoginMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreatePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePostMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [loginMutation, { data, loading, error }] = useLoginMutation({
+ * const [createPostMutation, { data, loading, error }] = useCreatePostMutation({
  *   variables: {
- *      uniqueNameOrEmail: // value for 'uniqueNameOrEmail'
- *      passwordHash: // value for 'passwordHash'
+ *      input: // value for 'input'
  *   },
  * });
  */
-export function useLoginMutation(
-  baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>
+export function useCreatePostMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options)
+  return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(
+    CreatePostDocument,
+    options
+  )
 }
-export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>
-export type LoginMutationResult = Apollo.MutationResult<LoginMutation>
-export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>
+export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>
+export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>
+export type CreatePostMutationOptions = Apollo.BaseMutationOptions<
+  CreatePostMutation,
+  CreatePostMutationVariables
+>
 export const LogoutDocument = gql`
   mutation Logout {
     logout
@@ -425,48 +396,6 @@ export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>
 export type LogoutMutationOptions = Apollo.BaseMutationOptions<
   LogoutMutation,
   LogoutMutationVariables
->
-export const RegisterDocument = gql`
-  mutation Register($input: RegisterInput!) {
-    register(input: $input) {
-      userUniqueName
-      jwt
-    }
-  }
-`
-export type RegisterMutationFn = Apollo.MutationFunction<
-  RegisterMutation,
-  RegisterMutationVariables
->
-
-/**
- * __useRegisterMutation__
- *
- * To run a mutation, you first call `useRegisterMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useRegisterMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [registerMutation, { data, loading, error }] = useRegisterMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useRegisterMutation(
-  baseOptions?: Apollo.MutationHookOptions<RegisterMutation, RegisterMutationVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, options)
-}
-export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>
-export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>
-export type RegisterMutationOptions = Apollo.BaseMutationOptions<
-  RegisterMutation,
-  RegisterMutationVariables
 >
 export const UnregisterDocument = gql`
   mutation Unregister {
@@ -515,7 +444,7 @@ export const UpdateUserDocument = gql`
   mutation UpdateUser($input: UserModificationInput!) {
     updateUser(input: $input) {
       id
-      uniqueName
+      nickname
     }
   }
 `
@@ -560,7 +489,7 @@ export const MeDocument = gql`
   query Me {
     me {
       id
-      uniqueName
+      nickname
     }
   }
 `
@@ -641,9 +570,9 @@ export function usePostsLazyQuery(
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>
-export const UserByNameDocument = gql`
-  query UserByName($uniqueName: NonEmptyString!) {
-    userByName(uniqueName: $uniqueName) {
+export const UserByNicknameDocument = gql`
+  query UserByNickname($nickname: NonEmptyString!) {
+    userByNickname(nickname: $nickname) {
       id
       nickname
       imageUrl
@@ -653,33 +582,42 @@ export const UserByNameDocument = gql`
 `
 
 /**
- * __useUserByNameQuery__
+ * __useUserByNicknameQuery__
  *
- * To run a query within a React component, call `useUserByNameQuery` and pass it any options that fit your needs.
- * When your component renders, `useUserByNameQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useUserByNicknameQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserByNicknameQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useUserByNameQuery({
+ * const { data, loading, error } = useUserByNicknameQuery({
  *   variables: {
- *      uniqueName: // value for 'uniqueName'
+ *      nickname: // value for 'nickname'
  *   },
  * });
  */
-export function useUserByNameQuery(
-  baseOptions: Apollo.QueryHookOptions<UserByNameQuery, UserByNameQueryVariables>
+export function useUserByNicknameQuery(
+  baseOptions: Apollo.QueryHookOptions<UserByNicknameQuery, UserByNicknameQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<UserByNameQuery, UserByNameQueryVariables>(UserByNameDocument, options)
+  return Apollo.useQuery<UserByNicknameQuery, UserByNicknameQueryVariables>(
+    UserByNicknameDocument,
+    options
+  )
 }
-export function useUserByNameLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<UserByNameQuery, UserByNameQueryVariables>
+export function useUserByNicknameLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<UserByNicknameQuery, UserByNicknameQueryVariables>
 ) {
   const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<UserByNameQuery, UserByNameQueryVariables>(UserByNameDocument, options)
+  return Apollo.useLazyQuery<UserByNicknameQuery, UserByNicknameQueryVariables>(
+    UserByNicknameDocument,
+    options
+  )
 }
-export type UserByNameQueryHookResult = ReturnType<typeof useUserByNameQuery>
-export type UserByNameLazyQueryHookResult = ReturnType<typeof useUserByNameLazyQuery>
-export type UserByNameQueryResult = Apollo.QueryResult<UserByNameQuery, UserByNameQueryVariables>
+export type UserByNicknameQueryHookResult = ReturnType<typeof useUserByNicknameQuery>
+export type UserByNicknameLazyQueryHookResult = ReturnType<typeof useUserByNicknameLazyQuery>
+export type UserByNicknameQueryResult = Apollo.QueryResult<
+  UserByNicknameQuery,
+  UserByNicknameQueryVariables
+>

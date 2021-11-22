@@ -9,8 +9,7 @@ const httpLink = createHttpLink({
 
 // Pull the login token from browser Storage every time a request is sent:
 const authLink = setContext((_, { headers }) => {
-  const jwt =
-    globalThis.localStorage?.getItem('jwt') ?? globalThis.sessionStorage?.getItem('jwt') ?? ''
+  const jwt = globalThis.sessionStorage?.getItem('jwt') ?? ''
 
   return {
     headers: {
