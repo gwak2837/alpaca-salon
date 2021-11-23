@@ -87,6 +87,7 @@ export default function HomePage() {
 
   // 데이터 요청
   const { data, loading, fetchMore } = usePostsQuery({
+    fetchPolicy: 'cache-and-network', // https://github.com/apollographql/apollo-client/issues/5419 해결되면 삭제하기
     notifyOnNetworkStatusChange: true,
     onError: (error) => {
       toastApolloError(error)
