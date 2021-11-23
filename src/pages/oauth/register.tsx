@@ -145,7 +145,7 @@ export default function OAuthRegisterPage() {
   return (
     <PageHead title="회원 정보 입력 - 알파카살롱" description={description}>
       <FlexContainerGrow>
-        <h2>알파카 살롱에 오신 걸 환영해요</h2>
+        <h2>알파카살롱에 오신 걸 환영해요</h2>
         <H4>우아한 알파카님의 멋진 닉네임을 알려주세요</H4>
 
         <GridContainerForm onSubmit={handleSubmit(updateRegister)}>
@@ -184,7 +184,7 @@ export default function OAuthRegisterPage() {
                 onKeyUp={(e) => {
                   ;(e.target as any).value = formatPhoneNumber((e.target as any).value)
                 }}
-                placeholder="세련된 알파카"
+                placeholder="+82 10-1234-1234"
                 type="tel"
                 {...register('phoneNumber', {
                   required: '휴대폰 번호를 입력해주세요',

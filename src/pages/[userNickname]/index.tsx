@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { toast } from 'react-toastify'
 import { useResetRecoilState } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { PrimaryButton, RedButton } from 'src/components/atoms/Button'
@@ -110,6 +111,7 @@ export default function UserPage() {
   const [logoutMutation, { loading: logoutLoading }] = useLogoutMutation({
     onCompleted: ({ logout }) => {
       if (logout) {
+        toast.success('로그아웃에 성공했어요')
         sessionStorage.removeItem('jwt')
         resetCurrentUser()
         router.push('/')

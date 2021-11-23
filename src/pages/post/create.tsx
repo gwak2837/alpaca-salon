@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import { useCreatePostMutation } from 'src/graphql/generated/types-and-hooks'
+import { useCreatePostMutation, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
 import XIcon from 'src/svgs/x-icon.svg'
 import styled from 'styled-components'
@@ -100,6 +100,14 @@ export default function PostCreationPage() {
     defaultValues: {
       title: '',
       contents: '',
+    },
+  })
+
+  // https://github.com/apollographql/apollo-client/issues/5419#issuecomment-973154976 해결되면 삭제하기
+  usePostsQuery({
+    onError: toastApolloError,
+    variables: {
+      pagination: { limit: 2 },
     },
   })
 

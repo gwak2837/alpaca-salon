@@ -14,7 +14,7 @@ export default function EventDetailPage() {
   const setCurrentUser = useSetRecoilState(currentUser)
 
   useEffect(() => {
-    toast.success('로그인에 성공했어요')
+    toast.success('소셜 로그인에 성공했어요')
 
     const queryString = new URLSearchParams(window.location.search.substr(1))
     sessionStorage.setItem('jwt', queryString.get('jwt') ?? '')
@@ -29,8 +29,9 @@ export default function EventDetailPage() {
   }, [router, url])
 
   return (
-    <PageHead title=" - 알파카살롱" description={description}>
-      소셜 로그인 성공. 잠시만 기다려주세요
+    <PageHead title="소셜 로그인 - 알파카살롱" description={description}>
+      <div>소셜 로그인 성공</div>
+      <div>잠시만 기다려주세요...</div>
     </PageHead>
   )
 }
