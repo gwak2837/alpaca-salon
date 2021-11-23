@@ -62,7 +62,7 @@ const KakaoButton = styled.div`
   }
 `
 
-const Padding = styled.div`
+const FlexContainerGrow = styled.div`
   display: flex;
   flex-flow: column;
   height: 100vh;
@@ -93,7 +93,7 @@ export default function LoginPage() {
 
   return (
     <PageHead title="로그인 - 알파카살롱" description={description}>
-      <Padding>
+      <FlexContainerGrow>
         <H4>당당하게 더 멋진 인생을 살고 싶은</H4>
         <br />
         <H2>멋쟁이 알파카님, 안녕하세요</H2>
@@ -128,7 +128,7 @@ export default function LoginPage() {
             카카오로 3초 만에 시작하기
           </KakaoButton>
         </FlexContainerColumnEnd>
-      </Padding>
+      </FlexContainerGrow>
     </PageHead>
   )
 }

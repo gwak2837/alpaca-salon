@@ -52,10 +52,10 @@ const TransparentButton = styled.button<{ disabled?: boolean }>`
 
 const Input = styled.input`
   border: none;
-  padding: 0.5rem;
-  width: 100%;
   border-bottom: 2px solid ${ALPACA_SALON_COLOR};
   border-radius: 0;
+  padding: 0.5rem;
+  width: 100%;
 
   :focus {
     outline: none;
