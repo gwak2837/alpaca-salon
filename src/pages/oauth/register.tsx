@@ -1,6 +1,5 @@
-import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useSetRecoilState } from 'recoil'
@@ -68,9 +67,8 @@ export default function EventDetailPage() {
     onError: toastApolloError,
   })
 
-  function updateRegister(input: RegisterFormValues) {
-    console.log(input)
-    updateUserMutation({ variables: { input } })
+  function updateRegister({ nickname, phoneNumber }: RegisterFormValues) {
+    updateUserMutation({ variables: { input: { nickname, phoneNumber } } })
   }
 
   useEffect(() => {
@@ -98,7 +96,7 @@ export default function EventDetailPage() {
           <input
             placeholder="+82 10-1234-1234"
             type="tel"
-            // {...register('phoneNumberConfirm', { required: true })}
+            {...register('phoneNumberConfirm', { required: true })}
           />
           <div>
             당신처럼 멋진 여성분들이 기다리고 있어요! 따뜻하고 행복하게 일상을 채울 준비가 되셨나요?
