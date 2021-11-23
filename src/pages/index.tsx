@@ -1,10 +1,11 @@
 import { Carousel } from 'antd'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { ReactElement, useState } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
+import PostCard from 'src/components/PostCard'
 import { usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import NavigationLayout from 'src/layouts/NavigationLayout'
@@ -140,6 +141,7 @@ export default function HomePage() {
           <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
         )}
       </FlexContainer>
+
       <Carousel autoplay>
         <Frame16to11>
           <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="cover" />
@@ -151,12 +153,14 @@ export default function HomePage() {
           <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="cover" />
         </Frame16to11>
       </Carousel>
+
       <GridContainerStore>
         {posts
-          ? posts.map((post, i) => <pre key={i}>{JSON.stringify(post, null, 2)}</pre>)
+          ? posts.map((post, i) => <PostCard key={i} post={post} />)
           : !loading && <div>글이 없어요</div>}
         {loading && <div>loading...</div>}
       </GridContainerStore>
+
       {!loading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
 
       <FixedPosition>

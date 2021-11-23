@@ -108,6 +108,7 @@ export type Post = {
 export enum PostCategory {
   FreeTopic = 'FREE_TOPIC',
   Menopause = 'MENOPAUSE',
+  Undefined = 'UNDEFINED',
 }
 
 export type PostCreationInput = {
@@ -280,6 +281,7 @@ export type PostsQuery = {
         title: any
         contents: any
         category: PostCategory
+        commentCount: any
         user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
       }>
     | null
@@ -531,6 +533,7 @@ export const PostsDocument = gql`
       title
       contents
       category
+      commentCount
       user {
         id
         nickname

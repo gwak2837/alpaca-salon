@@ -6,6 +6,7 @@ query Posts($pagination: Pagination!) {
     title
     contents
     category
+    commentCount
     user {
       id
       nickname
