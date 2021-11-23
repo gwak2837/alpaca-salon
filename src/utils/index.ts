@@ -73,3 +73,19 @@ export function createNaverMap(latitude: number, longitude: number) {
     },
   })
 }
+
+export function formatPhoneNumber(phoneNumber: string) {
+  const value3 = phoneNumber.replaceAll(' ', '')
+  const value2 = value3.replaceAll('+', '')
+  const value = value2.replaceAll('-', '')
+
+  if (value.length >= 9) {
+    return `+${value.slice(0, 2)} ${value.slice(2, 4)}-${value.slice(4, 8)}-${value.slice(8)}`
+  } else if (value.length >= 5) {
+    return `+${value.slice(0, 2)} ${value.slice(2, 4)}-${value.slice(4)}`
+  } else if (value.length >= 3) {
+    return `+${value.slice(0, 2)} ${value.slice(2)}`
+  } else {
+    return `+${value}`
+  }
+}

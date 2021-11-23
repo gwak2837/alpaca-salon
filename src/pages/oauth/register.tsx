@@ -14,6 +14,7 @@ import {
 } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import ErrorIcon from 'src/svgs/error-icon.svg'
+import { formatPhoneNumber } from 'src/utils'
 import styled from 'styled-components'
 
 import { FlexContainerColumnEnd } from '../[userNickname]'
@@ -180,9 +181,22 @@ export default function OAuthRegisterPage() {
             <Relative>
               <Input
                 erred={Boolean(errors.phoneNumber)}
+                onKeyUp={(e) => {
+                  ;(e.target as any).value = formatPhoneNumber((e.target as any).value)
+                }}
                 placeholder="세련된 알파카"
                 type="tel"
-                {...register('phoneNumber', { required: '휴대폰 번호를 입력해주세요' })}
+                {...register('phoneNumber', {
+                  required: '휴대폰 번호를 입력해주세요',
+                  maxLength: {
+                    value: 19,
+                    message: '19자 이내로 입력해주세요',
+                  },
+                  pattern: {
+                    value: /^\+[0-9]{2} [0-9]{2}-[0-9]{4}-[0-9]{4}$/,
+                    message: '휴대폰 번호를 형식에 맞게 입력해주세요',
+                  },
+                })}
               />
               {errors.phoneNumber && <ErrorIcon />}
             </Relative>
@@ -194,10 +208,17 @@ export default function OAuthRegisterPage() {
             <Relative>
               <Input
                 erred={Boolean(errors.phoneNumberConfirm)}
+                onKeyUp={(e) => {
+                  ;(e.target as any).value = formatPhoneNumber((e.target as any).value)
+                }}
                 placeholder="+82 10-1234-1234"
                 type="tel"
                 {...register('phoneNumberConfirm', {
                   required: '휴대폰 번호를 다시 입력해주세요',
+                  maxLength: {
+                    value: 19,
+                    message: '19자 이내로 입력해주세요',
+                  },
                   validate: (value) =>
                     value === getValues('phoneNumber') || '휴대폰 번호가 일치하지 않아요',
                 })}
