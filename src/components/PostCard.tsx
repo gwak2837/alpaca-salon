@@ -19,7 +19,7 @@ function PostCard({ post }: Props) {
         <p key={i}>{content}</p>
       ))}
       <div>작성일: {new Date(post.creationTime).toLocaleString()}</div>
-      <div>글쓴이: {post.user.nickname}</div>
+      <div>글쓴이: {post.user.nickname ?? '탈퇴한 사용자'}</div>
       <div>댓글수: {post.commentCount}</div>
     </Li>
   )
