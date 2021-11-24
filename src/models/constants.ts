@@ -6,6 +6,7 @@ export const ALPACA_SALON_COLOR = '#7C2F70' // manifest.json 파일의 theme_col
 export const ALPACA_SALON_ACHROMATIC_COLOR = '#4D4D4D'
 export const ALPACA_SALON_BACKGROUND_COLOR = '#F8F6FA'
 export const ALPACA_SALON_GREY_COLOR = '#B5B5B5'
+export const ALPACA_SALON_DARK_GREY_COLOR = '#787878'
 export const ALPACA_SALON_RED_COLOR = '#D70F0F'
 
 export const NAVIGATION_HEIGHT = '4rem'

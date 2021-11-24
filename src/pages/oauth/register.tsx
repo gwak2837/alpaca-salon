@@ -12,6 +12,7 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import {
   ALPACA_SALON_COLOR,
+  ALPACA_SALON_DARK_GREY_COLOR,
   ALPACA_SALON_GREY_COLOR,
   ALPACA_SALON_RED_COLOR,
 } from 'src/models/constants'
@@ -50,6 +51,10 @@ const GridContainerForm = styled.form`
   }
 `
 
+const Label = styled.label`
+  font-weight: 500;
+`
+
 const Relative = styled.div`
   position: relative;
 
@@ -68,6 +73,7 @@ const Input = styled.input<{ erred?: boolean }>`
   border-radius: 0;
   font-size: 1.2rem;
   font-weight: 500;
+  margin: 0.5rem 0 0;
   padding: 0.5rem 0;
   width: 100%;
 
@@ -92,6 +98,11 @@ const PrimaryText = styled.div`
   color: ${ALPACA_SALON_COLOR};
   margin-bottom: 3rem;
   text-align: center;
+`
+
+const DarkGreyText = styled.div`
+  color: ${ALPACA_SALON_DARK_GREY_COLOR};
+  font-weight: 600;
 `
 
 type RegisterFormValues = {
@@ -152,18 +163,17 @@ export default function OAuthRegisterPage() {
     return new Promise<boolean | string>((resolve) => {
       clearTimeout(isNicknameUniqueTimeout.current)
       isNicknameUniqueTimeout.current = setTimeout(async () => {
-        // 오류 해결되면 없애기
-        const nickname = getValues('nickname')
-        await isNicknameUnique({ variables: { nickname } })
+        // Apollo Client 오류 해결되면 없애기
+        await isNicknameUnique({ variables: { nickname: getValues('nickname') } })
 
         const { data, variables } = await isNicknameUnique({
-          variables: { nickname },
+          variables: { nickname: getValues('nickname') },
         })
 
         if (data?.isNicknameUnique) {
           return resolve(true)
         } else {
-          return resolve(`${variables?.nickname}, 이미 존재하는 닉네임입니다.`)
+          return resolve(`이미 사용 중인 닉네임이에요, ${variables?.nickname}`)
         }
       }, 500)
     })
@@ -183,7 +193,7 @@ export default function OAuthRegisterPage() {
 
         <GridContainerForm onSubmit={handleSubmit(updateRegister)}>
           <div>
-            <label htmlFor="nickname">닉네임</label>
+            <Label htmlFor="nickname">닉네임</Label>
             <Relative>
               <Input
                 erred={Boolean(errors.nickname)}
@@ -205,15 +215,19 @@ export default function OAuthRegisterPage() {
                   validate: checkNicknameUniquenessDebouncly,
                 })}
               />
-              {errors.nickname && <ErrorIcon />}
+              {IsNicknameUniqueLoading ? (
+                <div>loading</div>
+              ) : errors.nickname ? (
+                <ErrorIcon />
+              ) : (
+                <DarkGreyText>{watch('nickname').length} / 10</DarkGreyText>
+              )}
             </Relative>
             <ErrorH5>{errors.nickname?.message}</ErrorH5>
-            <div>{IsNicknameUniqueLoading && 'loading'}</div>
-            <div>{watch('nickname').length} / 10</div>
           </div>
 
           <div>
-            <label htmlFor="phoneNumver">휴대폰 번호</label>
+            <Label htmlFor="phoneNumver">휴대폰 번호</Label>
             <Relative>
               <Input
                 erred={Boolean(errors.phoneNumber)}
@@ -240,7 +254,7 @@ export default function OAuthRegisterPage() {
           </div>
 
           <div>
-            <label htmlFor="phoneNumberConfirm">휴대폰 번호 확인</label>
+            <Label htmlFor="phoneNumberConfirm">휴대폰 번호 확인</Label>
             <Relative>
               <Input
                 erred={Boolean(errors.phoneNumberConfirm)}
