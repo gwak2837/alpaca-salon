@@ -4,20 +4,21 @@ import { ReactNode } from 'react'
 import {
   ALPACA_SALON_ACHROMATIC_COLOR,
   ALPACA_SALON_COLOR,
+  ALPACA_SALON_GREY_COLOR,
   NAVIGATION_HEIGHT,
 } from 'src/models/constants'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
-import PostIcon from 'src/svgs/PostIcon'
-import VideoIcon from 'src/svgs/VideoIcon'
+import FireIcon from 'src/svgs/FireIcon'
+import HealthIcon from 'src/svgs/HealthIcon'
 import styled from 'styled-components'
 
 const Padding = styled.div`
   padding-top: ${NAVIGATION_HEIGHT};
 `
 
-const PostIconWrapper = styled.div`
-  width: 1.1rem;
-  height: 1.5rem;
+const HealthIconWrapper = styled.div`
+  width: 1.6rem;
+  height: 2rem;
   display: flex;
   align-items: center;
 
@@ -26,9 +27,9 @@ const PostIconWrapper = styled.div`
   }
 `
 
-const VideoIconWrapper = styled.div`
-  width: 1.3rem;
-  height: 1.5rem;
+const FireIconWrapper = styled.div`
+  width: 1.6rem;
+  height: 2rem;
   display: flex;
   align-items: center;
 
@@ -71,6 +72,11 @@ const A = styled.a<{ color: string }>`
   font-size: 0.9rem;
 `
 
+const SelectedH4 = styled.h4<{ selected: boolean }>`
+  color: ${(p) => (p.selected ? ALPACA_SALON_COLOR : ALPACA_SALON_GREY_COLOR)};
+  font-size: 0.9rem;
+`
+
 type Props = {
   children: ReactNode
 }
@@ -89,19 +95,19 @@ export default function NavigationLayout({ children }: Props) {
       <FixedNavigation>
         <Link href="/" passHref>
           <A color={doesPostListSelected ? ALPACA_SALON_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}>
-            <PostIconWrapper>
-              <PostIcon selected={doesPostListSelected} />
-            </PostIconWrapper>
-            <div>게시판</div>
+            <HealthIconWrapper>
+              <HealthIcon selected={doesPostListSelected} />
+            </HealthIconWrapper>
+            <SelectedH4 selected={doesPostListSelected}>건강문답</SelectedH4>
           </A>
         </Link>
 
         <Link href="/event" passHref>
           <A color={doesEventListSelected ? ALPACA_SALON_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}>
-            <VideoIconWrapper>
-              <VideoIcon selected={doesEventListSelected} />
-            </VideoIconWrapper>
-            <div>생생 수다</div>
+            <FireIconWrapper>
+              <FireIcon selected={doesEventListSelected} />
+            </FireIconWrapper>
+            <SelectedH4 selected={doesEventListSelected}>톡톡문답</SelectedH4>
           </A>
         </Link>
       </FixedNavigation>
