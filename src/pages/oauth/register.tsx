@@ -1,12 +1,15 @@
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useSetRecoilState } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { PrimaryButton } from 'src/components/atoms/Button'
 import PageHead from 'src/components/PageHead'
-import { useUpdateUserMutation } from 'src/graphql/generated/types-and-hooks'
+import {
+  useIsNicknameUniqueLazyQuery,
+  useUpdateUserMutation,
+} from 'src/graphql/generated/types-and-hooks'
 import {
   ALPACA_SALON_COLOR,
   ALPACA_SALON_GREY_COLOR,
@@ -50,7 +53,8 @@ const GridContainerForm = styled.form`
 const Relative = styled.div`
   position: relative;
 
-  svg {
+  > svg,
+  div {
     position: absolute;
     top: 50%;
     right: 0;
@@ -92,6 +96,7 @@ const PrimaryText = styled.div`
 
 type RegisterFormValues = {
   nickname: string
+  nicknameDuplicate: boolean
   phoneNumber: string
   phoneNumberConfirm: string
 }
@@ -100,6 +105,7 @@ const description = ''
 
 // http://localhost:3000/oauth/register?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzMGYyNjAzNi02YWQyLTQ5YjItODBjMC0xZWJjMjcwNDY0NzAiLCJpYXQiOjE2Mzc2Mjk5MjMsImV4cCI6MTYzNzg4OTEyM30.HTcTVY41HUVsECAw6OLmhSO-7PcrpLImsX2k75jSFzc&phoneNumber=%2B82+10-9203-2837
 export default function OAuthRegisterPage() {
+  const isNicknameUniqueTimeout = useRef<any>(null)
   const setCurrentUser = useSetRecoilState(currentUser)
   const router = useRouter()
 
@@ -109,16 +115,18 @@ export default function OAuthRegisterPage() {
     handleSubmit,
     setValue,
     register,
+    watch,
   } = useForm<RegisterFormValues>({
     defaultValues: {
       nickname: '',
+      nicknameDuplicate: false,
       phoneNumber: '+82 10-',
       phoneNumberConfirm: '+82 10-',
     },
   })
-  console.log('👀 - errors', errors)
+  // console.log('👀 - errors', errors)
 
-  const [updateUserMutation, { loading }] = useUpdateUserMutation({
+  const [updateUserMutation, { loading: updateUserLoading }] = useUpdateUserMutation({
     onCompleted: ({ updateUser }) => {
       if (updateUser) {
         toast.success('정보 등록에 성공했어요')
@@ -132,8 +140,33 @@ export default function OAuthRegisterPage() {
     onError: toastApolloError,
   })
 
+  const [isNicknameUnique, { loading: IsNicknameUniqueLoading }] = useIsNicknameUniqueLazyQuery({
+    onError: toastApolloError,
+  })
+
   function updateRegister({ nickname, phoneNumber }: RegisterFormValues) {
     updateUserMutation({ variables: { input: { nickname, phoneNumber } } })
+  }
+
+  function checkNicknameUniquenessDebouncly() {
+    return new Promise<boolean | string>((resolve) => {
+      clearTimeout(isNicknameUniqueTimeout.current)
+      isNicknameUniqueTimeout.current = setTimeout(async () => {
+        // 오류 해결되면 없애기
+        const nickname = getValues('nickname')
+        await isNicknameUnique({ variables: { nickname } })
+
+        const { data, variables } = await isNicknameUnique({
+          variables: { nickname },
+        })
+
+        if (data?.isNicknameUnique) {
+          return resolve(true)
+        } else {
+          return resolve(`${variables?.nickname}, 이미 존재하는 닉네임입니다.`)
+        }
+      }, 500)
+    })
   }
 
   useEffect(() => {
@@ -169,11 +202,14 @@ export default function OAuthRegisterPage() {
                     value: /^[\uAC00-\uD79D ]+$/u,
                     message: '한글과 공백만 입력해주세요',
                   },
+                  validate: checkNicknameUniquenessDebouncly,
                 })}
               />
               {errors.nickname && <ErrorIcon />}
             </Relative>
             <ErrorH5>{errors.nickname?.message}</ErrorH5>
+            <div>{IsNicknameUniqueLoading && 'loading'}</div>
+            <div>{watch('nickname').length} / 10</div>
           </div>
 
           <div>

@@ -1,4 +1,5 @@
 import { InMemoryCache } from '@apollo/client'
+import { TypedTypePolicies } from 'src/graphql/generated/types-and-hooks'
 
 function infiniteScroll(existing: unknown[], incoming: unknown[]) {
   if (!existing) {
@@ -8,17 +9,19 @@ function infiniteScroll(existing: unknown[], incoming: unknown[]) {
   }
 }
 
-const cache = new InMemoryCache({
-  typePolicies: {
-    Query: {
-      fields: {
-        posts: {
-          merge: infiniteScroll,
-          keyArgs: [],
-        },
+const typePolicies: TypedTypePolicies = {
+  Query: {
+    fields: {
+      posts: {
+        merge: infiniteScroll,
+        keyArgs: [],
       },
     },
   },
+}
+
+const cache = new InMemoryCache({
+  typePolicies,
 })
 
 export default cache

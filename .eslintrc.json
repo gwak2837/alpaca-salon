@@ -38,6 +38,9 @@
     "node/no-unpublished-import": "off",
     "node/no-unsupported-features/es-syntax": "off",
 
+    "promise/always-return": "off",
+    "promise/catch-or-return": "off",
+
     "react/forbid-prop-types": "error",
     "react/jsx-one-expression-per-line": "off",
     "react/jsx-uses-react": "off",

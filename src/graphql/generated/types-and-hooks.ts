@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { gql } from '@apollo/client'
 import * as Apollo from '@apollo/client'
+import { FieldPolicy, FieldReadFunction, TypePolicies, TypePolicy } from '@apollo/client/cache'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = Maybe<T>
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
@@ -259,6 +260,12 @@ export type UpdateUserMutation = {
     | undefined
 }
 
+export type IsNicknameUniqueQueryVariables = Exact<{
+  nickname: Scalars['NonEmptyString']
+}>
+
+export type IsNicknameUniqueQuery = { __typename?: 'Query'; isNicknameUnique: boolean }
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>
 
 export type MeQuery = {
@@ -487,6 +494,52 @@ export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserMutation,
   UpdateUserMutationVariables
 >
+export const IsNicknameUniqueDocument = gql`
+  query IsNicknameUnique($nickname: NonEmptyString!) {
+    isNicknameUnique(nickname: $nickname)
+  }
+`
+
+/**
+ * __useIsNicknameUniqueQuery__
+ *
+ * To run a query within a React component, call `useIsNicknameUniqueQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIsNicknameUniqueQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIsNicknameUniqueQuery({
+ *   variables: {
+ *      nickname: // value for 'nickname'
+ *   },
+ * });
+ */
+export function useIsNicknameUniqueQuery(
+  baseOptions: Apollo.QueryHookOptions<IsNicknameUniqueQuery, IsNicknameUniqueQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<IsNicknameUniqueQuery, IsNicknameUniqueQueryVariables>(
+    IsNicknameUniqueDocument,
+    options
+  )
+}
+export function useIsNicknameUniqueLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<IsNicknameUniqueQuery, IsNicknameUniqueQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<IsNicknameUniqueQuery, IsNicknameUniqueQueryVariables>(
+    IsNicknameUniqueDocument,
+    options
+  )
+}
+export type IsNicknameUniqueQueryHookResult = ReturnType<typeof useIsNicknameUniqueQuery>
+export type IsNicknameUniqueLazyQueryHookResult = ReturnType<typeof useIsNicknameUniqueLazyQuery>
+export type IsNicknameUniqueQueryResult = Apollo.QueryResult<
+  IsNicknameUniqueQuery,
+  IsNicknameUniqueQueryVariables
+>
 export const MeDocument = gql`
   query Me {
     me {
@@ -624,3 +677,157 @@ export type UserByNicknameQueryResult = Apollo.QueryResult<
   UserByNicknameQuery,
   UserByNicknameQueryVariables
 >
+export type CommentKeySpecifier = (
+  | 'contents'
+  | 'creationTime'
+  | 'id'
+  | 'imageUrl'
+  | 'modificationTime'
+  | 'parentComment'
+  | 'post'
+  | 'user'
+  | CommentKeySpecifier
+)[]
+export type CommentFieldPolicy = {
+  contents?: FieldPolicy<any> | FieldReadFunction<any>
+  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  id?: FieldPolicy<any> | FieldReadFunction<any>
+  imageUrl?: FieldPolicy<any> | FieldReadFunction<any>
+  modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  parentComment?: FieldPolicy<any> | FieldReadFunction<any>
+  post?: FieldPolicy<any> | FieldReadFunction<any>
+  user?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type MutationKeySpecifier = (
+  | 'createPost'
+  | 'deletePost'
+  | 'logout'
+  | 'unregister'
+  | 'updatePost'
+  | 'updateUser'
+  | MutationKeySpecifier
+)[]
+export type MutationFieldPolicy = {
+  createPost?: FieldPolicy<any> | FieldReadFunction<any>
+  deletePost?: FieldPolicy<any> | FieldReadFunction<any>
+  logout?: FieldPolicy<any> | FieldReadFunction<any>
+  unregister?: FieldPolicy<any> | FieldReadFunction<any>
+  updatePost?: FieldPolicy<any> | FieldReadFunction<any>
+  updateUser?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type PostKeySpecifier = (
+  | 'category'
+  | 'commentCount'
+  | 'contents'
+  | 'creationTime'
+  | 'hashtags'
+  | 'id'
+  | 'isLiked'
+  | 'modificationTime'
+  | 'title'
+  | 'user'
+  | PostKeySpecifier
+)[]
+export type PostFieldPolicy = {
+  category?: FieldPolicy<any> | FieldReadFunction<any>
+  commentCount?: FieldPolicy<any> | FieldReadFunction<any>
+  contents?: FieldPolicy<any> | FieldReadFunction<any>
+  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  hashtags?: FieldPolicy<any> | FieldReadFunction<any>
+  id?: FieldPolicy<any> | FieldReadFunction<any>
+  isLiked?: FieldPolicy<any> | FieldReadFunction<any>
+  modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  title?: FieldPolicy<any> | FieldReadFunction<any>
+  user?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type QueryKeySpecifier = (
+  | 'commentsByPost'
+  | 'isNicknameUnique'
+  | 'likedComments'
+  | 'me'
+  | 'myComments'
+  | 'post'
+  | 'posts'
+  | 'searchPosts'
+  | 'subComments'
+  | 'userByNickname'
+  | QueryKeySpecifier
+)[]
+export type QueryFieldPolicy = {
+  commentsByPost?: FieldPolicy<any> | FieldReadFunction<any>
+  isNicknameUnique?: FieldPolicy<any> | FieldReadFunction<any>
+  likedComments?: FieldPolicy<any> | FieldReadFunction<any>
+  me?: FieldPolicy<any> | FieldReadFunction<any>
+  myComments?: FieldPolicy<any> | FieldReadFunction<any>
+  post?: FieldPolicy<any> | FieldReadFunction<any>
+  posts?: FieldPolicy<any> | FieldReadFunction<any>
+  searchPosts?: FieldPolicy<any> | FieldReadFunction<any>
+  subComments?: FieldPolicy<any> | FieldReadFunction<any>
+  userByNickname?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type UserKeySpecifier = (
+  | 'bio'
+  | 'birthday'
+  | 'birthyear'
+  | 'creationTime'
+  | 'email'
+  | 'gender'
+  | 'id'
+  | 'imageUrl'
+  | 'likedCount'
+  | 'modificationTime'
+  | 'nickname'
+  | 'phoneNumber'
+  | 'providers'
+  | UserKeySpecifier
+)[]
+export type UserFieldPolicy = {
+  bio?: FieldPolicy<any> | FieldReadFunction<any>
+  birthday?: FieldPolicy<any> | FieldReadFunction<any>
+  birthyear?: FieldPolicy<any> | FieldReadFunction<any>
+  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  email?: FieldPolicy<any> | FieldReadFunction<any>
+  gender?: FieldPolicy<any> | FieldReadFunction<any>
+  id?: FieldPolicy<any> | FieldReadFunction<any>
+  imageUrl?: FieldPolicy<any> | FieldReadFunction<any>
+  likedCount?: FieldPolicy<any> | FieldReadFunction<any>
+  modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  nickname?: FieldPolicy<any> | FieldReadFunction<any>
+  phoneNumber?: FieldPolicy<any> | FieldReadFunction<any>
+  providers?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type UserAuthenticationKeySpecifier = ('jwt' | 'nickname' | UserAuthenticationKeySpecifier)[]
+export type UserAuthenticationFieldPolicy = {
+  jwt?: FieldPolicy<any> | FieldReadFunction<any>
+  nickname?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type StrictTypedTypePolicies = {
+  Comment?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | CommentKeySpecifier | (() => undefined | CommentKeySpecifier)
+    fields?: CommentFieldPolicy
+  }
+  Mutation?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | MutationKeySpecifier | (() => undefined | MutationKeySpecifier)
+    fields?: MutationFieldPolicy
+  }
+  Post?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | PostKeySpecifier | (() => undefined | PostKeySpecifier)
+    fields?: PostFieldPolicy
+  }
+  Query?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | QueryKeySpecifier | (() => undefined | QueryKeySpecifier)
+    fields?: QueryFieldPolicy
+  }
+  User?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | UserKeySpecifier | (() => undefined | UserKeySpecifier)
+    fields?: UserFieldPolicy
+  }
+  UserAuthentication?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?:
+      | false
+      | UserAuthenticationKeySpecifier
+      | (() => undefined | UserAuthenticationKeySpecifier)
+    fields?: UserAuthenticationFieldPolicy
+  }
+}
+export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies
