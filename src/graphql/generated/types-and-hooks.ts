@@ -135,6 +135,8 @@ export type Query = {
   __typename?: 'Query'
   /** 특정 게시글에 달린 댓글 */
   commentsByPost?: Maybe<Array<Maybe<Comment>>>
+  /** 이번 달 핫한 이야기 */
+  famousPosts?: Maybe<Array<Post>>
   /** 사용자 닉네임 중복 여부 검사 */
   isNicknameUnique: Scalars['Boolean']
   /** 좋아요 누른 댓글 */
@@ -260,6 +262,25 @@ export type UpdateUserMutation = {
     | undefined
 }
 
+export type FamousPostsQueryVariables = Exact<{ [key: string]: never }>
+
+export type FamousPostsQuery = {
+  __typename?: 'Query'
+  famousPosts?:
+    | Array<{
+        __typename?: 'Post'
+        id: string
+        creationTime: any
+        title: any
+        contents: any
+        category: PostCategory
+        commentCount: any
+        user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
+      }>
+    | null
+    | undefined
+}
+
 export type IsNicknameUniqueQueryVariables = Exact<{
   nickname: Scalars['NonEmptyString']
 }>
@@ -284,7 +305,6 @@ export type PostsQuery = {
         __typename?: 'Post'
         id: string
         creationTime: any
-        modificationTime: any
         title: any
         contents: any
         category: PostCategory
@@ -494,6 +514,56 @@ export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserMutation,
   UpdateUserMutationVariables
 >
+export const FamousPostsDocument = gql`
+  query FamousPosts {
+    famousPosts {
+      id
+      creationTime
+      title
+      contents
+      category
+      commentCount
+      user {
+        id
+        nickname
+      }
+    }
+  }
+`
+
+/**
+ * __useFamousPostsQuery__
+ *
+ * To run a query within a React component, call `useFamousPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFamousPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFamousPostsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useFamousPostsQuery(
+  baseOptions?: Apollo.QueryHookOptions<FamousPostsQuery, FamousPostsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<FamousPostsQuery, FamousPostsQueryVariables>(FamousPostsDocument, options)
+}
+export function useFamousPostsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<FamousPostsQuery, FamousPostsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<FamousPostsQuery, FamousPostsQueryVariables>(
+    FamousPostsDocument,
+    options
+  )
+}
+export type FamousPostsQueryHookResult = ReturnType<typeof useFamousPostsQuery>
+export type FamousPostsLazyQueryHookResult = ReturnType<typeof useFamousPostsLazyQuery>
+export type FamousPostsQueryResult = Apollo.QueryResult<FamousPostsQuery, FamousPostsQueryVariables>
 export const IsNicknameUniqueDocument = gql`
   query IsNicknameUnique($nickname: NonEmptyString!) {
     isNicknameUnique(nickname: $nickname)
@@ -582,7 +652,6 @@ export const PostsDocument = gql`
     posts(pagination: $pagination) {
       id
       creationTime
-      modificationTime
       title
       contents
       category
@@ -742,6 +811,7 @@ export type PostFieldPolicy = {
 }
 export type QueryKeySpecifier = (
   | 'commentsByPost'
+  | 'famousPosts'
   | 'isNicknameUnique'
   | 'likedComments'
   | 'me'
@@ -755,6 +825,7 @@ export type QueryKeySpecifier = (
 )[]
 export type QueryFieldPolicy = {
   commentsByPost?: FieldPolicy<any> | FieldReadFunction<any>
+  famousPosts?: FieldPolicy<any> | FieldReadFunction<any>
   isNicknameUnique?: FieldPolicy<any> | FieldReadFunction<any>
   likedComments?: FieldPolicy<any> | FieldReadFunction<any>
   me?: FieldPolicy<any> | FieldReadFunction<any>

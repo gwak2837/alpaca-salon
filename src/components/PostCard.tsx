@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 const Li = styled.li`
   border: 1px solid ${ALPACA_SALON_COLOR};
-  margin: 0 1rem;
 `
 
 type Props = {

@@ -1,5 +1,5 @@
-query Posts($pagination: Pagination!) {
-  posts(pagination: $pagination) {
+query FamousPosts {
+  famousPosts {
     id
     creationTime
     title

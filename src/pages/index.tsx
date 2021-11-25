@@ -4,15 +4,25 @@ import { useRouter } from 'next/router'
 import React, { ReactElement, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
+import FamousPostCard from 'src/components/FamousPostCard'
 import PageHead from 'src/components/PageHead'
 import PostCard from 'src/components/PostCard'
-import { usePostsQuery } from 'src/graphql/generated/types-and-hooks'
+import { useFamousPostsQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import NavigationLayout from 'src/layouts/NavigationLayout'
-import { NAVIGATION_HEIGHT, TABLET_MIN_WIDTH } from 'src/models/constants'
+import {
+  ALPACA_SALON_COLOR,
+  ALPACA_SALON_DARK_GREY_COLOR,
+  NAVIGATION_HEIGHT,
+  TABLET_MIN_WIDTH,
+} from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import WriteIcon from 'src/svgs/write-icon.svg'
 import styled from 'styled-components'
+
+const Background = styled.div`
+  background: #c691b7;
+`
 
 const FlexContainer = styled.div`
   display: flex;
@@ -23,29 +33,51 @@ const FlexContainer = styled.div`
 `
 
 const Title = styled.h2`
+  color: #fff;
   font-family: tvN EnjoystoriesOTF;
 `
 
 const WhiteButton = styled.button`
-  padding: 8px 12px;
-  background: #ffffff;
+  background: #ffffff20;
   border: 1px solid #ddd;
   border-radius: 5px;
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
 `
 
 const Frame16to11 = styled.div`
   position: relative;
   padding-top: 68.75%;
 
-  background: #f6f6f6;
+  background: #c691b7;
 `
 
-const GridContainerStore = styled.ul`
+const BorderRadius = styled.div`
+  background: #fafafa;
+  border-radius: 1.2rem 1.2rem 0px 0px;
+  padding: 1rem 0;
+`
+
+const PrimaryH3 = styled.h3`
+  color: ${ALPACA_SALON_COLOR};
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.5rem;
+`
+
+const GreyH5 = styled.h5`
+  color: ${ALPACA_SALON_DARK_GREY_COLOR};
+  font-size: 14px;
+  margin: 0.5rem;
+`
+
+const GridContainerPost = styled.ul`
   display: grid;
   /* grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); */
-  padding: 1rem 0;
+  padding: 1rem;
   gap: 1rem;
-  background: #fcfcfc;
+
   /* 
   @media (min-width: ${TABLET_MIN_WIDTH}) {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -85,6 +117,12 @@ export default function HomePage() {
   const [hasMoreData, setHasMoreData] = useState(true)
   const router = useRouter()
   const { nickname } = useRecoilValue(currentUser)
+
+  const { data: data2, loading: famousPostsLoading } = useFamousPostsQuery({
+    onError: toastApolloError,
+  })
+
+  const famousPosts = data2?.famousPosts
 
   // 데이터 요청
   const { data, loading, fetchMore } = usePostsQuery({
@@ -133,42 +171,59 @@ export default function HomePage() {
 
   return (
     <PageHead>
-      <FlexContainer>
-        <Title>알파카살롱</Title>
-        {nickname ? (
-          <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
-        ) : (
-          <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
-        )}
-      </FlexContainer>
+      <Background>
+        <FlexContainer>
+          <Title>알파카살롱</Title>
+          {nickname ? (
+            <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
+          ) : (
+            <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
+          )}
+        </FlexContainer>
 
-      <Carousel autoplay>
-        <Frame16to11>
-          <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="cover" />
-        </Frame16to11>
-        <Frame16to11>
-          <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="cover" />
-        </Frame16to11>
-        <Frame16to11>
-          <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="cover" />
-        </Frame16to11>
-      </Carousel>
+        <Carousel autoplay>
+          <Frame16to11>
+            <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="contain" />
+          </Frame16to11>
+          <Frame16to11>
+            <Image
+              src="/images/sample-banner2.png"
+              alt="banner"
+              layout="fill"
+              objectFit="contain"
+            />
+          </Frame16to11>
+        </Carousel>
 
-      <GridContainerStore>
-        {posts
-          ? posts.map((post, i) => <PostCard key={i} post={post} />)
-          : !loading && <div>글이 없어요</div>}
-        {loading && <div>loading...</div>}
-      </GridContainerStore>
+        <BorderRadius>
+          <PrimaryH3>이번 달 핫한 이야기</PrimaryH3>
+          <GreyH5>관리자 알파카가 이번 주에 도움이 되는 질문들을 선별해 소개해요.</GreyH5>
+          <GridContainerPost>
+            {famousPosts
+              ? famousPosts.map((famousPost, i) => (
+                  <FamousPostCard key={i} famousPost={famousPost} index={i + 1} />
+                ))
+              : !famousPostsLoading && <div>글이 없어요</div>}
+            {famousPostsLoading && <div>핫한 이야기 불러오는 중...</div>}
+          </GridContainerPost>
 
-      {!loading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
+          <PrimaryH3>최신 이야기</PrimaryH3>
+          <GridContainerPost>
+            {posts
+              ? posts.map((post, i) => <PostCard key={i} post={post} />)
+              : !loading && <div>글이 없어요</div>}
+            {loading && <div>최신 이야기 불러오는 중...</div>}
+          </GridContainerPost>
+          {!loading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
+        </BorderRadius>
 
-      <FixedPosition>
-        <PrimaryButton onClick={goToPostCreationPage}>
-          <WriteIcon />
-          글쓰기
-        </PrimaryButton>
-      </FixedPosition>
+        <FixedPosition>
+          <PrimaryButton onClick={goToPostCreationPage}>
+            <WriteIcon />
+            글쓰기
+          </PrimaryButton>
+        </FixedPosition>
+      </Background>
     </PageHead>
   )
 }
