@@ -56,32 +56,26 @@ const Frame16to11 = styled.div`
 const BorderRadius = styled.div`
   background: #fafafa;
   border-radius: 1.2rem 1.2rem 0px 0px;
-  padding: 1rem 0;
+  padding: 1rem 0.5rem;
 `
 
 const PrimaryH3 = styled.h3`
   color: ${ALPACA_SALON_COLOR};
   font-size: 1.25rem;
   font-weight: 600;
-  margin: 0.5rem;
+  margin-top: 0.5rem;
 `
 
 const GreyH5 = styled.h5`
   color: ${ALPACA_SALON_DARK_GREY_COLOR};
   font-size: 14px;
-  margin: 0.5rem;
+  margin-top: 0.5rem;
 `
 
 const GridContainerPost = styled.ul`
   display: grid;
-  /* grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); */
-  padding: 1rem;
-  gap: 1rem;
-
-  /* 
-  @media (min-width: ${TABLET_MIN_WIDTH}) {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  } */
+  gap: 0.5rem;
+  margin: 1rem 0;
 `
 
 const FixedPosition = styled.div`

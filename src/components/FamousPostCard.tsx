@@ -4,6 +4,7 @@ import {
   ALPACA_SALON_DARK_GREY_COLOR,
   ALPACA_SALON_GREY_COLOR,
 } from 'src/models/constants'
+import { FlexContainerBetween } from 'src/styles'
 import FlowerIcon from 'src/svgs/FlowerIcon'
 import styled from 'styled-components'
 
@@ -36,17 +37,12 @@ const WhiteNumber = styled.h3`
   transform: translate(-50%, -50%);
 `
 
-const FlexContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-`
-
-const GreySpan = styled.span`
+export const GreySpan = styled.span`
   color: ${ALPACA_SALON_DARK_GREY_COLOR};
   font-size: 0.9rem;
 `
 
-const BoldGreySpan = styled(GreySpan)`
+export const BoldGreySpan = styled(GreySpan)`
   font-weight: 600;
 `
 
@@ -66,14 +62,14 @@ function FamousPostCard({ famousPost, index }: Props) {
         <h4>{famousPost.title}</h4>
       </GridContainer>
 
-      <FlexContainer>
+      <FlexContainerBetween>
         <GreySpan>
           {famousPost.user.nickname ?? '탈퇴한 사용자'} ·{' '}
           {new Date(famousPost.creationTime).toLocaleString()}
         </GreySpan>
 
         <BoldGreySpan>댓글 {famousPost.commentCount}개</BoldGreySpan>
-      </FlexContainer>
+      </FlexContainerBetween>
     </Li>
   )
 }
