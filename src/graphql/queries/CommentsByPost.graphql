@@ -1,0 +1,15 @@
+query CommentsByPost($postId: ID!) {
+  commentsByPost(postId: $postId) {
+    id
+    creationTime
+    contents
+    isLiked
+    isModified
+    likedCount
+    user {
+      id
+      nickname
+      imageUrl
+    }
+  }
+}

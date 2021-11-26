@@ -42,12 +42,10 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppPropsWithLay
 
   // Google Analytics 초기 설정
   useEffect(() => {
-    if (process.env.NODE_ENV === 'production') {
-      const handleRouteChange = (url: string) => pageview(url)
-      router.events.on('routeChangeComplete', handleRouteChange)
-      return () => {
-        router.events.off('routeChangeComplete', handleRouteChange)
-      }
+    const handleRouteChange = (url: string) => pageview(url)
+    router.events.on('routeChangeComplete', handleRouteChange)
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
     }
   }, [router.events])
 

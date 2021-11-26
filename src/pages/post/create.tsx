@@ -6,6 +6,7 @@ import PageHead from 'src/components/PageHead'
 import { useCreatePostMutation, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
 import XIcon from 'src/svgs/x-icon.svg'
+import { isEmpty } from 'src/utils'
 import styled from 'styled-components'
 
 type PostCreationInput = {
@@ -143,16 +144,22 @@ export default function PostCreationPage() {
           <XIconWrapper onClick={goBack}>
             <XIcon />
           </XIconWrapper>
-          <AbsoluteH3 onClick={goToHomePage}>글쓰기</AbsoluteH3>
-          <TransparentButton type="submit">완료</TransparentButton>
+          <AbsoluteH3 onClick={goToHomePage}>질문하기</AbsoluteH3>
+          <TransparentButton disabled={!isEmpty(errors)} type="submit">
+            완료
+          </TransparentButton>
         </FixedHeader>
 
         <GridContainer>
-          <Input disabled={loading} placeholder="제목" {...register('title', { required: true })} />
+          <Input
+            disabled={loading}
+            placeholder="제목"
+            {...register('title', { required: '제목을 입력해주세요' })}
+          />
           <Textarea
             disabled={loading}
-            placeholder="내용을 입력해 주세요"
-            {...register('contents', { required: true })}
+            placeholder="내용을 입력해주세요"
+            {...register('contents', { required: '내용을 입력해주세요' })}
           />
         </GridContainer>
       </form>

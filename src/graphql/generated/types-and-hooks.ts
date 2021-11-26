@@ -23,6 +23,7 @@ export type Scalars = {
   Latitude: any
   Longitude: any
   NonEmptyString: any
+  NonNegativeInt: any
   PositiveInt: any
   URL: any
   UUID: any
@@ -34,6 +35,9 @@ export type Comment = {
   creationTime: Scalars['DateTime']
   id: Scalars['ID']
   imageUrl?: Maybe<Scalars['URL']>
+  isLiked: Scalars['Boolean']
+  isModified: Scalars['Boolean']
+  likedCount: Scalars['NonNegativeInt']
   modificationTime: Scalars['DateTime']
   /** 이 댓글의 상위 댓글 */
   parentComment?: Maybe<Comment>
@@ -262,6 +266,36 @@ export type UpdateUserMutation = {
     | undefined
 }
 
+export type CommentsByPostQueryVariables = Exact<{
+  postId: Scalars['ID']
+}>
+
+export type CommentsByPostQuery = {
+  __typename?: 'Query'
+  commentsByPost?:
+    | Array<
+        | {
+            __typename?: 'Comment'
+            id: string
+            creationTime: any
+            contents: Array<any>
+            isLiked: boolean
+            isModified: boolean
+            likedCount: any
+            user: {
+              __typename?: 'User'
+              id: any
+              nickname?: any | null | undefined
+              imageUrl?: any | null | undefined
+            }
+          }
+        | null
+        | undefined
+      >
+    | null
+    | undefined
+}
+
 export type FamousPostsQueryVariables = Exact<{ [key: string]: never }>
 
 export type FamousPostsQuery = {
@@ -292,6 +326,30 @@ export type MeQueryVariables = Exact<{ [key: string]: never }>
 export type MeQuery = {
   __typename?: 'Query'
   me?: { __typename?: 'User'; id: any; nickname?: any | null | undefined } | null | undefined
+}
+
+export type PostQueryVariables = Exact<{
+  id: Scalars['ID']
+}>
+
+export type PostQuery = {
+  __typename?: 'Query'
+  post?:
+    | {
+        __typename?: 'Post'
+        id: string
+        creationTime: any
+        title: any
+        contents: any
+        user: {
+          __typename?: 'User'
+          id: any
+          nickname?: any | null | undefined
+          imageUrl?: any | null | undefined
+        }
+      }
+    | null
+    | undefined
 }
 
 export type PostsQueryVariables = Exact<{
@@ -514,6 +572,64 @@ export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<
   UpdateUserMutation,
   UpdateUserMutationVariables
 >
+export const CommentsByPostDocument = gql`
+  query CommentsByPost($postId: ID!) {
+    commentsByPost(postId: $postId) {
+      id
+      creationTime
+      contents
+      isLiked
+      isModified
+      likedCount
+      user {
+        id
+        nickname
+        imageUrl
+      }
+    }
+  }
+`
+
+/**
+ * __useCommentsByPostQuery__
+ *
+ * To run a query within a React component, call `useCommentsByPostQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCommentsByPostQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCommentsByPostQuery({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useCommentsByPostQuery(
+  baseOptions: Apollo.QueryHookOptions<CommentsByPostQuery, CommentsByPostQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<CommentsByPostQuery, CommentsByPostQueryVariables>(
+    CommentsByPostDocument,
+    options
+  )
+}
+export function useCommentsByPostLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<CommentsByPostQuery, CommentsByPostQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<CommentsByPostQuery, CommentsByPostQueryVariables>(
+    CommentsByPostDocument,
+    options
+  )
+}
+export type CommentsByPostQueryHookResult = ReturnType<typeof useCommentsByPostQuery>
+export type CommentsByPostLazyQueryHookResult = ReturnType<typeof useCommentsByPostLazyQuery>
+export type CommentsByPostQueryResult = Apollo.QueryResult<
+  CommentsByPostQuery,
+  CommentsByPostQueryVariables
+>
 export const FamousPostsDocument = gql`
   query FamousPosts {
     famousPosts {
@@ -647,6 +763,51 @@ export function useMeLazyQuery(
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>
+export const PostDocument = gql`
+  query Post($id: ID!) {
+    post(id: $id) {
+      id
+      creationTime
+      title
+      contents
+      user {
+        id
+        nickname
+        imageUrl
+      }
+    }
+  }
+`
+
+/**
+ * __usePostQuery__
+ *
+ * To run a query within a React component, call `usePostQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePostQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePostQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePostQuery(baseOptions: Apollo.QueryHookOptions<PostQuery, PostQueryVariables>) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<PostQuery, PostQueryVariables>(PostDocument, options)
+}
+export function usePostLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<PostQuery, PostQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<PostQuery, PostQueryVariables>(PostDocument, options)
+}
+export type PostQueryHookResult = ReturnType<typeof usePostQuery>
+export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>
+export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>
 export const PostsDocument = gql`
   query Posts($pagination: Pagination!) {
     posts(pagination: $pagination) {
@@ -751,6 +912,9 @@ export type CommentKeySpecifier = (
   | 'creationTime'
   | 'id'
   | 'imageUrl'
+  | 'isLiked'
+  | 'isModified'
+  | 'likedCount'
   | 'modificationTime'
   | 'parentComment'
   | 'post'
@@ -762,6 +926,9 @@ export type CommentFieldPolicy = {
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
   imageUrl?: FieldPolicy<any> | FieldReadFunction<any>
+  isLiked?: FieldPolicy<any> | FieldReadFunction<any>
+  isModified?: FieldPolicy<any> | FieldReadFunction<any>
+  likedCount?: FieldPolicy<any> | FieldReadFunction<any>
   modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
   parentComment?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>

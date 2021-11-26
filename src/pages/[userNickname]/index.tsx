@@ -161,7 +161,7 @@ export default function UserPage() {
             />
           </GridContainerTemplate>
 
-          <Nickname>{user?.nickname ?? '닉네임'}</Nickname>
+          <Nickname>{userNickname ? user?.nickname ?? '닉네임' : '탈퇴한 사용자'}</Nickname>
 
           <FlexContainer>
             <Wrapper>

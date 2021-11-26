@@ -1,0 +1,14 @@
+query Post($id: ID!) {
+  post(id: $id) {
+    id
+    creationTime
+    title
+    contents
+    # imageUrls
+    user {
+      id
+      nickname
+      imageUrl
+    }
+  }
+}

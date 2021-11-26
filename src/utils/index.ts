@@ -89,3 +89,10 @@ export function formatPhoneNumber(phoneNumber: string) {
     return `+${value}`
   }
 }
+
+export function isEmpty(object: Record<string, unknown>) {
+  for (const key in object) {
+    return false
+  }
+  return true
+}
