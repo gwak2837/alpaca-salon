@@ -1,9 +1,7 @@
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import React, { Fragment } from 'react'
-import {
-  ALPACA_SALON_COLOR,
-  ALPACA_SALON_DARK_GREY_COLOR,
-  ALPACA_SALON_GREY_COLOR,
-} from 'src/models/constants'
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
 import { FlexContainerBetween } from 'src/styles'
 import styled from 'styled-components'
 
@@ -26,7 +24,7 @@ const H4 = styled.h4`
 `
 
 const OneLineP = styled.p`
-  width: calc(100vw - 4rem);
+  width: 100%;
 
   overflow: hidden;
   white-space: nowrap;
@@ -38,9 +36,25 @@ type Props = {
 }
 
 function PostCard({ post }: Props) {
+  const authorNickname = post.user.nickname ?? ''
+  const router = useRouter()
+
+  function goToPostDetailPage() {
+    router.push(`/post/${post.id}`)
+  }
+
+  function stopPropagation(e: any) {
+    e.stopPropagation()
+  }
+
   return (
-    <Li>
-      <PrimaryH4 disabled={!post.user.nickname}>{post.user.nickname ?? '탈퇴한 사용자'}</PrimaryH4>
+    <Li onClick={goToPostDetailPage}>
+      <Link href={`/@${authorNickname}`} passHref>
+        <a onClick={stopPropagation} role="link" tabIndex={0}>
+          <PrimaryH4 disabled={!authorNickname}>{authorNickname ?? '탈퇴한 사용자'}</PrimaryH4>
+        </a>
+      </Link>
+
       <H4>{post.title}</H4>
 
       <OneLineP>
