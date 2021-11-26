@@ -59,7 +59,7 @@ const BorderRadius = styled.div`
   padding: 1rem 0.5rem;
 `
 
-const PrimaryH3 = styled.h3`
+export const PrimaryH3 = styled.h3`
   color: ${ALPACA_SALON_COLOR};
   font-size: 1.25rem;
   font-weight: 600;
@@ -177,15 +177,10 @@ export default function HomePage() {
 
         <Carousel autoplay>
           <Frame16to11>
-            <Image src="/images/sample-banner.png" alt="banner" layout="fill" objectFit="contain" />
+            <Image src="/images/banner.png" alt="banner" layout="fill" objectFit="contain" />
           </Frame16to11>
           <Frame16to11>
-            <Image
-              src="/images/sample-banner2.png"
-              alt="banner"
-              layout="fill"
-              objectFit="contain"
-            />
+            <Image src="/images/banner2.png" alt="banner" layout="fill" objectFit="contain" />
           </Frame16to11>
         </Carousel>
 
