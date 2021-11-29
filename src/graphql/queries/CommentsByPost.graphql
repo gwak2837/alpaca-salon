@@ -2,14 +2,24 @@ query CommentsByPost($postId: ID!) {
   commentsByPost(postId: $postId) {
     id
     creationTime
+    modificationTime
     contents
+    likedCount
     isLiked
     isModified
-    likedCount
     user {
       id
       nickname
       imageUrl
+    }
+    subcomments {
+      id
+      contents
+      user {
+        id
+        nickname
+        imageUrl
+      }
     }
   }
 }

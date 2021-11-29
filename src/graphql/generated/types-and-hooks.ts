@@ -31,7 +31,7 @@ export type Scalars = {
 
 export type Comment = {
   __typename?: 'Comment'
-  contents: Array<Scalars['NonEmptyString']>
+  contents: Scalars['NonEmptyString']
   creationTime: Scalars['DateTime']
   id: Scalars['ID']
   imageUrl?: Maybe<Scalars['URL']>
@@ -43,6 +43,8 @@ export type Comment = {
   parentComment?: Maybe<Comment>
   /** 이 댓글이 달린 피드 */
   post: Post
+  /** 대댓글 */
+  subcomments?: Maybe<Array<Comment>>
   /** 댓글을 작성한 사용자 */
   user: User
 }
@@ -155,8 +157,6 @@ export type Query = {
   posts?: Maybe<Array<Post>>
   /** 글 검색 */
   searchPosts?: Maybe<Array<Post>>
-  /** 대댓글 */
-  subComments?: Maybe<Array<Maybe<Comment>>>
   /** 닉네임으로 사용자 검색 */
   userByNickname?: Maybe<User>
 }
@@ -179,10 +179,6 @@ export type QueryPostsArgs = {
 
 export type QuerySearchPostsArgs = {
   keywords: Array<Scalars['NonEmptyString']>
-}
-
-export type QuerySubCommentsArgs = {
-  id: Scalars['ID']
 }
 
 export type QueryUserByNicknameArgs = {
@@ -278,16 +274,31 @@ export type CommentsByPostQuery = {
             __typename?: 'Comment'
             id: string
             creationTime: any
-            contents: Array<any>
+            modificationTime: any
+            contents: any
+            likedCount: any
             isLiked: boolean
             isModified: boolean
-            likedCount: any
             user: {
               __typename?: 'User'
               id: any
               nickname?: any | null | undefined
               imageUrl?: any | null | undefined
             }
+            subcomments?:
+              | Array<{
+                  __typename?: 'Comment'
+                  id: string
+                  contents: any
+                  user: {
+                    __typename?: 'User'
+                    id: any
+                    nickname?: any | null | undefined
+                    imageUrl?: any | null | undefined
+                  }
+                }>
+              | null
+              | undefined
           }
         | null
         | undefined
@@ -577,14 +588,24 @@ export const CommentsByPostDocument = gql`
     commentsByPost(postId: $postId) {
       id
       creationTime
+      modificationTime
       contents
+      likedCount
       isLiked
       isModified
-      likedCount
       user {
         id
         nickname
         imageUrl
+      }
+      subcomments {
+        id
+        contents
+        user {
+          id
+          nickname
+          imageUrl
+        }
       }
     }
   }
@@ -918,6 +939,7 @@ export type CommentKeySpecifier = (
   | 'modificationTime'
   | 'parentComment'
   | 'post'
+  | 'subcomments'
   | 'user'
   | CommentKeySpecifier
 )[]
@@ -932,6 +954,7 @@ export type CommentFieldPolicy = {
   modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
   parentComment?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
+  subcomments?: FieldPolicy<any> | FieldReadFunction<any>
   user?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type MutationKeySpecifier = (
@@ -986,7 +1009,6 @@ export type QueryKeySpecifier = (
   | 'post'
   | 'posts'
   | 'searchPosts'
-  | 'subComments'
   | 'userByNickname'
   | QueryKeySpecifier
 )[]
@@ -1000,7 +1022,6 @@ export type QueryFieldPolicy = {
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
   searchPosts?: FieldPolicy<any> | FieldReadFunction<any>
-  subComments?: FieldPolicy<any> | FieldReadFunction<any>
   userByNickname?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type UserKeySpecifier = (
