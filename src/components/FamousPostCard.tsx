@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import React from 'react'
 import {
   ALPACA_SALON_COLOR,
@@ -52,8 +54,19 @@ type Props = {
 }
 
 function FamousPostCard({ famousPost, index }: Props) {
+  const authorNickname = famousPost.user.nickname ?? ''
+  const router = useRouter()
+
+  function goToPostDetailPage() {
+    router.push(`/post/${famousPost.id}`)
+  }
+
+  function stopPropagation(e: any) {
+    e.stopPropagation()
+  }
+
   return (
-    <Li>
+    <Li onClick={goToPostDetailPage}>
       <GridContainer>
         <Relative>
           <FlowerIcon highlight={index === 1} />
@@ -63,10 +76,14 @@ function FamousPostCard({ famousPost, index }: Props) {
       </GridContainer>
 
       <FlexContainerBetween>
-        <GreySpan>
-          {famousPost.user.nickname ?? '탈퇴한 사용자'} ·{' '}
-          {new Date(famousPost.creationTime).toLocaleString()}
-        </GreySpan>
+        <Link href={`/@${authorNickname}`} passHref>
+          <a onClick={stopPropagation} role="link" tabIndex={0}>
+            <GreySpan>
+              {authorNickname ?? '탈퇴한 사용자'} ·{' '}
+              {new Date(famousPost.creationTime).toLocaleDateString()}
+            </GreySpan>
+          </a>
+        </Link>
 
         <BoldGreySpan>댓글 {famousPost.commentCount}개</BoldGreySpan>
       </FlexContainerBetween>

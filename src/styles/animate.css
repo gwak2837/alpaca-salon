@@ -19,15 +19,13 @@
 }
 
 .animate_fadeIn {
-  animation-duration: 1s;
-  animation-duration: 1s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
   animation-name: fadeIn;
 }
 
 .animate_fadeOut {
-  animation-duration: 1s;
-  animation-duration: 1s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
   animation-name: fadeOut;
 }

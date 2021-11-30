@@ -273,11 +273,10 @@ export type CommentsByPostQuery = {
         __typename?: 'Comment'
         id: string
         creationTime: any
-        modificationTime: any
         contents: any
-        likedCount: any
         isLiked: boolean
         isModified: boolean
+        likedCount: any
         user: {
           __typename?: 'User'
           id: any
@@ -288,7 +287,11 @@ export type CommentsByPostQuery = {
           | Array<{
               __typename?: 'Comment'
               id: string
+              creationTime: any
               contents: any
+              isLiked: boolean
+              isModified: boolean
+              likedCount: any
               user: {
                 __typename?: 'User'
                 id: any
@@ -584,11 +587,10 @@ export const CommentsByPostDocument = gql`
     commentsByPost(postId: $postId) {
       id
       creationTime
-      modificationTime
       contents
-      likedCount
       isLiked
       isModified
+      likedCount
       user {
         id
         nickname
@@ -596,7 +598,11 @@ export const CommentsByPostDocument = gql`
       }
       subcomments {
         id
+        creationTime
         contents
+        isLiked
+        isModified
+        likedCount
         user {
           id
           nickname
