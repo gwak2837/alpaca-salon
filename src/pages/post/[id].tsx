@@ -123,7 +123,7 @@ export default function PostDetailPage() {
       }
     },
     onError: toastApolloError,
-    refetchQueries: ['CommentsByPost'],
+    refetchQueries: ['CommentsByPost', 'Posts'],
   })
 
   const { handleSubmit, register, reset } = useForm<CommentCreationForm>({
@@ -151,9 +151,9 @@ export default function PostDetailPage() {
           </div>
         </GridContainer>
 
+        {postLoading && <div>글을 불러오는 중입니다.</div>}
         <H3>{post?.title}</H3>
         <P>{post?.contents}</P>
-        {postLoading && <div>건강문답을 불러오는 중입니다.</div>}
       </Padding>
 
       <HorizontalBorder />
@@ -161,11 +161,14 @@ export default function PostDetailPage() {
       <HorizontalBorder />
 
       <GridContainerUl>
+        {commentsLoading && <div>댓글을 불러오는 중입니다.</div>}
         {comments?.map((comment) => (
           <CommentCard key={comment.id} comment={comment as Comment} />
         ))}
+
         <StickyForm onSubmit={handleSubmit(createComment)}>
           <CommentInput
+            disabled={loading}
             placeholder="댓글을 입력해주세요"
             {...register('contents', { required: '댓글을 입력해주세요' })}
           />
@@ -174,7 +177,3 @@ export default function PostDetailPage() {
     </PageHead>
   )
 }
-
-// PostDetailPage.getLayout = function getLayout(page: ReactElement) {
-//   return <NavigationLayout>{page}</NavigationLayout>
-// }
