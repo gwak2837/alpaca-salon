@@ -93,7 +93,7 @@ function CommentCard({ comment }: Props) {
       </GridContainerLi>
 
       <GridContainerSubcomments>
-        {comment.subcomments?.map((subcomment) => (
+        {comment.subcomments?.map((subcomment: any) => (
           <SubcommentCard key={subcomment.id} subcomment={subcomment} />
         ))}
       </GridContainerSubcomments>
