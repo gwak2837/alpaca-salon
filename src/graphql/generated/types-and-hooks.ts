@@ -15,17 +15,29 @@ export type Scalars = {
   Boolean: boolean
   Int: number
   Float: number
+  /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   Date: any
+  /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: any
+  /** A field whose value conforms to the standard internet email address format as specified in RFC822: https://www.w3.org/Protocols/rfc822/. */
   EmailAddress: any
+  /** A field whose value is a JSON Web Token (JWT): https://jwt.io/introduction. */
   JWT: any
+  /** Last value of pagination */
   LastValue: any
+  /** A field whose value is a valid decimal degrees latitude number (53.471): https://en.wikipedia.org/wiki/Latitude */
   Latitude: any
+  /** A field whose value is a valid decimal degrees longitude number (53.471): https://en.wikipedia.org/wiki/Longitude */
   Longitude: any
+  /** A string that cannot be passed as an empty value */
   NonEmptyString: any
+  /** Integers that will have a value of 0 or more. */
   NonNegativeInt: any
+  /** Integers that will have a value greater than 0. */
   PositiveInt: any
+  /** A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt. */
   URL: any
+  /** A field whose value is a generic Universally Unique Identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier. */
   UUID: any
 }
 
@@ -58,14 +70,22 @@ export enum Gender {
 
 export type Mutation = {
   __typename?: 'Mutation'
+  createComment?: Maybe<Comment>
   createPost?: Maybe<Post>
   deletePost?: Maybe<Post>
   /** JWT 인증 토큰과 같이 요청하면 로그아웃 성공 여부를 반환함 */
   logout: Scalars['Boolean']
+  toggleLikingComment?: Maybe<Comment>
   /** 회원탈퇴 시 사용자 정보가 모두 초기화됩 */
   unregister?: Maybe<User>
+  updateComment?: Maybe<Comment>
   updatePost?: Maybe<Post>
   updateUser?: Maybe<User>
+}
+
+export type MutationCreateCommentArgs = {
+  commentId?: InputMaybe<Scalars['ID']>
+  postId: Scalars['ID']
 }
 
 export type MutationCreatePostArgs = {
@@ -73,6 +93,14 @@ export type MutationCreatePostArgs = {
 }
 
 export type MutationDeletePostArgs = {
+  id: Scalars['ID']
+}
+
+export type MutationToggleLikingCommentArgs = {
+  id: Scalars['ID']
+}
+
+export type MutationUpdateCommentArgs = {
   id: Scalars['ID']
 }
 
@@ -98,7 +126,7 @@ export type Pagination = {
 export type Post = {
   __typename?: 'Post'
   category: PostCategory
-  commentCount: Scalars['PositiveInt']
+  commentCount: Scalars['NonNegativeInt']
   contents: Scalars['NonEmptyString']
   creationTime: Scalars['DateTime']
   /** 피드에 달린 해시태그 */
@@ -242,6 +270,18 @@ export type CreatePostMutation = {
 export type LogoutMutationVariables = Exact<{ [key: string]: never }>
 
 export type LogoutMutation = { __typename?: 'Mutation'; logout: boolean }
+
+export type ToggleLikingCommentMutationVariables = Exact<{
+  id: Scalars['ID']
+}>
+
+export type ToggleLikingCommentMutation = {
+  __typename?: 'Mutation'
+  toggleLikingComment?:
+    | { __typename?: 'Comment'; id: string; isLiked: boolean; likedCount: any }
+    | null
+    | undefined
+}
 
 export type UnregisterMutationVariables = Exact<{ [key: string]: never }>
 
@@ -493,6 +533,57 @@ export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>
 export type LogoutMutationOptions = Apollo.BaseMutationOptions<
   LogoutMutation,
   LogoutMutationVariables
+>
+export const ToggleLikingCommentDocument = gql`
+  mutation ToggleLikingComment($id: ID!) {
+    toggleLikingComment(id: $id) {
+      id
+      isLiked
+      likedCount
+    }
+  }
+`
+export type ToggleLikingCommentMutationFn = Apollo.MutationFunction<
+  ToggleLikingCommentMutation,
+  ToggleLikingCommentMutationVariables
+>
+
+/**
+ * __useToggleLikingCommentMutation__
+ *
+ * To run a mutation, you first call `useToggleLikingCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleLikingCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleLikingCommentMutation, { data, loading, error }] = useToggleLikingCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useToggleLikingCommentMutation(
+  baseOptions?: Apollo.MutationHookOptions<
+    ToggleLikingCommentMutation,
+    ToggleLikingCommentMutationVariables
+  >
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<ToggleLikingCommentMutation, ToggleLikingCommentMutationVariables>(
+    ToggleLikingCommentDocument,
+    options
+  )
+}
+export type ToggleLikingCommentMutationHookResult = ReturnType<
+  typeof useToggleLikingCommentMutation
+>
+export type ToggleLikingCommentMutationResult = Apollo.MutationResult<ToggleLikingCommentMutation>
+export type ToggleLikingCommentMutationOptions = Apollo.BaseMutationOptions<
+  ToggleLikingCommentMutation,
+  ToggleLikingCommentMutationVariables
 >
 export const UnregisterDocument = gql`
   mutation Unregister {
@@ -960,19 +1051,25 @@ export type CommentFieldPolicy = {
   user?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type MutationKeySpecifier = (
+  | 'createComment'
   | 'createPost'
   | 'deletePost'
   | 'logout'
+  | 'toggleLikingComment'
   | 'unregister'
+  | 'updateComment'
   | 'updatePost'
   | 'updateUser'
   | MutationKeySpecifier
 )[]
 export type MutationFieldPolicy = {
+  createComment?: FieldPolicy<any> | FieldReadFunction<any>
   createPost?: FieldPolicy<any> | FieldReadFunction<any>
   deletePost?: FieldPolicy<any> | FieldReadFunction<any>
   logout?: FieldPolicy<any> | FieldReadFunction<any>
+  toggleLikingComment?: FieldPolicy<any> | FieldReadFunction<any>
   unregister?: FieldPolicy<any> | FieldReadFunction<any>
+  updateComment?: FieldPolicy<any> | FieldReadFunction<any>
   updatePost?: FieldPolicy<any> | FieldReadFunction<any>
   updateUser?: FieldPolicy<any> | FieldReadFunction<any>
 }

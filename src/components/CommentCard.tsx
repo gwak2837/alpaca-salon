@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import React from 'react'
+import { toastApolloError } from 'src/apollo/error'
+import { Comment, useToggleLikingCommentMutation } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
 import { GreyH5, H5 } from 'src/pages/post/[id]'
 import HeartIcon from 'src/svgs/HeartIcon'
@@ -46,6 +48,7 @@ const GridContainerSubcomments = styled.ul`
 const ButtonCSS = css`
   border: none;
   border-radius: 9999px;
+  cursor: pointer;
   font-size: 0.75rem;
   padding: 0.4rem 0.75rem;
 `
@@ -74,35 +77,52 @@ const SelectableSpan = styled.span<{ selected: boolean }>`
 `
 
 type Props2 = {
-  subcomment: any
+  subcomment: Comment
 }
 
 function SubcommentCard({ subcomment }: Props2) {
-  const author = subcomment?.user
+  const author = subcomment.user
   const router = useRouter()
 
+  const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
+    onError: toastApolloError,
+    variables: { id: subcomment.id },
+  })
+
   function goToUserDetailPage() {
-    router.push(`/@${author?.nickname}`)
+    router.push(`/@${author.nickname}`)
+  }
+
+  function toggleLikingComment() {
+    const jwt = window.sessionStorage.getItem('jwt')
+
+    if (jwt) {
+      if (!loading) {
+        toggleLikingCommentMutation()
+      }
+    } else {
+      router.push('/login')
+    }
   }
 
   return (
     <GridContainerLi>
       <Image
-        src={/* author?.imageUrl ??  */ '/images/default-profile-image.webp'}
+        src={/* author?.imageUrl  */ '/images/default-profile-image.webp'}
         alt="profile"
         width="40"
         height="40"
         onClick={goToUserDetailPage}
       />
       <div onClick={goToUserDetailPage} role="button" tabIndex={0}>
-        <H5>{author?.nickname ?? 'loading'}</H5>
-        <GreyH5>{new Date(subcomment?.creationTime).toLocaleTimeString()}</GreyH5>
+        <H5>{author.nickname}</H5>
+        <GreyH5>{new Date(subcomment.creationTime).toLocaleTimeString()}</GreyH5>
       </div>
 
       <GridItemP>{subcomment.contents}</GridItemP>
 
       <GridItemDiv>
-        <LikingButton>
+        <LikingButton onClick={toggleLikingComment}>
           <HeartIcon selected={subcomment.isLiked} />
           공감해요
           <SelectableSpan selected={subcomment.isLiked}>{subcomment.likedCount}</SelectableSpan>
@@ -113,36 +133,53 @@ function SubcommentCard({ subcomment }: Props2) {
 }
 
 type Props = {
-  comment: any
+  comment: Comment
 }
 
 function CommentCard({ comment }: Props) {
-  const author = comment?.user
+  const author = comment.user
   const router = useRouter()
 
+  const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
+    onError: toastApolloError,
+    variables: { id: comment.id },
+  })
+
   function goToUserDetailPage() {
-    router.push(`/@${author?.nickname}`)
+    router.push(`/@${author.nickname}`)
+  }
+
+  function toggleLikingComment() {
+    const jwt = window.sessionStorage.getItem('jwt')
+
+    if (jwt) {
+      if (!loading) {
+        toggleLikingCommentMutation()
+      }
+    } else {
+      router.push('/login')
+    }
   }
 
   return (
     <GridContainerComment>
       <GridContainerLi>
         <Image
-          src={/* author?.imageUrl ??  */ '/images/default-profile-image.webp'}
+          src={/* author?.imageUrl */ '/images/default-profile-image.webp'}
           alt="profile"
           width="40"
           height="40"
           onClick={goToUserDetailPage}
         />
         <div onClick={goToUserDetailPage} role="button" tabIndex={0}>
-          <H5>{author?.nickname ?? 'loading'}</H5>
-          <GreyH5>{new Date(comment?.creationTime).toLocaleTimeString()}</GreyH5>
+          <H5>{author.nickname}</H5>
+          <GreyH5>{new Date(comment.creationTime).toLocaleTimeString()}</GreyH5>
         </div>
 
         <GridItemP>{comment.contents}</GridItemP>
 
         <GridItemDiv>
-          <LikingButton>
+          <LikingButton onClick={toggleLikingComment}>
             <HeartIcon selected={comment.isLiked} />
             공감해요
             <SelectableSpan selected={comment.isLiked}>{comment.likedCount}</SelectableSpan>
@@ -152,7 +189,7 @@ function CommentCard({ comment }: Props) {
       </GridContainerLi>
 
       <GridContainerSubcomments>
-        {comment.subcomments?.map((subcomment: any) => (
+        {comment.subcomments?.map((subcomment) => (
           <SubcommentCard key={subcomment.id} subcomment={subcomment} />
         ))}
       </GridContainerSubcomments>

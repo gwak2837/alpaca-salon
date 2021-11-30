@@ -4,7 +4,11 @@ import React, { ReactElement } from 'react'
 import { toastApolloError } from 'src/apollo/error'
 import CommentCard from 'src/components/CommentCard'
 import PageHead from 'src/components/PageHead'
-import { useCommentsByPostQuery, usePostQuery } from 'src/graphql/generated/types-and-hooks'
+import {
+  Comment,
+  useCommentsByPostQuery,
+  usePostQuery,
+} from 'src/graphql/generated/types-and-hooks'
 import NavigationLayout from 'src/layouts/NavigationLayout'
 import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
 import styled from 'styled-components'
@@ -114,7 +118,7 @@ export default function PostDetailPage() {
 
       <GridContainerUl>
         {comments?.map((comment) => (
-          <CommentCard key={comment.id} comment={comment} />
+          <CommentCard key={comment.id} comment={comment as Comment} />
         ))}
       </GridContainerUl>
     </PageHead>
