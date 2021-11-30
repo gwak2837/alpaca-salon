@@ -140,7 +140,7 @@ export enum Provider {
 export type Query = {
   __typename?: 'Query'
   /** 특정 게시글에 달린 댓글 */
-  commentsByPost?: Maybe<Array<Maybe<Comment>>>
+  commentsByPost?: Maybe<Array<Comment>>
   /** 이번 달 핫한 이야기 */
   famousPosts?: Maybe<Array<Post>>
   /** 사용자 닉네임 중복 여부 검사 */
@@ -269,40 +269,36 @@ export type CommentsByPostQueryVariables = Exact<{
 export type CommentsByPostQuery = {
   __typename?: 'Query'
   commentsByPost?:
-    | Array<
-        | {
-            __typename?: 'Comment'
-            id: string
-            creationTime: any
-            modificationTime: any
-            contents: any
-            likedCount: any
-            isLiked: boolean
-            isModified: boolean
-            user: {
-              __typename?: 'User'
-              id: any
-              nickname?: any | null | undefined
-              imageUrl?: any | null | undefined
-            }
-            subcomments?:
-              | Array<{
-                  __typename?: 'Comment'
-                  id: string
-                  contents: any
-                  user: {
-                    __typename?: 'User'
-                    id: any
-                    nickname?: any | null | undefined
-                    imageUrl?: any | null | undefined
-                  }
-                }>
-              | null
-              | undefined
-          }
-        | null
-        | undefined
-      >
+    | Array<{
+        __typename?: 'Comment'
+        id: string
+        creationTime: any
+        modificationTime: any
+        contents: any
+        likedCount: any
+        isLiked: boolean
+        isModified: boolean
+        user: {
+          __typename?: 'User'
+          id: any
+          nickname?: any | null | undefined
+          imageUrl?: any | null | undefined
+        }
+        subcomments?:
+          | Array<{
+              __typename?: 'Comment'
+              id: string
+              contents: any
+              user: {
+                __typename?: 'User'
+                id: any
+                nickname?: any | null | undefined
+                imageUrl?: any | null | undefined
+              }
+            }>
+          | null
+          | undefined
+      }>
     | null
     | undefined
 }
