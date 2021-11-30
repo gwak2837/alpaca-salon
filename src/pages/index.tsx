@@ -21,7 +21,7 @@ import WriteIcon from 'src/svgs/write-icon.svg'
 import styled from 'styled-components'
 
 const Background = styled.div`
-  background: #c691b7;
+  background: #e2d7ec;
 `
 
 const FlexContainer = styled.div`
@@ -33,15 +33,13 @@ const FlexContainer = styled.div`
 `
 
 const Title = styled.h2`
-  color: #fff;
   font-family: tvN EnjoystoriesOTF;
 `
 
 const WhiteButton = styled.button`
   background: #ffffff20;
-  border: 1px solid #ddd;
+  border: 1px solid #888;
   border-radius: 5px;
-  color: #fff;
   font-size: 0.9rem;
   padding: 0.5rem 0.75rem;
 `
@@ -50,7 +48,7 @@ const Frame16to11 = styled.div`
   position: relative;
   padding-top: 68.75%;
 
-  background: #c691b7;
+  background: #e2d7ec;
 `
 
 const BorderRadius = styled.div`

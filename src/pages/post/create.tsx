@@ -144,7 +144,7 @@ export default function PostCreationPage() {
           <XIconWrapper onClick={goBack}>
             <XIcon />
           </XIconWrapper>
-          <AbsoluteH3 onClick={goToHomePage}>질문하기</AbsoluteH3>
+          <AbsoluteH3 onClick={goToHomePage}>글쓰기</AbsoluteH3>
           <TransparentButton disabled={!isEmpty(errors)} type="submit">
             완료
           </TransparentButton>

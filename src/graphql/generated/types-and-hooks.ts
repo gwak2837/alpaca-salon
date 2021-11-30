@@ -85,6 +85,7 @@ export type Mutation = {
 
 export type MutationCreateCommentArgs = {
   commentId?: InputMaybe<Scalars['ID']>
+  contents: Scalars['NonEmptyString']
   postId: Scalars['ID']
 }
 
@@ -101,6 +102,7 @@ export type MutationToggleLikingCommentArgs = {
 }
 
 export type MutationUpdateCommentArgs = {
+  contents: Scalars['NonEmptyString']
   id: Scalars['ID']
 }
 
@@ -256,6 +258,17 @@ export type PostCardFragment = {
   contents: any
   category: PostCategory
   user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
+}
+
+export type CreateCommentMutationVariables = Exact<{
+  postId: Scalars['ID']
+  contents: Scalars['NonEmptyString']
+  commentId?: InputMaybe<Scalars['ID']>
+}>
+
+export type CreateCommentMutation = {
+  __typename?: 'Mutation'
+  createComment?: { __typename?: 'Comment'; id: string } | null | undefined
 }
 
 export type CreatePostMutationVariables = Exact<{
@@ -455,6 +468,52 @@ export const PostCardFragmentDoc = gql`
     }
   }
 `
+export const CreateCommentDocument = gql`
+  mutation CreateComment($postId: ID!, $contents: NonEmptyString!, $commentId: ID) {
+    createComment(postId: $postId, contents: $contents, commentId: $commentId) {
+      id
+    }
+  }
+`
+export type CreateCommentMutationFn = Apollo.MutationFunction<
+  CreateCommentMutation,
+  CreateCommentMutationVariables
+>
+
+/**
+ * __useCreateCommentMutation__
+ *
+ * To run a mutation, you first call `useCreateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCommentMutation, { data, loading, error }] = useCreateCommentMutation({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *      contents: // value for 'contents'
+ *      commentId: // value for 'commentId'
+ *   },
+ * });
+ */
+export function useCreateCommentMutation(
+  baseOptions?: Apollo.MutationHookOptions<CreateCommentMutation, CreateCommentMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
+    CreateCommentDocument,
+    options
+  )
+}
+export type CreateCommentMutationHookResult = ReturnType<typeof useCreateCommentMutation>
+export type CreateCommentMutationResult = Apollo.MutationResult<CreateCommentMutation>
+export type CreateCommentMutationOptions = Apollo.BaseMutationOptions<
+  CreateCommentMutation,
+  CreateCommentMutationVariables
+>
 export const CreatePostDocument = gql`
   mutation CreatePost($input: PostCreationInput!) {
     createPost(input: $input) {

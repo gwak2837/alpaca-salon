@@ -101,6 +101,7 @@ function SubcommentCard({ subcomment }: Props2) {
         toggleLikingCommentMutation()
       }
     } else {
+      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
       router.push('/login')
     }
   }
@@ -157,6 +158,7 @@ function CommentCard({ comment }: Props) {
         toggleLikingCommentMutation()
       }
     } else {
+      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
       router.push('/login')
     }
   }

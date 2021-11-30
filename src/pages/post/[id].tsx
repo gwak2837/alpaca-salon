@@ -1,12 +1,15 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import React, { ReactElement } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import CommentCard from 'src/components/CommentCard'
 import PageHead from 'src/components/PageHead'
 import {
   Comment,
   useCommentsByPostQuery,
+  useCreateCommentMutation,
   usePostQuery,
 } from 'src/graphql/generated/types-and-hooks'
 import NavigationLayout from 'src/layouts/NavigationLayout'
@@ -69,6 +72,27 @@ const GridContainerUl = styled.ul`
   padding: 0.75rem 0.6rem;
 `
 
+const StickyForm = styled.form`
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  /* height: 7rem; */
+`
+
+const CommentInput = styled.input`
+  background: #f4f4f4;
+  border: none;
+  border-radius: 9999px;
+  margin: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  width: calc(100% - 1.2rem);
+`
+
+type CommentCreationForm = {
+  contents: string
+}
+
 const description = ''
 
 export default function PostDetailPage() {
@@ -92,6 +116,25 @@ export default function PostDetailPage() {
 
   const comments = data2?.commentsByPost
 
+  const [createCommentMutation, { loading }] = useCreateCommentMutation({
+    onCompleted: ({ createComment }) => {
+      if (createComment) {
+        toast.success('댓글을 작성했어요')
+      }
+    },
+    onError: toastApolloError,
+    refetchQueries: ['CommentsByPost'],
+  })
+
+  const { handleSubmit, register, reset } = useForm<CommentCreationForm>({
+    defaultValues: { contents: '' },
+  })
+
+  function createComment({ contents }: CommentCreationForm) {
+    createCommentMutation({ variables: { contents, postId } })
+    reset()
+  }
+
   return (
     <PageHead title={`${post?.title ?? '건강문답'} - 알파카살롱`} description={description}>
       <Padding>
@@ -112,6 +155,7 @@ export default function PostDetailPage() {
         <P>{post?.contents}</P>
         {postLoading && <div>건강문답을 불러오는 중입니다.</div>}
       </Padding>
+
       <HorizontalBorder />
       <GreyButton>댓글 달기</GreyButton>
       <HorizontalBorder />
@@ -120,11 +164,17 @@ export default function PostDetailPage() {
         {comments?.map((comment) => (
           <CommentCard key={comment.id} comment={comment as Comment} />
         ))}
+        <StickyForm onSubmit={handleSubmit(createComment)}>
+          <CommentInput
+            placeholder="댓글을 입력해주세요"
+            {...register('contents', { required: '댓글을 입력해주세요' })}
+          />
+        </StickyForm>
       </GridContainerUl>
     </PageHead>
   )
 }
 
-PostDetailPage.getLayout = function getLayout(page: ReactElement) {
-  return <NavigationLayout>{page}</NavigationLayout>
-}
+// PostDetailPage.getLayout = function getLayout(page: ReactElement) {
+//   return <NavigationLayout>{page}</NavigationLayout>
+// }
