@@ -135,9 +135,11 @@ function SubcommentCard({ subcomment }: Props2) {
 
 type Props = {
   comment: Comment
+  parentCommentIdRef: any
+  commentInputRef: any
 }
 
-function CommentCard({ comment }: Props) {
+function CommentCard({ comment, parentCommentIdRef, commentInputRef }: Props) {
   const author = comment.user
   const router = useRouter()
 
@@ -163,6 +165,11 @@ function CommentCard({ comment }: Props) {
     }
   }
 
+  function setParentCommentId() {
+    parentCommentIdRef.current = comment.id
+    commentInputRef.current.focus()
+  }
+
   return (
     <GridContainerComment>
       <GridContainerLi>
@@ -186,7 +193,7 @@ function CommentCard({ comment }: Props) {
             공감해요
             <SelectableSpan selected={comment.isLiked}>{comment.likedCount}</SelectableSpan>
           </LikingButton>
-          <SubcommentButton>답글쓰기</SubcommentButton>
+          <SubcommentButton onClick={setParentCommentId}>답글쓰기</SubcommentButton>
         </GridItemDiv>
       </GridContainerLi>
 

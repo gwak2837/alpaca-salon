@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -96,6 +96,8 @@ type CommentCreationForm = {
 const description = ''
 
 export default function PostDetailPage() {
+  const parentCommentId = useRef('')
+  const commentInputRef = useRef<HTMLInputElement | null>()
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
 
@@ -130,8 +132,16 @@ export default function PostDetailPage() {
     defaultValues: { contents: '' },
   })
 
+  const { ref, ...registerCommentCreationForm } = register('contents', {
+    onBlur: () => (parentCommentId.current = ''),
+    required: '댓글을 입력해주세요',
+  })
+
   function createComment({ contents }: CommentCreationForm) {
-    createCommentMutation({ variables: { contents, postId } })
+    const variables: any = { contents, postId }
+    if (parentCommentId.current) variables.commentId = parentCommentId.current
+
+    createCommentMutation({ variables })
     reset()
   }
 
@@ -163,14 +173,23 @@ export default function PostDetailPage() {
       <GridContainerUl>
         {commentsLoading && <div>댓글을 불러오는 중입니다.</div>}
         {comments?.map((comment) => (
-          <CommentCard key={comment.id} comment={comment as Comment} />
+          <CommentCard
+            key={comment.id}
+            comment={comment as Comment}
+            parentCommentIdRef={parentCommentId}
+            commentInputRef={commentInputRef}
+          />
         ))}
 
         <StickyForm onSubmit={handleSubmit(createComment)}>
           <CommentInput
             disabled={loading}
             placeholder="댓글을 입력해주세요"
-            {...register('contents', { required: '댓글을 입력해주세요' })}
+            ref={(input) => {
+              ref(input)
+              commentInputRef.current = input
+            }}
+            {...registerCommentCreationForm}
           />
         </StickyForm>
       </GridContainerUl>
