@@ -204,6 +204,7 @@ export default function PostDetailPage() {
   function needLogin() {
     if (!window.sessionStorage.getItem('jwt')) {
       toast.info('로그인이 필요합니다')
+      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
       router.push('/login')
     }
   }
@@ -217,7 +218,13 @@ export default function PostDetailPage() {
   }
 
   function focusInput() {
-    commentInputRef.current?.focus()
+    if (window.sessionStorage.getItem('jwt')) {
+      commentInputRef.current?.focus()
+    } else {
+      toast.info('로그인이 필요합니다')
+      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
+      router.push('/login')
+    }
   }
 
   return (

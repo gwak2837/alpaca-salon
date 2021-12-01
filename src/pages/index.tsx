@@ -33,7 +33,7 @@ const FlexContainer = styled.div`
   padding: 1rem;
 `
 
-const Title = styled.h2`
+const H2 = styled.h2`
   font-family: tvN EnjoystoriesOTF;
 `
 
@@ -73,7 +73,7 @@ const GreyH5 = styled.h5`
 
 const GridContainerPost = styled.ul`
   display: grid;
-  gap: 0.5rem;
+  gap: 0.9rem;
   padding: 1rem 0;
 `
 
@@ -153,12 +153,11 @@ export default function HomePage() {
   })
 
   function goToPostCreationPage() {
-    const jwt = window.sessionStorage.getItem('jwt')
-
-    if (jwt) {
+    if (window.sessionStorage.getItem('jwt')) {
       router.push('/post/create')
     } else {
       toast.info('로그인이 필요합니다')
+      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
       router.push('/login')
     }
   }
@@ -167,7 +166,7 @@ export default function HomePage() {
     <PageHead>
       <Background>
         <FlexContainer>
-          <Title>알파카살롱</Title>
+          <H2>알파카살롱</H2>
           {nickname ? (
             <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
           ) : (

@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
+import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import { Comment, useToggleLikingCommentMutation } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
@@ -94,13 +95,12 @@ function SubcommentCard({ subcomment }: Props2) {
   }
 
   function toggleLikingComment() {
-    const jwt = window.sessionStorage.getItem('jwt')
-
-    if (jwt) {
+    if (window.sessionStorage.getItem('jwt')) {
       if (!loading) {
         toggleLikingCommentMutation()
       }
     } else {
+      toast.info('로그인이 필요합니다')
       sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
       router.push('/login')
     }
@@ -157,21 +157,26 @@ function CommentCard({ comment, parentCommentIdRef, commentInputRef }: Props) {
   }
 
   function toggleLikingComment() {
-    const jwt = window.sessionStorage.getItem('jwt')
-
-    if (jwt) {
+    if (window.sessionStorage.getItem('jwt')) {
       if (!loading) {
         toggleLikingCommentMutation()
       }
     } else {
+      toast.info('로그인이 필요합니다')
       sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
       router.push('/login')
     }
   }
 
   function setParentCommentId() {
-    parentCommentIdRef.current = comment.id
-    commentInputRef.current.focus()
+    if (window.sessionStorage.getItem('jwt')) {
+      parentCommentIdRef.current = comment.id
+      commentInputRef.current.focus()
+    } else {
+      toast.info('로그인이 필요합니다')
+      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
+      router.push('/login')
+    }
   }
 
   return (
