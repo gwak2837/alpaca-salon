@@ -18,6 +18,7 @@ import {
 } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import ErrorIcon from 'src/svgs/error-icon.svg'
+import LoadingSpinner from 'src/svgs/LoadingSpinner'
 import { formatPhoneNumber } from 'src/utils'
 import styled from 'styled-components'
 
@@ -63,13 +64,20 @@ const Relative = styled.div`
     position: absolute;
     top: 50%;
     right: 0;
-    transform: translateY(-50%);
+    transform: translateY(-40%);
+  }
+
+  > div {
+    display: grid;
+    align-items: center;
   }
 `
 
-const Input = styled.input<{ erred?: boolean }>`
+const Input = styled.input<{ loading?: boolean; erred?: boolean }>`
   border: none;
-  border-bottom: 2px solid ${(p) => (p.erred ? ALPACA_SALON_RED_COLOR : ALPACA_SALON_GREY_COLOR)};
+  border-bottom: 2px solid
+    ${(p) =>
+      p.loading ? ALPACA_SALON_COLOR : p.erred ? ALPACA_SALON_RED_COLOR : ALPACA_SALON_GREY_COLOR};
   border-radius: 0;
   font-size: 1.2rem;
   font-weight: 500;
@@ -197,6 +205,7 @@ export default function OAuthRegisterPage() {
             <Relative>
               <Input
                 erred={Boolean(errors.nickname)}
+                loading={IsNicknameUniqueLoading}
                 placeholder="세련된 알파카"
                 {...register('nickname', {
                   required: '닉네임을 입력해주세요',
@@ -216,7 +225,9 @@ export default function OAuthRegisterPage() {
                 })}
               />
               {IsNicknameUniqueLoading ? (
-                <div>loading</div>
+                <div>
+                  <LoadingSpinner />
+                </div>
               ) : errors.nickname ? (
                 <ErrorIcon />
               ) : (
