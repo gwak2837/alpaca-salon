@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
-import { useResetRecoilState } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { PrimaryButton, RedButton } from 'src/components/atoms/Button'
 import PageHead from 'src/components/PageHead'
@@ -33,6 +33,7 @@ const TitleIconWrapper = styled.div`
   gap: 1rem;
 
   margin: 1rem;
+  cursor: pointer;
 `
 
 const GridContainerTemplate = styled.div`
@@ -98,7 +99,7 @@ const description = '알파카의 정보를 알아보세요'
 export default function UserPage() {
   const router = useRouter()
   const userNickname = getUserNickname(router)
-  const resetCurrentUser = useResetRecoilState(currentUser)
+  const [{ nickname }, setCurrentUser] = useRecoilState(currentUser)
 
   const { data } = useUserByNicknameQuery({
     onError: toastApolloError,
@@ -113,7 +114,7 @@ export default function UserPage() {
       if (logout) {
         toast.success('로그아웃에 성공했어요')
         sessionStorage.removeItem('jwt')
-        resetCurrentUser()
+        setCurrentUser({ nickname: '' })
         router.push('/')
       }
     },
@@ -123,8 +124,9 @@ export default function UserPage() {
   const [unregisterMutation, { loading: unregisterLoading }] = useUnregisterMutation({
     onCompleted: ({ unregister }) => {
       if (unregister) {
+        toast.success('회원탈퇴에 성공했어요')
         sessionStorage.removeItem('jwt')
-        resetCurrentUser()
+        setCurrentUser({ nickname: '' })
         router.push('/')
       }
     },
@@ -154,7 +156,7 @@ export default function UserPage() {
 
           <GridContainerTemplate>
             <Image
-              src={user?.imageUrl ?? '/images/default-profile-image.webp'}
+              src={/* user?.imageUrl ?? */ '/images/default-profile-image.webp'}
               alt="profile-image"
               width="200"
               height="200"
@@ -172,16 +174,18 @@ export default function UserPage() {
           </FlexContainer>
         </div>
 
-        <FlexContainerColumnEnd>
-          <GridContainerButtons>
-            <PrimaryButton disabled={logoutLoading} onClick={logout}>
-              로그아웃
-            </PrimaryButton>
-            <RedButton disabled={unregisterLoading} onClick={unregister}>
-              회원탈퇴
-            </RedButton>
-          </GridContainerButtons>
-        </FlexContainerColumnEnd>
+        {nickname === userNickname && (
+          <FlexContainerColumnEnd>
+            <GridContainerButtons>
+              <PrimaryButton disabled={!nickname || logoutLoading} onClick={logout}>
+                로그아웃
+              </PrimaryButton>
+              <RedButton disabled={!nickname || unregisterLoading} onClick={unregister}>
+                회원탈퇴
+              </RedButton>
+            </GridContainerButtons>
+          </FlexContainerColumnEnd>
+        )}
       </FlexContainerHeight100>
     </PageHead>
   )
