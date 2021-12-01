@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import PageHead from 'src/components/PageHead'
+import LoadingSpinner from 'src/svgs/LoadingSpinner'
 
 const description = ''
 
@@ -77,6 +78,7 @@ export default function TestPage() {
       >
         toast
       </button>
+      <LoadingSpinner />
     </PageHead>
   )
 }
