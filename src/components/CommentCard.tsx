@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { toastApolloError } from 'src/apollo/error'
@@ -20,8 +21,7 @@ const GridContainerLi = styled.li`
   gap: 0.9rem;
   align-items: center;
 
-  > span,
-  div:nth-child(2) {
+  > span {
     cursor: pointer;
   }
 `
@@ -115,8 +115,12 @@ function SubcommentCard({ subcomment }: Props2) {
         height="40"
         onClick={goToUserDetailPage}
       />
-      <div onClick={goToUserDetailPage} role="button" tabIndex={0}>
-        <H5>{author.nickname}</H5>
+      <div>
+        <Link href={`/@${author?.nickname}`} passHref>
+          <a>
+            <H5>{author.nickname}</H5>
+          </a>
+        </Link>
         <GreyH5>{new Date(subcomment.creationTime).toLocaleTimeString()}</GreyH5>
       </div>
 
@@ -180,8 +184,12 @@ function CommentCard({ comment, parentCommentIdRef, commentInputRef }: Props) {
           height="40"
           onClick={goToUserDetailPage}
         />
-        <div onClick={goToUserDetailPage} role="button" tabIndex={0}>
-          <H5>{author.nickname}</H5>
+        <div>
+          <Link href={`/@${author?.nickname}`} passHref>
+            <a>
+              <H5>{author.nickname}</H5>
+            </a>
+          </Link>
           <GreyH5>{new Date(comment.creationTime).toLocaleTimeString()}</GreyH5>
         </div>
 

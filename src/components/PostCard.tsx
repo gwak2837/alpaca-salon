@@ -5,13 +5,13 @@ import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constant
 import { FlexContainerBetween } from 'src/styles'
 import styled from 'styled-components'
 
-import { BoldGreySpan, GreySpan } from './FamousPostCard'
+import { BoldGreySpan, GreySpan, HorizontalBorder } from './FamousPostCard'
 
 const Li = styled.li`
   background: #fff;
   border: 1px solid #eee;
   border-radius: 0.5rem;
-  padding: 1rem 0.5rem;
+  padding: 1rem 0.65rem;
 `
 
 const PrimaryH4 = styled.h5<{ disabled?: boolean }>`
@@ -24,6 +24,7 @@ const H4 = styled.h4`
 `
 
 const OneLineP = styled.p`
+  line-height: 1.6rem;
   width: 100%;
 
   overflow: hidden;
@@ -58,13 +59,15 @@ function PostCard({ post }: Props) {
       <H4>{post.title}</H4>
 
       <OneLineP>
-        {(post.contents as string).split(/[\n\\n]/).map((content, i) => (
+        {(post.contents as string).split(/\n/).map((content, i) => (
           <>
             <Fragment key={i}>{content}</Fragment>
             <br />
           </>
         ))}
       </OneLineP>
+
+      <HorizontalBorder />
 
       <FlexContainerBetween>
         <GreySpan>{new Date(post.creationTime).toLocaleString()}</GreySpan>

@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -115,6 +116,7 @@ export default function PostCreationPage() {
   const [createPostMutation, { loading }] = useCreatePostMutation({
     onCompleted: ({ createPost }) => {
       if (createPost) {
+        toast.success('글을 작성했어요')
         router.push('/')
       }
     },
@@ -132,10 +134,16 @@ export default function PostCreationPage() {
 
   function createPost(input: PostCreationInput) {
     if (!loading) {
-      toast.info(JSON.stringify(input))
       createPostMutation({ variables: { input } })
     }
   }
+
+  useEffect(() => {
+    if (!window.sessionStorage.getItem('jwt')) {
+      toast.info('로그인이 필요합니다')
+      router.push('/login')
+    }
+  }, [router])
 
   return (
     <PageHead title="글쓰기 - 알파카살롱" description={description}>

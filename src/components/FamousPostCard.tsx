@@ -14,7 +14,7 @@ const Li = styled.li`
   background: #fff;
   border: 1px solid #eee;
   border-radius: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.65rem;
 `
 
 const GridContainer = styled.div`
@@ -32,11 +32,17 @@ const Relative = styled.div`
 const WhiteNumber = styled.h3`
   color: #fff;
   font-size: 1.25rem;
+  font-weight: 600;
 
   position: absolute;
   top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
+`
+
+export const HorizontalBorder = styled.div`
+  border-bottom: 1px solid #f6f6f6;
+  margin: 0.7rem 0 0.8rem;
 `
 
 export const GreySpan = styled.span`
@@ -74,6 +80,8 @@ function FamousPostCard({ famousPost, index }: Props) {
         </Relative>
         <h4>{famousPost.title}</h4>
       </GridContainer>
+
+      <HorizontalBorder />
 
       <FlexContainerBetween>
         <Link href={`/@${authorNickname}`} passHref>

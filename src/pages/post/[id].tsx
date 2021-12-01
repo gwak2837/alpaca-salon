@@ -1,6 +1,7 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { ReactElement, useRef } from 'react'
+import React, { Fragment, ReactElement, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -14,10 +15,59 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import NavigationLayout from 'src/layouts/NavigationLayout'
 import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
+import BackIcon from 'src/svgs/back-icon.svg'
+import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import styled from 'styled-components'
 
 const Padding = styled.div`
   padding: 1rem 0.6rem;
+`
+
+const FlexContainerBetweenCenter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding-bottom: 1rem;
+`
+
+const Width = styled.div`
+  width: 1.5rem;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const ModificationButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  color: ${ALPACA_SALON_GREY_COLOR};
+
+  :hover,
+  :focus,
+  :active {
+    border-color: ${ALPACA_SALON_COLOR};
+    color: ${ALPACA_SALON_COLOR};
+
+    > svg > path {
+      fill: ${ALPACA_SALON_COLOR};
+    }
+  }
+
+  > svg > path {
+    transition: fill 0.3s ease-out;
+  }
+
+  transition: border-color 0.3s ease-out, color 0.3s ease-out;
 `
 
 const GridContainer = styled.div`
@@ -25,11 +75,16 @@ const GridContainer = styled.div`
   grid-template-columns: auto 1fr;
   gap: 0.9rem;
   align-items: center;
+
+  > span {
+    cursor: pointer;
+  }
 `
 
 export const H5 = styled.h5`
   font-weight: 600;
   margin-bottom: 0.4rem;
+  cursor: pointer;
 `
 
 export const GreyH5 = styled.h5`
@@ -44,6 +99,7 @@ const H3 = styled.h3`
 `
 
 const P = styled.p`
+  line-height: 1.6rem;
   margin: 0.75rem 0;
   min-height: 30vh;
 `
@@ -97,7 +153,7 @@ const description = ''
 
 export default function PostDetailPage() {
   const parentCommentId = useRef('')
-  const commentInputRef = useRef<HTMLInputElement | null>()
+  const commentInputRef = useRef<HTMLInputElement>()
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
 
@@ -145,29 +201,70 @@ export default function PostDetailPage() {
     reset()
   }
 
+  function needLogin() {
+    if (!window.sessionStorage.getItem('jwt')) {
+      toast.info('로그인이 필요합니다')
+      router.push('/login')
+    }
+  }
+
+  function goBack() {
+    router.back()
+  }
+
+  function goToUserDetailPage() {
+    router.push(`/@${author?.nickname}`)
+  }
+
+  function focusInput() {
+    commentInputRef.current?.focus()
+  }
+
   return (
     <PageHead title={`${post?.title ?? '건강문답'} - 알파카살롱`} description={description}>
       <Padding>
+        <FlexContainerBetweenCenter>
+          <Width onClick={goBack}>
+            <BackIcon />
+          </Width>
+          <ModificationButton>
+            <GreyWriteIcon />
+            수정하기
+          </ModificationButton>
+        </FlexContainerBetweenCenter>
+
         <GridContainer>
           <Image
             src={/* author?.imageUrl ??  */ '/images/default-profile-image.webp'}
             alt="profile"
             width="40"
             height="40"
+            onClick={goToUserDetailPage}
           />
           <div>
-            <H5>{author?.nickname ?? 'loading'}</H5>
+            <Link href={`/@${author?.nickname}`} passHref>
+              <a>
+                <H5>{author?.nickname ?? 'loading'}</H5>
+              </a>
+            </Link>
             <GreyH5>{new Date(post?.creationTime).toLocaleTimeString()}</GreyH5>
           </div>
         </GridContainer>
 
-        {postLoading && <div>글을 불러오는 중입니다.</div>}
+        {postLoading && <div>글을 불러오는 중입니다</div>}
         <H3>{post?.title}</H3>
-        <P>{post?.contents}</P>
+        <P>
+          {(post?.contents as string)?.split(/\n/).map((content, i) => (
+            <>
+              <Fragment key={i}>{content}</Fragment>
+              <br />
+            </>
+          ))}
+        </P>
       </Padding>
 
       <HorizontalBorder />
-      <GreyButton>댓글 달기</GreyButton>
+      <GreyButton onClick={focusInput}>댓글 달기</GreyButton>
       <HorizontalBorder />
 
       <GridContainerUl>
@@ -184,10 +281,11 @@ export default function PostDetailPage() {
         <StickyForm onSubmit={handleSubmit(createComment)}>
           <CommentInput
             disabled={loading}
+            onClick={needLogin}
             placeholder="댓글을 입력해주세요"
             ref={(input) => {
               ref(input)
-              commentInputRef.current = input
+              commentInputRef.current = input as HTMLInputElement
             }}
             {...registerCommentCreationForm}
           />

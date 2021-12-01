@@ -2,6 +2,7 @@ import { Carousel } from 'antd'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import React, { ReactElement, useState } from 'react'
+import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import FamousPostCard from 'src/components/FamousPostCard'
@@ -54,7 +55,7 @@ const Frame16to11 = styled.div`
 const BorderRadius = styled.div`
   background: #fafafa;
   border-radius: 1.2rem 1.2rem 0px 0px;
-  padding: 1rem 0.5rem;
+  padding: 1rem 0.65rem;
 `
 
 export const PrimaryH3 = styled.h3`
@@ -73,7 +74,7 @@ const GreyH5 = styled.h5`
 const GridContainerPost = styled.ul`
   display: grid;
   gap: 0.5rem;
-  margin: 1rem 0;
+  padding: 1rem 0;
 `
 
 const FixedPosition = styled.div`
@@ -157,6 +158,7 @@ export default function HomePage() {
     if (jwt) {
       router.push('/post/create')
     } else {
+      toast.info('로그인이 필요합니다')
       router.push('/login')
     }
   }
