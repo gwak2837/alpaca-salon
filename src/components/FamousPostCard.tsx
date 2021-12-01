@@ -52,6 +52,7 @@ export const GreySpan = styled.span`
 
 export const BoldGreySpan = styled(GreySpan)`
   font-weight: 600;
+  white-space: nowrap;
 `
 
 type Props = {

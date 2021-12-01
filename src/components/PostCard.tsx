@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { Fragment } from 'react'
-import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
+import { Post } from 'src/graphql/generated/types-and-hooks'
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
 import { FlexContainerBetween } from 'src/styles'
 import styled from 'styled-components'
 
@@ -25,20 +26,26 @@ const H4 = styled.h4`
 
 const OneLineP = styled.p`
   line-height: 1.6rem;
-  width: 100%;
+  width: calc(100vw - 2.6rem);
+  max-width: calc(${TABLET_MIN_WIDTH} - 2.6rem);
 
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 `
 
+const A = styled.a`
+  font-size: 0.9rem;
+`
+
 type Props = {
-  post: any
+  post: Post
 }
 
 function PostCard({ post }: Props) {
   const authorNickname = post.user.nickname ?? ''
   const router = useRouter()
+  const contents = post.contents.split(/\n/) as string[]
 
   function goToPostDetailPage() {
     router.push(`/post/${post.id}`)
@@ -59,12 +66,14 @@ function PostCard({ post }: Props) {
       <H4>{post.title}</H4>
 
       <OneLineP>
-        {(post.contents as string).split(/\n/).map((content, i) => (
-          <>
-            <Fragment key={i}>{content}</Fragment>
-            <br />
-          </>
-        ))}
+        {contents[0]}{' '}
+        {contents.length > 1 && (
+          <Link href={`/post/${post.id}`} passHref>
+            <A onClick={stopPropagation} role="link" tabIndex={0}>
+              ...
+            </A>
+          </Link>
+        )}
       </OneLineP>
 
       <HorizontalBorder />

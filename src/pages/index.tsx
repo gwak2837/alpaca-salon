@@ -8,7 +8,7 @@ import { toastApolloError } from 'src/apollo/error'
 import FamousPostCard from 'src/components/FamousPostCard'
 import PageHead from 'src/components/PageHead'
 import PostCard from 'src/components/PostCard'
-import { useFamousPostsQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
+import { Post, useFamousPostsQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import NavigationLayout from 'src/layouts/NavigationLayout'
 import {
@@ -198,7 +198,7 @@ export default function HomePage() {
           <PrimaryH3>최신 이야기</PrimaryH3>
           <GridContainerPost>
             {posts
-              ? posts.map((post, i) => <PostCard key={i} post={post} />)
+              ? posts.map((post, i) => <PostCard key={i} post={post as Post} />)
               : !loading && <div>글이 없어요</div>}
             {loading && <div>최신 이야기 불러오는 중...</div>}
           </GridContainerPost>
