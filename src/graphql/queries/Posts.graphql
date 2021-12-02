@@ -6,6 +6,7 @@ query Posts($pagination: Pagination!) {
     contents
     category
     commentCount
+    # imageUrls
     user {
       id
       nickname

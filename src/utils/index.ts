@@ -10,16 +10,6 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-const textEncoder = new TextEncoder()
-
-export async function digestMessageWithSHA256(message: string) {
-  const msgUint8 = textEncoder.encode(message) // encode as (utf-8) Uint8Array
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8) // hash the message
-  const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
-  return hashHex
-}
-
 export const { ko2en } = new Inko()
 
 export function getUserNickname(router: NextRouter) {
@@ -38,40 +28,6 @@ const urlPattern = new RegExp(
 
 export function isValidUrl(url: string) {
   return !!urlPattern.test(url)
-}
-
-export function distanceBetween(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const pi = 0.017453292519943295 // Math.PI / 180
-  const cos = Math.cos
-  const a =
-    0.5 -
-    cos((lat2 - lat1) * pi) / 2 +
-    (cos(lat1 * pi) * cos(lat2 * pi) * (1 - cos((lon2 - lon1) * pi))) / 2
-
-  return 12742 * Math.asin(Math.sqrt(a)) // 2 * 6371 km
-}
-
-export function formatDistance(distance: number) {
-  if (!distance) return null
-
-  return distance >= 0.995 ? `${distance.toFixed(1)}km` : `${Math.round(distance * 100) * 10}m`
-}
-
-export function createNaverMap(latitude: number, longitude: number) {
-  const maps = naver.maps
-
-  return new maps.Map('map', {
-    center: new maps.LatLng(latitude, longitude),
-    disableKineticPan: false,
-    mapDataControl: false,
-    minZoom: 13, // 추후 서비스가 전국 단위로 확대될 때 10으로 변경
-    maxZoom: 19,
-    zoom: 16,
-    zoomControl: true,
-    zoomControlOptions: {
-      style: maps.ZoomControlStyle.SMALL,
-    },
-  })
 }
 
 export function formatPhoneNumber(phoneNumber: string) {

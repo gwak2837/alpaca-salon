@@ -268,6 +268,9 @@ export default function PostDetailPage() {
             </>
           ))}
         </P>
+        {post?.imageUrls?.map((imageUrl, i) => (
+          <Image key={i} src={imageUrl} alt="post image" width="300" height="300" />
+        ))}
       </Padding>
 
       <HorizontalBorder />

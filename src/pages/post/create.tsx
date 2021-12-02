@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -89,9 +89,11 @@ const XIconWrapper = styled.div`
   cursor: pointer;
 `
 
-const description = ''
+const description = '알파카살롱에 글을 작성해보세요'
 
 export default function PostCreationPage() {
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const formData = useRef(globalThis.FormData ? new FormData() : null)
   const router = useRouter()
 
   const {
@@ -109,7 +111,7 @@ export default function PostCreationPage() {
   usePostsQuery({
     onError: toastApolloError,
     variables: {
-      pagination: { limit: 2 },
+      pagination: { limit: 1 },
     },
   })
 
@@ -132,18 +134,41 @@ export default function PostCreationPage() {
     router.push('/')
   }
 
-  function createPost(input: PostCreationInput) {
-    if (!loading) {
-      createPostMutation({ variables: { input } })
+  function previewImages(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && formData.current) {
+      const newImageUrls = []
+      for (const file of e.target.files) {
+        if (file.type.startsWith('image/')) {
+          newImageUrls.push(URL.createObjectURL(file))
+          formData.current.append('images', file)
+        }
+      }
+      setImageUrls(newImageUrls)
     }
   }
 
-  useEffect(() => {
-    if (!window.sessionStorage.getItem('jwt')) {
-      toast.info('로그인이 필요합니다')
-      router.push('/login')
+  async function uploadImageFiles() {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
+      method: 'POST',
+      body: formData.current,
+    })
+    return response.json()
+  }
+
+  async function createPost(input: PostCreationInput) {
+    const { imageUrls } = await uploadImageFiles()
+    console.log('👀 - imageUrls', imageUrls)
+    if (!loading) {
+      createPostMutation({ variables: { input: { ...input, imageUrls } } })
     }
-  }, [router])
+  }
+
+  // useEffect(() => {
+  //   if (!window.sessionStorage.getItem('jwt')) {
+  //     toast.info('로그인이 필요합니다')
+  //     router.push('/login')
+  //   }
+  // }, [router])
 
   return (
     <PageHead title="글쓰기 - 알파카살롱" description={description}>
@@ -169,8 +194,13 @@ export default function PostCreationPage() {
             placeholder="내용을 입력해주세요"
             {...register('contents', { required: '내용을 입력해주세요' })}
           />
+          <input accept="image/*" multiple name="file" onChange={previewImages} type="file" />
         </GridContainer>
       </form>
+
+      {imageUrls.map((file, i) => (
+        <img key={i} src={file} alt={file} width="300" height="300" />
+      ))}
     </PageHead>
   )
 }

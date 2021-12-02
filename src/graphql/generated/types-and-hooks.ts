@@ -134,6 +134,7 @@ export type Post = {
   /** 피드에 달린 해시태그 */
   hashtags?: Maybe<Array<Scalars['NonEmptyString']>>
   id: Scalars['ID']
+  imageUrls?: Maybe<Array<Scalars['URL']>>
   /** 피드 좋아요 여부 (로그인 필요) */
   isLiked: Scalars['Boolean']
   modificationTime: Scalars['DateTime']
@@ -150,8 +151,9 @@ export enum PostCategory {
 
 export type PostCreationInput = {
   category?: InputMaybe<PostCategory>
-  contents?: InputMaybe<Scalars['String']>
-  title?: InputMaybe<Scalars['String']>
+  contents: Scalars['String']
+  imageUrls?: InputMaybe<Array<Scalars['URL']>>
+  title: Scalars['String']
 }
 
 export type PostModificationInput = {
@@ -404,6 +406,7 @@ export type PostQuery = {
         creationTime: any
         title: any
         contents: any
+        imageUrls?: Array<any> | null | undefined
         user: {
           __typename?: 'User'
           id: any
@@ -430,6 +433,7 @@ export type PostsQuery = {
         contents: any
         category: PostCategory
         commentCount: any
+        imageUrls?: Array<any> | null | undefined
         user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
       }>
     | null
@@ -943,6 +947,7 @@ export const PostDocument = gql`
       creationTime
       title
       contents
+      imageUrls
       user {
         id
         nickname
@@ -990,6 +995,7 @@ export const PostsDocument = gql`
       contents
       category
       commentCount
+      imageUrls
       user {
         id
         nickname
@@ -1139,6 +1145,7 @@ export type PostKeySpecifier = (
   | 'creationTime'
   | 'hashtags'
   | 'id'
+  | 'imageUrls'
   | 'isLiked'
   | 'modificationTime'
   | 'title'
@@ -1152,6 +1159,7 @@ export type PostFieldPolicy = {
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   hashtags?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
+  imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   isLiked?: FieldPolicy<any> | FieldReadFunction<any>
   modificationTime?: FieldPolicy<any> | FieldReadFunction<any>
   title?: FieldPolicy<any> | FieldReadFunction<any>
