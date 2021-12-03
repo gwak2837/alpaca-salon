@@ -1,15 +1,23 @@
+import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
 import { useCreatePostMutation, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
-import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
+import {
+  ALPACA_SALON_COLOR,
+  ALPACA_SALON_GREY_COLOR,
+  ALPACA_SALON_RED_COLOR,
+  TABLET_MIN_WIDTH,
+} from 'src/models/constants'
 import FileUploadIcon from 'src/svgs/file-upload.svg'
 import XIcon from 'src/svgs/x-icon.svg'
 import { isEmpty } from 'src/utils'
 import styled from 'styled-components'
+
+import { Frame16to9 } from './[id]'
 
 type PostCreationInput = {
   title: string
@@ -53,11 +61,11 @@ const TransparentButton = styled.button<{ disabled?: boolean }>`
   padding: 0;
 `
 
-const Input = styled.input`
+const Input = styled.input<{ erred?: boolean }>`
   border: none;
-  border-bottom: 2px solid ${ALPACA_SALON_COLOR};
+  border-bottom: 2px solid ${(p) => (p.erred ? ALPACA_SALON_RED_COLOR : ALPACA_SALON_COLOR)};
   border-radius: 0;
-  padding: 0.5rem;
+  padding: 0.5rem 0;
   width: 100%;
 
   :focus {
@@ -72,12 +80,15 @@ const GridContainer = styled.div`
   padding: 4.4rem 0.5rem 2rem;
 `
 
-const Textarea = styled.textarea`
-  border: none;
+const Textarea = styled.textarea<{ height: number }>`
   width: 100%;
-  height: 50vh;
-  min-height: 3rem;
-  padding: 0.5rem;
+  height: ${(p) => p.height}rem;
+  min-height: 20vh;
+  max-height: 50vh;
+  padding: 0.5rem 0;
+
+  border: none;
+  line-height: 1.6rem;
 
   :focus {
     outline: none;
@@ -91,8 +102,7 @@ const FileInput = styled.input`
 const FileInputLabel = styled.label`
   position: relative;
   aspect-ratio: 16 / 9;
-  border: 1px solid #e2e2e2;
-  border-radius: 10px;
+  cursor: pointer;
 
   display: flex;
   flex-direction: column;
@@ -114,6 +124,22 @@ const XIconWrapper = styled.div`
   cursor: pointer;
 `
 
+const Slider = styled.ul`
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+
+  display: flex;
+`
+
+const Slide = styled.li<{ flexBasis?: string }>`
+  scroll-snap-align: center;
+
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  flex: 0 0 ${(p) => p.flexBasis ?? '100%'};
+`
+
 const description = '알파카살롱에 글을 작성해보세요'
 
 export default function PostCreationPage() {
@@ -126,11 +152,13 @@ export default function PostCreationPage() {
     formState: { errors },
     handleSubmit,
     register,
+    watch,
   } = useForm<PostCreationInput>({
     defaultValues: {
       title: '',
       contents: '',
     },
+    reValidateMode: 'onBlur',
   })
 
   // https://github.com/apollographql/apollo-client/issues/5419#issuecomment-973154976 해결되면 삭제하기
@@ -162,17 +190,15 @@ export default function PostCreationPage() {
 
   function previewImages(e: ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
-
     if (files && files.length > 0 && formData.current) {
-      console.log(123)
-      const newImageUrls = []
+      const newImageUrls: string[] = []
       for (const file of files) {
         if (file.type.startsWith('image/')) {
           newImageUrls.push(URL.createObjectURL(file))
           formData.current.append('images', file)
         }
       }
-      setImageUrls(newImageUrls)
+      setImageUrls((prev) => [...prev, ...newImageUrls])
     }
   }
 
@@ -184,7 +210,6 @@ export default function PostCreationPage() {
     return response.json()
   }
 
-  // 글 2번 올라가는 문제
   async function createPost(input: PostCreationInput) {
     setPostCreationLoading(true)
     const { imageUrls } = await uploadImageFiles()
@@ -198,6 +223,12 @@ export default function PostCreationPage() {
       router.push('/login')
     }
   }, [router])
+
+  useEffect(() => {
+    if (errors.title || errors.contents) {
+      toast.warn(errors.title?.message ?? errors.contents?.message)
+    }
+  }, [errors.contents, errors.title])
 
   return (
     <PageHead title="글쓰기 - 알파카살롱" description={description}>
@@ -215,25 +246,41 @@ export default function PostCreationPage() {
         <GridContainer>
           <Input
             disabled={postCreationLoading}
-            placeholder="제목"
-            {...register('title', { required: '제목을 입력해주세요' })}
+            erred={Boolean(errors.title)}
+            placeholder="안녕하세요 우아한 알파카님"
+            {...register('title', { required: '글 제목을 작성한 후 완료를 눌러주세요' })}
           />
           <Textarea
             disabled={postCreationLoading}
-            placeholder="다른 사람들은 이 문제에 대해서 어떻게 생각하고 있을까요?"
-            {...register('contents', { required: '내용을 입력해주세요' })}
+            height={watch('contents').split('\n').length * 1.6}
+            placeholder="평소에 궁금했던 것을 물어보세요"
+            {...register('contents', { required: '글 내용을 작성한 후 완료를 눌러주세요' })}
           />
-          <FileInputLabel htmlFor="images">
-            <FileUploadIcon />
-            <GreyH3>사진 또는 동영상을 추가하세요</GreyH3>
-          </FileInputLabel>
-          <FileInput accept="image/*" multiple id="images" onChange={previewImages} type="file" />
+
+          <Slider>
+            {imageUrls.map((file, i) => (
+              <Slide key={i} flexBasis="96%">
+                <Frame16to9>
+                  <Image src={file} alt={file} layout="fill" objectFit="cover" />
+                </Frame16to9>
+              </Slide>
+            ))}
+            <Slide flexBasis={imageUrls.length === 0 ? '100%' : '96%'}>
+              <FileInputLabel htmlFor="images">
+                <FileUploadIcon />
+                <GreyH3>사진을 추가해주세요</GreyH3>
+              </FileInputLabel>
+              <FileInput
+                accept="image/*"
+                multiple
+                id="images"
+                onChange={previewImages}
+                type="file"
+              />
+            </Slide>
+          </Slider>
         </GridContainer>
       </form>
-
-      {imageUrls.map((file, i) => (
-        <img key={i} src={file} alt={file} width="300" height="300" />
-      ))}
     </PageHead>
   )
 }

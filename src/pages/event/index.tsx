@@ -7,6 +7,7 @@ import PageHead from 'src/components/PageHead'
 import NavigationLayout from 'src/layouts/NavigationLayout'
 import { currentUser } from 'src/models/recoil'
 import styled from 'styled-components'
+
 import { PrimaryH3 } from '..'
 
 const FlexContainer = styled.div`
@@ -31,45 +32,21 @@ const WhiteButton = styled.button`
 
 const Frame16to11 = styled.div`
   position: relative;
-  padding-top: 68.75%;
-`
-
-const Carousel2 = styled.section`
-  position: relative;
-  padding-top: 75%;
-  filter: drop-shadow(0 0 10px #0003);
-  perspective: 100px;
+  aspect-ratio: 16 / 11;
 `
 
 const Viewport = styled.ol`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
   overflow-x: scroll;
-  counter-reset: item;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
+  display: flex;
 `
 
 const Slide = styled.li<{ color: string }>`
-  position: relative;
+  scroll-snap-align: center;
   flex: 0 0 100%;
-  width: 100%;
-  counter-increment: item;
 
   background: ${(p) => p.color};
-`
-
-const Snapper = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  scroll-snap-align: center;
 `
 
 const description = ''
@@ -100,47 +77,40 @@ export default function EventListPage() {
 
       <PrimaryH3>오늘의 질문</PrimaryH3>
 
-      <Carousel2>
-        <Viewport>
-          <Slide color="#f99">
-            <Snapper>
-              <a href="#carousel__slide4" className="carousel__prev">
-                Go to last slide
-              </a>
-              <a href="#carousel__slide2" className="carousel__next">
-                Go to next slide
-              </a>
-            </Snapper>
-          </Slide>
-          <Slide color="#a99">
-            <Snapper />
-            <a href="#carousel__slide1" className="carousel__prev">
-              Go to previous slide
-            </a>
-            <a href="#carousel__slide3" className="carousel__next">
-              Go to next slide
-            </a>
-          </Slide>
-          <Slide color="#29f">
-            <Snapper />
-            <a href="#carousel__slide2" className="carousel__prev">
-              Go to previous slide
-            </a>
-            <a href="#carousel__slide4" className="carousel__next">
-              Go to next slide
-            </a>
-          </Slide>
-          <Slide color="#79a">
-            <Snapper />
-            <a href="#carousel__slide3" className="carousel__prev">
-              Go to previous slide
-            </a>
-            <a href="#carousel__slide1" className="carousel__next">
-              Go to first slide
-            </a>
-          </Slide>
-        </Viewport>
-      </Carousel2>
+      <Viewport>
+        <Slide color="#f99">
+          <a href="#carousel__slide4" className="carousel__prev">
+            Go to last slide
+          </a>
+          <a href="#carousel__slide2" className="carousel__next">
+            Go to next slide
+          </a>
+        </Slide>
+        <Slide color="#a99">
+          <a href="#carousel__slide1" className="carousel__prev">
+            Go to previous slide
+          </a>
+          <a href="#carousel__slide3" className="carousel__next">
+            Go to next slide
+          </a>
+        </Slide>
+        <Slide color="#29f">
+          <a href="#carousel__slide2" className="carousel__prev">
+            Go to previous slide
+          </a>
+          <a href="#carousel__slide4" className="carousel__next">
+            Go to next slide
+          </a>
+        </Slide>
+        <Slide color="#79a">
+          <a href="#carousel__slide3" className="carousel__prev">
+            Go to previous slide
+          </a>
+          <a href="#carousel__slide1" className="carousel__next">
+            Go to first slide
+          </a>
+        </Slide>
+      </Viewport>
 
       <PrimaryH3>다른 사람들의 댓글</PrimaryH3>
     </PageHead>

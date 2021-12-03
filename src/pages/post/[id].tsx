@@ -104,11 +104,17 @@ const P = styled.p`
   /* min-height: 30vh; */
 `
 
-const Frame16to9 = styled.div`
+export const Frame16to9 = styled.div`
   position: relative;
-  padding-top: 68.75%; // aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 9;
   border-radius: 10px;
   overflow: hidden;
+`
+
+const Frame16to9DefaultImage = styled(Frame16to9)`
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: url('/images/default-image.webp');
 `
 
 const HorizontalBorder = styled.div`
@@ -265,21 +271,29 @@ export default function PostDetailPage() {
           </div>
         </GridContainer>
 
-        {postLoading && <div>글을 불러오는 중입니다</div>}
-        <H3>{post?.title}</H3>
-        <P>
-          {(post?.contents as string)?.split(/\n/).map((content, i) => (
-            <>
-              <Fragment key={i}>{content}</Fragment>
-              <br />
-            </>
-          ))}
-        </P>
-        {post?.imageUrls?.map((imageUrl, i) => (
-          <Frame16to9 key={i}>
-            <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
-          </Frame16to9>
-        ))}
+        {postLoading || !post ? (
+          <>
+            <div>글을 불러오는 중입니다</div>
+            <Frame16to9 />
+          </>
+        ) : (
+          <>
+            <H3>{post.title}</H3>
+            <P>
+              {(post.contents as string).split(/\n/).map((content, i) => (
+                <>
+                  <Fragment key={i}>{content}</Fragment>
+                  <br />
+                </>
+              ))}
+            </P>
+            {post.imageUrls?.map((imageUrl, i) => (
+              <Frame16to9DefaultImage key={i}>
+                <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
+              </Frame16to9DefaultImage>
+            ))}
+          </>
+        )}
       </Padding>
 
       <HorizontalBorder />
