@@ -100,8 +100,15 @@ const H3 = styled.h3`
 
 const P = styled.p`
   line-height: 1.6rem;
-  margin: 0.75rem 0;
-  min-height: 30vh;
+  margin: 1rem 0;
+  /* min-height: 30vh; */
+`
+
+const Frame16to9 = styled.div`
+  position: relative;
+  padding-top: 68.75%; // aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
 `
 
 const HorizontalBorder = styled.div`
@@ -269,7 +276,9 @@ export default function PostDetailPage() {
           ))}
         </P>
         {post?.imageUrls?.map((imageUrl, i) => (
-          <Image key={i} src={imageUrl} alt="post image" width="300" height="300" />
+          <Frame16to9 key={i}>
+            <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
+          </Frame16to9>
         ))}
       </Padding>
 

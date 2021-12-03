@@ -5,7 +5,8 @@ import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
 import { useCreatePostMutation, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
-import { ALPACA_SALON_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
+import FileUploadIcon from 'src/svgs/file-upload.svg'
 import XIcon from 'src/svgs/x-icon.svg'
 import { isEmpty } from 'src/utils'
 import styled from 'styled-components'
@@ -74,13 +75,37 @@ const GridContainer = styled.div`
 const Textarea = styled.textarea`
   border: none;
   width: 100%;
-  height: calc(100vh - 10.6rem - 2px);
+  height: 50vh;
   min-height: 3rem;
   padding: 0.5rem;
 
   :focus {
     outline: none;
   }
+`
+
+const FileInput = styled.input`
+  display: none;
+`
+
+const FileInputLabel = styled.label`
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+`
+
+const GreyH3 = styled.h3`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: ${ALPACA_SALON_GREY_COLOR};
+  text-align: center;
 `
 
 const XIconWrapper = styled.div`
@@ -93,6 +118,7 @@ const description = '알파카살롱에 글을 작성해보세요'
 
 export default function PostCreationPage() {
   const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [postCreationLoading, setPostCreationLoading] = useState(false)
   const formData = useRef(globalThis.FormData ? new FormData() : null)
   const router = useRouter()
 
@@ -115,7 +141,7 @@ export default function PostCreationPage() {
     },
   })
 
-  const [createPostMutation, { loading }] = useCreatePostMutation({
+  const [createPostMutation] = useCreatePostMutation({
     onCompleted: ({ createPost }) => {
       if (createPost) {
         toast.success('글을 작성했어요')
@@ -135,9 +161,12 @@ export default function PostCreationPage() {
   }
 
   function previewImages(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && formData.current) {
+    const files = e.target.files
+
+    if (files && files.length > 0 && formData.current) {
+      console.log(123)
       const newImageUrls = []
-      for (const file of e.target.files) {
+      for (const file of files) {
         if (file.type.startsWith('image/')) {
           newImageUrls.push(URL.createObjectURL(file))
           formData.current.append('images', file)
@@ -155,20 +184,20 @@ export default function PostCreationPage() {
     return response.json()
   }
 
+  // 글 2번 올라가는 문제
   async function createPost(input: PostCreationInput) {
+    setPostCreationLoading(true)
     const { imageUrls } = await uploadImageFiles()
-    console.log('👀 - imageUrls', imageUrls)
-    if (!loading) {
-      createPostMutation({ variables: { input: { ...input, imageUrls } } })
-    }
+    await createPostMutation({ variables: { input: { ...input, imageUrls } } })
+    setPostCreationLoading(false)
   }
 
-  // useEffect(() => {
-  //   if (!window.sessionStorage.getItem('jwt')) {
-  //     toast.info('로그인이 필요합니다')
-  //     router.push('/login')
-  //   }
-  // }, [router])
+  useEffect(() => {
+    if (!window.sessionStorage.getItem('jwt')) {
+      toast.info('로그인이 필요합니다')
+      router.push('/login')
+    }
+  }, [router])
 
   return (
     <PageHead title="글쓰기 - 알파카살롱" description={description}>
@@ -178,23 +207,27 @@ export default function PostCreationPage() {
             <XIcon />
           </XIconWrapper>
           <AbsoluteH3 onClick={goToHomePage}>글쓰기</AbsoluteH3>
-          <TransparentButton disabled={!isEmpty(errors)} type="submit">
+          <TransparentButton disabled={!isEmpty(errors) || postCreationLoading} type="submit">
             완료
           </TransparentButton>
         </FixedHeader>
 
         <GridContainer>
           <Input
-            disabled={loading}
+            disabled={postCreationLoading}
             placeholder="제목"
             {...register('title', { required: '제목을 입력해주세요' })}
           />
           <Textarea
-            disabled={loading}
-            placeholder="내용을 입력해주세요"
+            disabled={postCreationLoading}
+            placeholder="다른 사람들은 이 문제에 대해서 어떻게 생각하고 있을까요?"
             {...register('contents', { required: '내용을 입력해주세요' })}
           />
-          <input accept="image/*" multiple name="file" onChange={previewImages} type="file" />
+          <FileInputLabel htmlFor="images">
+            <FileUploadIcon />
+            <GreyH3>사진 또는 동영상을 추가하세요</GreyH3>
+          </FileInputLabel>
+          <FileInput accept="image/*" multiple id="images" onChange={previewImages} type="file" />
         </GridContainer>
       </form>
 

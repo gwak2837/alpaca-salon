@@ -47,7 +47,7 @@ const WhiteButton = styled.button`
 
 const Frame16to11 = styled.div`
   position: relative;
-  padding-top: 68.75%;
+  padding-top: 68.75%; // aspect-ratio: 16 / 11;
 
   background: #e2d7ec;
 `
