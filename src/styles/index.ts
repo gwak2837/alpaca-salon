@@ -105,9 +105,14 @@ const skeletonLoading = keyframes`
   }
 `
 
-export const Skeleton = styled.div<{ height?: string; width?: string; borderRadius?: string }>`
-  width: ${(p) => p.width ?? '50%'};
-  height: ${(p) => p.height ?? '1.5rem'};
+export const Skeleton = styled.div<{
+  height?: string
+  width?: string
+  borderRadius?: string
+  inlineBlock?: boolean
+}>`
+  width: ${(p) => p.width ?? '100%'};
+  height: ${(p) => p.height ?? '1.25rem'};
   background: linear-gradient(
     90deg,
     rgba(207, 216, 220, 0.3),
@@ -115,6 +120,7 @@ export const Skeleton = styled.div<{ height?: string; width?: string; borderRadi
     rgba(207, 216, 220, 0.3)
   );
   background-size: 600% 600%;
-  animation: ${skeletonLoading} 3s ease infinite;
   border-radius: ${(p) => p.borderRadius ?? '4px'};
+  animation: ${skeletonLoading} 3s ease infinite;
+  display: ${(p) => (p.inlineBlock ? 'inline-block' : 'block')};
 `

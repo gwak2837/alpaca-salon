@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import React, { Fragment } from 'react'
 import { Post } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
-import { FlexContainerBetween } from 'src/styles'
+import { FlexContainerBetween, Skeleton } from 'src/styles'
 import styled from 'styled-components'
 
 import { BoldGreySpan, GreySpan, HorizontalBorder } from './FamousPostCard'
@@ -37,6 +37,37 @@ const OneLineP = styled.p`
 const A = styled.a`
   font-size: 0.9rem;
 `
+
+const GridContainerGap = styled.div`
+  display: grid;
+  gap: 0.6rem;
+
+  > div:first-child {
+    margin-bottom: 0.1rem;
+  }
+`
+
+export function PostLoadingCard() {
+  return (
+    <Li>
+      <GridContainerGap>
+        <Skeleton width="3rem" />
+        <Skeleton />
+        <Skeleton width="80%" />
+      </GridContainerGap>
+
+      <HorizontalBorder />
+
+      <FlexContainerBetween>
+        <Skeleton width="3.5rem" />
+
+        <BoldGreySpan>
+          댓글 <Skeleton width="1.5rem" inlineBlock />개
+        </BoldGreySpan>
+      </FlexContainerBetween>
+    </Li>
+  )
+}
 
 type Props = {
   post: Post

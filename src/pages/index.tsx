@@ -5,9 +5,9 @@ import React, { ReactElement, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
-import FamousPostCard from 'src/components/FamousPostCard'
+import FamousPostCard, { FamousPostLoadingCard } from 'src/components/FamousPostCard'
 import PageHead from 'src/components/PageHead'
-import PostCard from 'src/components/PostCard'
+import PostCard, { PostLoadingCard } from 'src/components/PostCard'
 import { Post, useFamousPostsQuery, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
 import useInfiniteScroll from 'src/hooks/useInfiniteScroll'
 import NavigationLayout from 'src/layouts/NavigationLayout'
@@ -104,7 +104,7 @@ const PrimaryButton = styled.button`
   padding: 0.7rem 1rem;
 `
 
-const limit = 2
+const limit = 5
 
 export default function HomePage() {
   const [hasMoreData, setHasMoreData] = useState(true)
@@ -192,7 +192,13 @@ export default function HomePage() {
                   <FamousPostCard key={i} famousPost={famousPost} index={i + 1} />
                 ))
               : !famousPostsLoading && <div>글이 없어요</div>}
-            {famousPostsLoading && <div>핫한 이야기 불러오는 중...</div>}
+            {famousPostsLoading && (
+              <>
+                <FamousPostLoadingCard />
+                <FamousPostLoadingCard />
+                <FamousPostLoadingCard />
+              </>
+            )}
           </GridContainerPost>
 
           <PrimaryH3>최신 이야기</PrimaryH3>
@@ -200,7 +206,12 @@ export default function HomePage() {
             {posts
               ? posts.map((post, i) => <PostCard key={i} post={post as Post} />)
               : !loading && <div>글이 없어요</div>}
-            {loading && <div>최신 이야기 불러오는 중...</div>}
+            {loading && (
+              <>
+                <PostLoadingCard />
+                <PostLoadingCard />
+              </>
+            )}
           </GridContainerPost>
           {!loading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
         </BorderRadius>

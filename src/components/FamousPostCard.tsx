@@ -6,7 +6,7 @@ import {
   ALPACA_SALON_DARK_GREY_COLOR,
   ALPACA_SALON_GREY_COLOR,
 } from 'src/models/constants'
-import { FlexContainerBetween } from 'src/styles'
+import { FlexContainerBetween, Skeleton } from 'src/styles'
 import FlowerIcon from 'src/svgs/FlowerIcon'
 import styled from 'styled-components'
 
@@ -53,11 +53,54 @@ export const GreySpan = styled.span`
 export const BoldGreySpan = styled(GreySpan)`
   font-weight: 600;
   white-space: nowrap;
+  align-items: center;
+
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+`
+
+const GridContainerGap = styled.div`
+  display: grid;
+  gap: 0.6rem;
+`
+
+const GridContainerGap2 = styled(GridContainerGap)`
+  grid-template-columns: auto auto;
 `
 
 type Props = {
   famousPost: any
   index: number
+}
+
+export function FamousPostLoadingCard() {
+  return (
+    <Li>
+      <GridContainer>
+        <Relative>
+          <Skeleton width="3.5rem" height="3.5rem" borderRadius="50%" />
+        </Relative>
+        <GridContainerGap>
+          <Skeleton width="80%" />
+          <Skeleton width="50%" />
+        </GridContainerGap>
+      </GridContainer>
+
+      <HorizontalBorder />
+
+      <FlexContainerBetween>
+        <GridContainerGap2>
+          <Skeleton width="2.5rem" />
+          <Skeleton width="4.5rem" />
+        </GridContainerGap2>
+
+        <BoldGreySpan>
+          댓글 <Skeleton width="1.5rem" inlineBlock />개
+        </BoldGreySpan>
+      </FlexContainerBetween>
+    </Li>
+  )
 }
 
 function FamousPostCard({ famousPost, index }: Props) {
