@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { Fragment, ReactElement, useRef } from 'react'
+import React, { Fragment, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -9,14 +9,15 @@ import CommentCard from 'src/components/CommentCard'
 import PageHead from 'src/components/PageHead'
 import {
   Comment,
+  CreateCommentMutationVariables,
   useCommentsByPostQuery,
   useCreateCommentMutation,
   usePostQuery,
 } from 'src/graphql/generated/types-and-hooks'
-import NavigationLayout from 'src/layouts/NavigationLayout'
 import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
+import Submit from 'src/svgs/submit.svg'
 import styled from 'styled-components'
 
 const Padding = styled.div`
@@ -104,14 +105,14 @@ const P = styled.p`
   /* min-height: 30vh; */
 `
 
-export const Frame16to9 = styled.div`
+export const Frame16to11 = styled.div`
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 11;
   border-radius: 10px;
   overflow: hidden;
 `
 
-const Frame16to9DefaultImage = styled(Frame16to9)`
+const Frame16to11DefaultImage = styled(Frame16to11)`
   background-repeat: no-repeat;
   background-size: cover;
   background-image: url('/images/default-image.webp');
@@ -158,6 +159,19 @@ const CommentInput = styled.input`
   width: calc(100% - 1.2rem);
 `
 
+const CommentSubmitButton = styled.button`
+  position: absolute;
+  top: 53%;
+  right: 0;
+  transform: translateY(-50%);
+
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem 0.5rem 0.5rem;
+  height: 100%;
+`
+
 type CommentCreationForm = {
   contents: string
 }
@@ -197,9 +211,11 @@ export default function PostDetailPage() {
     refetchQueries: ['CommentsByPost', 'Posts'],
   })
 
-  const { handleSubmit, register, reset } = useForm<CommentCreationForm>({
+  const { handleSubmit, register, reset, watch } = useForm<CommentCreationForm>({
     defaultValues: { contents: '' },
   })
+
+  const contentsLength = watch('contents').length
 
   const { ref, ...registerCommentCreationForm } = register('contents', {
     onBlur: () => (parentCommentId.current = ''),
@@ -207,7 +223,7 @@ export default function PostDetailPage() {
   })
 
   function createComment({ contents }: CommentCreationForm) {
-    const variables: any = { contents, postId }
+    const variables: CreateCommentMutationVariables = { contents, postId }
     if (parentCommentId.current) variables.commentId = parentCommentId.current
 
     createCommentMutation({ variables })
@@ -274,7 +290,7 @@ export default function PostDetailPage() {
         {postLoading || !post ? (
           <>
             <div>글을 불러오는 중입니다</div>
-            <Frame16to9 />
+            <Frame16to11 />
           </>
         ) : (
           <>
@@ -288,9 +304,9 @@ export default function PostDetailPage() {
               ))}
             </P>
             {post.imageUrls?.map((imageUrl, i) => (
-              <Frame16to9DefaultImage key={i}>
+              <Frame16to11DefaultImage key={i}>
                 <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
-              </Frame16to9DefaultImage>
+              </Frame16to11DefaultImage>
             ))}
           </>
         )}
@@ -315,13 +331,18 @@ export default function PostDetailPage() {
           <CommentInput
             disabled={loading}
             onClick={needLogin}
-            placeholder="댓글을 입력해주세요"
+            placeholder="Enter키 또는 오른쪽 보라색 버튼으로 댓글을 작성할 수 있어요"
             ref={(input) => {
               ref(input)
               commentInputRef.current = input as HTMLInputElement
             }}
             {...registerCommentCreationForm}
           />
+          {contentsLength > 0 && (
+            <CommentSubmitButton type="submit">
+              <Submit />
+            </CommentSubmitButton>
+          )}
         </StickyForm>
       </GridContainerUl>
     </PageHead>

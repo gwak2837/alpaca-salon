@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -17,7 +17,7 @@ import XIcon from 'src/svgs/x-icon.svg'
 import { isEmpty } from 'src/utils'
 import styled from 'styled-components'
 
-import { Frame16to9 } from './[id]'
+import { Frame16to11 } from './[id]'
 
 type PostCreationInput = {
   title: string
@@ -161,6 +161,8 @@ export default function PostCreationPage() {
     reValidateMode: 'onBlur',
   })
 
+  const contentsLines = watch('contents').split('\n').length * 1.6
+
   // https://github.com/apollographql/apollo-client/issues/5419#issuecomment-973154976 해결되면 삭제하기
   usePostsQuery({
     onError: toastApolloError,
@@ -199,6 +201,15 @@ export default function PostCreationPage() {
         }
       }
       setImageUrls((prev) => [...prev, ...newImageUrls])
+    }
+  }
+
+  function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.code === 'Enter' && e.shiftKey) {
+      e.preventDefault() // To prevent adding line break when shift+enter pressed
+      const submitEvent = new Event('submit', { bubbles: true })
+      const parentForm = (e.target as any).form as HTMLFormElement
+      parentForm.dispatchEvent(submitEvent)
     }
   }
 
@@ -247,22 +258,23 @@ export default function PostCreationPage() {
           <Input
             disabled={postCreationLoading}
             erred={Boolean(errors.title)}
-            placeholder="안녕하세요 우아한 알파카님"
+            placeholder="안녕하세요 우아한 알파카님. 평소에 궁금했던 것을 물어보세요."
             {...register('title', { required: '글 제목을 작성한 후 완료를 눌러주세요' })}
           />
           <Textarea
             disabled={postCreationLoading}
-            height={watch('contents').split('\n').length * 1.6}
-            placeholder="평소에 궁금했던 것을 물어보세요"
+            height={contentsLines}
+            onKeyDown={submitWhenShiftEnter}
+            placeholder="Shift+Enter키로 글을 작성할 수 있어요"
             {...register('contents', { required: '글 내용을 작성한 후 완료를 눌러주세요' })}
           />
 
           <Slider>
             {imageUrls.map((file, i) => (
               <Slide key={i} flexBasis="96%">
-                <Frame16to9>
+                <Frame16to11>
                   <Image src={file} alt={file} layout="fill" objectFit="cover" />
-                </Frame16to9>
+                </Frame16to11>
               </Slide>
             ))}
             <Slide flexBasis={imageUrls.length === 0 ? '100%' : '96%'}>
@@ -272,8 +284,8 @@ export default function PostCreationPage() {
               </FileInputLabel>
               <FileInput
                 accept="image/*"
-                multiple
                 id="images"
+                multiple
                 onChange={previewImages}
                 type="file"
               />

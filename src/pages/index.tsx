@@ -52,13 +52,6 @@ const Frame16to11 = styled.div`
   background: #e2d7ec;
 `
 
-const Fixed = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-`
-
 const BorderRadius = styled.div`
   background: #fafafa;
   border-radius: 1.2rem 1.2rem 0px 0px;
