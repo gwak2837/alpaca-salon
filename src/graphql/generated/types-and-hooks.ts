@@ -187,6 +187,8 @@ export type Query = {
   post?: Maybe<Post>
   /** 글 목록 */
   posts?: Maybe<Array<Post>>
+  /** 질문 목록 */
+  questions?: Maybe<Array<Question>>
   /** 글 검색 */
   searchPosts?: Maybe<Array<Post>>
   /** 닉네임으로 사용자 검색 */
@@ -215,6 +217,14 @@ export type QuerySearchPostsArgs = {
 
 export type QueryUserByNicknameArgs = {
   nickname: Scalars['NonEmptyString']
+}
+
+export type Question = {
+  __typename?: 'Question'
+  contents: Scalars['NonEmptyString']
+  creationTime: Scalars['DateTime']
+  id: Scalars['ID']
+  title: Scalars['NonEmptyString']
 }
 
 export type User = {
@@ -433,9 +443,18 @@ export type PostsQuery = {
         contents: any
         category: PostCategory
         commentCount: any
-        imageUrls?: Array<any> | null | undefined
         user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
       }>
+    | null
+    | undefined
+}
+
+export type QuestionsQueryVariables = Exact<{ [key: string]: never }>
+
+export type QuestionsQuery = {
+  __typename?: 'Query'
+  questions?:
+    | Array<{ __typename?: 'Question'; id: string; title: any; contents: any }>
     | null
     | undefined
 }
@@ -995,7 +1014,6 @@ export const PostsDocument = gql`
       contents
       category
       commentCount
-      imageUrls
       user {
         id
         nickname
@@ -1035,6 +1053,46 @@ export function usePostsLazyQuery(
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>
+export const QuestionsDocument = gql`
+  query Questions {
+    questions {
+      id
+      title
+      contents
+    }
+  }
+`
+
+/**
+ * __useQuestionsQuery__
+ *
+ * To run a query within a React component, call `useQuestionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useQuestionsQuery(
+  baseOptions?: Apollo.QueryHookOptions<QuestionsQuery, QuestionsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useQuery<QuestionsQuery, QuestionsQueryVariables>(QuestionsDocument, options)
+}
+export function useQuestionsLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<QuestionsQuery, QuestionsQueryVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useLazyQuery<QuestionsQuery, QuestionsQueryVariables>(QuestionsDocument, options)
+}
+export type QuestionsQueryHookResult = ReturnType<typeof useQuestionsQuery>
+export type QuestionsLazyQueryHookResult = ReturnType<typeof useQuestionsLazyQuery>
+export type QuestionsQueryResult = Apollo.QueryResult<QuestionsQuery, QuestionsQueryVariables>
 export const UserByNicknameDocument = gql`
   query UserByNickname($nickname: NonEmptyString!) {
     userByNickname(nickname: $nickname) {
@@ -1174,6 +1232,7 @@ export type QueryKeySpecifier = (
   | 'myComments'
   | 'post'
   | 'posts'
+  | 'questions'
   | 'searchPosts'
   | 'userByNickname'
   | QueryKeySpecifier
@@ -1187,8 +1246,22 @@ export type QueryFieldPolicy = {
   myComments?: FieldPolicy<any> | FieldReadFunction<any>
   post?: FieldPolicy<any> | FieldReadFunction<any>
   posts?: FieldPolicy<any> | FieldReadFunction<any>
+  questions?: FieldPolicy<any> | FieldReadFunction<any>
   searchPosts?: FieldPolicy<any> | FieldReadFunction<any>
   userByNickname?: FieldPolicy<any> | FieldReadFunction<any>
+}
+export type QuestionKeySpecifier = (
+  | 'contents'
+  | 'creationTime'
+  | 'id'
+  | 'title'
+  | QuestionKeySpecifier
+)[]
+export type QuestionFieldPolicy = {
+  contents?: FieldPolicy<any> | FieldReadFunction<any>
+  creationTime?: FieldPolicy<any> | FieldReadFunction<any>
+  id?: FieldPolicy<any> | FieldReadFunction<any>
+  title?: FieldPolicy<any> | FieldReadFunction<any>
 }
 export type UserKeySpecifier = (
   | 'bio'
@@ -1242,6 +1315,10 @@ export type StrictTypedTypePolicies = {
   Query?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | QueryKeySpecifier | (() => undefined | QueryKeySpecifier)
     fields?: QueryFieldPolicy
+  }
+  Question?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
+    keyFields?: false | QuestionKeySpecifier | (() => undefined | QuestionKeySpecifier)
+    fields?: QuestionFieldPolicy
   }
   User?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | UserKeySpecifier | (() => undefined | UserKeySpecifier)

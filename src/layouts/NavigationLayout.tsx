@@ -85,7 +85,7 @@ export default function NavigationLayout({ children }: Props) {
   const { asPath } = useRouter()
 
   const doesPostListSelected = asPath === '/'
-  const doesEventListSelected = asPath.startsWith('/event')
+  const doesEventListSelected = asPath.startsWith('/question')
 
   return (
     <>
@@ -102,7 +102,7 @@ export default function NavigationLayout({ children }: Props) {
           </A>
         </Link>
 
-        <Link href="/event" passHref>
+        <Link href="/question" passHref>
           <A color={doesEventListSelected ? ALPACA_SALON_COLOR : ALPACA_SALON_ACHROMATIC_COLOR}>
             <FireIconWrapper>
               <FireIcon selected={doesEventListSelected} />

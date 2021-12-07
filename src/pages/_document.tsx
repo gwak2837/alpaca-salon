@@ -38,7 +38,6 @@ export default class AlpacaSalonDocument extends Document {
     return (
       <Html>
         <Head>
-          {/* <base href={CANONICAL_URL} /> */}
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
           <link
