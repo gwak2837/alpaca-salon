@@ -1,10 +1,14 @@
 import { Carousel } from 'antd'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { useRecoilValue } from 'recoil'
+import { toastApolloError } from 'src/apollo/error'
+import Drawer from 'src/components/atoms/Drawer'
 import PageHead from 'src/components/PageHead'
+import { useQuestionsQuery } from 'src/graphql/generated/types-and-hooks'
 import NavigationLayout from 'src/layouts/NavigationLayout'
+import { ALPACA_SALON_COLOR } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import styled from 'styled-components'
 
@@ -35,28 +39,40 @@ const Frame16to11 = styled.div`
   aspect-ratio: 16 / 11;
 `
 
-const Viewport = styled.ol`
-  overflow-x: scroll;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  display: flex;
+const H3 = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
 `
 
-const Slide = styled.li<{ color: string }>`
-  scroll-snap-align: center;
-  flex: 0 0 100%;
+const QuestionUl = styled.ul`
+  background: #fff;
+  border-radius: 20px 20px 0px 0px;
+  height: 100%;
+  padding: 1rem;
+`
 
-  background: ${(p) => p.color};
+const QuestionLi = styled.li<{ selected: boolean }>`
+  color: ${(p) => (p.selected ? ALPACA_SALON_COLOR : '#000')};
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 1rem 0;
 `
 
 const description = ''
 
 export default function EventListPage() {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0)
   const router = useRouter()
   const { nickname } = useRecoilValue(currentUser)
 
+  const { data } = useQuestionsQuery({ onError: toastApolloError })
+
+  const questions = data?.questions
+
   return (
-    <PageHead title=" - 알파카살롱" description={description}>
+    <PageHead title="톡톡문답 - 알파카살롱" description={description}>
       <FlexContainer>
         <Title>알파카살롱</Title>
         {nickname ? (
@@ -75,44 +91,26 @@ export default function EventListPage() {
         </Frame16to11>
       </Carousel>
 
-      <PrimaryH3>오늘의 질문</PrimaryH3>
+      <H3 onClick={() => setIsDrawerOpen(true)}>Q. {questions?.[selectedQuestionIndex].title}</H3>
 
-      <Viewport>
-        <Slide color="#f99">
-          <a href="#carousel__slide4" className="carousel__prev">
-            Go to last slide
-          </a>
-          <a href="#carousel__slide2" className="carousel__next">
-            Go to next slide
-          </a>
-        </Slide>
-        <Slide color="#a99">
-          <a href="#carousel__slide1" className="carousel__prev">
-            Go to previous slide
-          </a>
-          <a href="#carousel__slide3" className="carousel__next">
-            Go to next slide
-          </a>
-        </Slide>
-        <Slide color="#29f">
-          <a href="#carousel__slide2" className="carousel__prev">
-            Go to previous slide
-          </a>
-          <a href="#carousel__slide4" className="carousel__next">
-            Go to next slide
-          </a>
-        </Slide>
-        <Slide color="#79a">
-          <a href="#carousel__slide3" className="carousel__prev">
-            Go to previous slide
-          </a>
-          <a href="#carousel__slide1" className="carousel__next">
-            Go to first slide
-          </a>
-        </Slide>
-      </Viewport>
+      <Drawer open={isDrawerOpen} setOpen={setIsDrawerOpen}>
+        <QuestionUl>
+          {questions?.map((question, i) => (
+            <QuestionLi
+              key={i}
+              selected={selectedQuestionIndex === i}
+              onClick={() => {
+                setSelectedQuestionIndex(i)
+                setIsDrawerOpen(false)
+              }}
+            >
+              Q. {question.title}
+            </QuestionLi>
+          ))}
+        </QuestionUl>
+      </Drawer>
 
-      <PrimaryH3>다른 사람들의 댓글</PrimaryH3>
+      <H3>실시간 답변</H3>
     </PageHead>
   )
 }
