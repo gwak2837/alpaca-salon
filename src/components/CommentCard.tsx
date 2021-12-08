@@ -139,11 +139,12 @@ function SubcommentCard({ subcomment }: Props2) {
 
 type Props = {
   comment: Comment
-  parentCommentIdRef: any
+
+  setParentComment: any
   commentInputRef: any
 }
 
-function CommentCard({ comment, parentCommentIdRef, commentInputRef }: Props) {
+function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
   const author = comment.user
   const router = useRouter()
 
@@ -157,26 +158,14 @@ function CommentCard({ comment, parentCommentIdRef, commentInputRef }: Props) {
   }
 
   function toggleLikingComment() {
-    if (window.sessionStorage.getItem('jwt')) {
-      if (!loading) {
-        toggleLikingCommentMutation()
-      }
-    } else {
-      toast.info('로그인이 필요합니다')
-      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
-      router.push('/login')
+    if (!loading) {
+      toggleLikingCommentMutation()
     }
   }
 
-  function setParentCommentId() {
-    if (window.sessionStorage.getItem('jwt')) {
-      parentCommentIdRef.current = comment.id
-      commentInputRef.current.focus()
-    } else {
-      toast.info('로그인이 필요합니다')
-      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
-      router.push('/login')
-    }
+  function setParentCommentInfo() {
+    setParentComment({ id: comment.id, nickname: author.nickname, contents: comment.contents })
+    commentInputRef.current.focus()
   }
 
   return (
@@ -206,7 +195,7 @@ function CommentCard({ comment, parentCommentIdRef, commentInputRef }: Props) {
             공감해요
             <SelectableSpan selected={comment.isLiked}>{comment.likedCount}</SelectableSpan>
           </LikingButton>
-          <SubcommentButton onClick={setParentCommentId}>답글쓰기</SubcommentButton>
+          <SubcommentButton onClick={setParentCommentInfo}>답글쓰기</SubcommentButton>
         </GridItemDiv>
       </GridContainerLi>
 

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { Fragment, useRef } from 'react'
+import React, { Fragment, KeyboardEvent, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -14,6 +14,7 @@ import {
   useCreateCommentMutation,
   usePostQuery,
 } from 'src/graphql/generated/types-and-hooks'
+import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
@@ -22,6 +23,7 @@ import styled from 'styled-components'
 
 import { FlexContainerColumnEnd } from '../[userNickname]'
 import { FlexContainerGrow } from '../login'
+import { submitWhenShiftEnter } from './create'
 
 const Padding = styled.div`
   padding: 1rem 0.6rem;
@@ -105,7 +107,6 @@ const H3 = styled.h3`
 const P = styled.p`
   line-height: 1.6rem;
   margin: 1rem 0;
-  /* min-height: 30vh; */
 `
 
 export const Frame16to11 = styled.div`
@@ -130,6 +131,7 @@ const GreyButton = styled.button`
   border: none;
   color: #888;
   padding: 1.3rem 0.8rem;
+  text-align: left;
 
   :hover,
   :focus {
@@ -150,40 +152,50 @@ const StickyForm = styled.form`
   bottom: 0;
   width: 100%;
   background: #fff;
-  /* height: 7rem; */
 `
 
-const CommentInput = styled.input`
+const CommentTextarea = styled.textarea`
+  width: calc(100% - 1.2rem);
+  height: 2.8rem;
+  min-height: 2.8rem;
+  max-height: 6rem;
+  margin: 0.6rem;
+  padding: 0.6rem 2.2rem 0.6rem 1.2rem;
+
   background: #f4f4f4;
   border: none;
-  border-radius: 9999px;
-  margin: 0.6rem;
-  padding: 0.6rem 1.2rem;
-  width: calc(100% - 1.2rem);
+  border-radius: 1.25rem;
 `
 
 const CommentSubmitButton = styled.button`
   position: absolute;
-  top: 53%;
-  right: 0;
-  transform: translateY(-50%);
+  bottom: 0.8rem;
+  right: 0.5rem;
+
+  width: 3rem;
+  height: 3rem;
+  padding: 0.5rem;
 
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem 1rem 0.5rem 0.5rem;
-  height: 100%;
 `
 
 type CommentCreationForm = {
   contents: string
 }
 
+type ParentComment = {
+  id: string
+  nickname: string
+  contents: string
+}
+
 const description = ''
 
 export default function PostDetailPage() {
-  const parentCommentId = useRef('')
-  const commentInputRef = useRef<HTMLInputElement>()
+  const [parentComment, setParentComment] = useState<ParentComment>()
+  const commentTextareaRef = useRef<HTMLTextAreaElement>()
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
 
@@ -208,6 +220,7 @@ export default function PostDetailPage() {
     onCompleted: ({ createComment }) => {
       if (createComment) {
         toast.success('댓글을 작성했어요')
+        setParentComment(undefined)
       }
     },
     onError: toastApolloError,
@@ -217,28 +230,17 @@ export default function PostDetailPage() {
   const { handleSubmit, register, reset, watch } = useForm<CommentCreationForm>({
     defaultValues: { contents: '' },
   })
-
-  const contentsLength = watch('contents').length
-
+  const contentsLineCount = watch('contents').split('\n').length
   const { ref, ...registerCommentCreationForm } = register('contents', {
-    onBlur: () => (parentCommentId.current = ''),
     required: '댓글을 입력해주세요',
   })
 
   function createComment({ contents }: CommentCreationForm) {
     const variables: CreateCommentMutationVariables = { contents, postId }
-    if (parentCommentId.current) variables.commentId = parentCommentId.current
+    if (parentComment) variables.commentId = parentComment.id
 
     createCommentMutation({ variables })
     reset()
-  }
-
-  function needLogin() {
-    if (!window.sessionStorage.getItem('jwt')) {
-      toast.info('로그인이 필요합니다')
-      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
-      router.push('/login')
-    }
   }
 
   function goBack() {
@@ -249,15 +251,23 @@ export default function PostDetailPage() {
     router.push(`/@${author?.nickname}`)
   }
 
-  function focusInput() {
-    if (window.sessionStorage.getItem('jwt')) {
-      commentInputRef.current?.focus()
-    } else {
-      toast.info('로그인이 필요합니다')
-      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
-      router.push('/login')
-    }
+  function writeComment() {
+    setParentComment(undefined)
+    commentTextareaRef.current?.focus()
   }
+
+  function resizeTextareaHeight(e: KeyboardEvent<HTMLTextAreaElement>) {
+    const eventTarget = e.target as HTMLTextAreaElement
+    eventTarget.style.height = ''
+    eventTarget.style.height = `${eventTarget.scrollHeight}px`
+  }
+
+  function registerTextareaRef(textarea: HTMLTextAreaElement) {
+    ref(textarea)
+    commentTextareaRef.current = textarea
+  }
+
+  useNeedToLogin()
 
   return (
     <PageHead title={`${post?.title ?? '건강문답'} - 알파카살롱`} description={description}>
@@ -317,7 +327,7 @@ export default function PostDetailPage() {
         </Padding>
 
         <HorizontalBorder />
-        <GreyButton onClick={focusInput}>댓글 달기</GreyButton>
+        <GreyButton onClick={writeComment}>댓글 달기</GreyButton>
         <HorizontalBorder />
 
         <FlexContainerColumnEnd>
@@ -327,23 +337,21 @@ export default function PostDetailPage() {
               <CommentCard
                 key={comment.id}
                 comment={comment as Comment}
-                parentCommentIdRef={parentCommentId}
-                commentInputRef={commentInputRef}
+                setParentComment={setParentComment}
+                commentInputRef={commentTextareaRef}
               />
             ))}
 
             <StickyForm onSubmit={handleSubmit(createComment)}>
-              <CommentInput
+              <CommentTextarea
                 disabled={loading}
-                onClick={needLogin}
-                placeholder="Enter키 또는 오른쪽 보라색 버튼으로 댓글을 작성할 수 있어요"
-                ref={(input) => {
-                  ref(input)
-                  commentInputRef.current = input as HTMLInputElement
-                }}
+                onKeyDown={submitWhenShiftEnter}
+                onKeyUp={resizeTextareaHeight}
+                placeholder="Shift+Enter"
+                ref={registerTextareaRef}
                 {...registerCommentCreationForm}
               />
-              {contentsLength > 0 && (
+              {contentsLineCount > 0 && (
                 <CommentSubmitButton type="submit">
                   <Submit />
                 </CommentSubmitButton>
