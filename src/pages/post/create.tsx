@@ -17,7 +17,8 @@ import {
   TABLET_MIN_WIDTH,
 } from 'src/models/constants'
 import FileUploadIcon from 'src/svgs/file-upload.svg'
-import XIcon from 'src/svgs/x-icon.svg'
+import XButtonIcon from 'src/svgs/x-button.svg'
+import XIcon from 'src/svgs/x.svg'
 import { isEmpty } from 'src/utils'
 import styled from 'styled-components'
 
@@ -52,7 +53,11 @@ const FixedHeader = styled.header`
 
   background: #fff;
   border-bottom: 1px solid #e0e0e0;
-  padding: 1rem;
+
+  > svg {
+    padding: 1rem;
+    width: 3rem;
+  }
 `
 
 const TransparentButton = styled.button<{ disabled?: boolean }>`
@@ -62,7 +67,7 @@ const TransparentButton = styled.button<{ disabled?: boolean }>`
   font-weight: 600;
   ${(p) => p.disabled && 'opacity: 0.5;'}
   cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
-  padding: 0;
+  padding: 1rem;
 `
 
 const Input = styled.input<{ erred?: boolean }>`
@@ -102,8 +107,8 @@ const FileInput = styled.input`
 
 const FileInputLabel = styled.label`
   position: relative;
-  aspect-ratio: 16 / 9;
   cursor: pointer;
+  height: 100%;
 
   display: flex;
   flex-direction: column;
@@ -136,9 +141,24 @@ const Slider = styled.ul`
 const Slide = styled.li<{ flexBasis?: string }>`
   scroll-snap-align: center;
 
+  aspect-ratio: 16 / 11;
   border: 1px solid #e2e2e2;
   border-radius: 10px;
-  flex: 0 0 ${(p) => p.flexBasis ?? '100%'};
+  flex: 0 0 ${(p) => p.flexBasis ?? '95%'};
+  position: relative;
+`
+
+const PreviewSlide = styled(Slide)`
+  flex: 0 0 96%;
+  padding: 0;
+
+  > svg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2.5rem;
+    padding: 0.5rem;
+  }
 `
 
 export function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -192,8 +212,8 @@ export default function PostCreationPage() {
     refetchQueries: ['Posts'],
   })
 
-  function goBack() {
-    router.back()
+  function replaceToHomePage() {
+    router.replace('/')
   }
 
   function goToHomePage() {
@@ -252,9 +272,7 @@ export default function PostCreationPage() {
     <PageHead title="글쓰기 - 알파카살롱" description={description}>
       <form onSubmit={handleSubmit(createPost)}>
         <FixedHeader>
-          <XIconWrapper onClick={goBack}>
-            <XIcon />
-          </XIconWrapper>
+          <XIcon onClick={replaceToHomePage} />
           <AbsoluteH3 onClick={goToHomePage}>글쓰기</AbsoluteH3>
           <TransparentButton disabled={!isEmpty(errors) || postCreationLoading} type="submit">
             완료
@@ -275,30 +293,25 @@ export default function PostCreationPage() {
             placeholder="Shift+Enter키로 글을 작성할 수 있어요"
             {...register('contents', { required: '글 내용을 작성한 후 완료를 눌러주세요' })}
           />
-
-          <Slider>
-            {imageUrls.map((file, i) => (
-              <Slide key={i} flexBasis="96%">
-                <Frame16to11>
-                  <Image src={file} alt={file} layout="fill" objectFit="cover" />
-                </Frame16to11>
-              </Slide>
-            ))}
-            <Slide flexBasis={imageUrls.length === 0 ? '100%' : '96%'}>
-              <FileInputLabel htmlFor="images">
-                <FileUploadIcon />
-                <GreyH3>사진을 추가해주세요</GreyH3>
-              </FileInputLabel>
-              <FileInput
-                accept="image/*"
-                id="images"
-                multiple
-                onChange={previewImages}
-                type="file"
-              />
-            </Slide>
-          </Slider>
         </GridContainer>
+
+        <Slider>
+          {imageUrls.map((file, i) => (
+            <PreviewSlide key={i}>
+              <Frame16to11>
+                <Image src={file} alt={file} layout="fill" objectFit="cover" />
+              </Frame16to11>
+              <XButtonIcon />
+            </PreviewSlide>
+          ))}
+          <Slide flexBasis={imageUrls.length === 0 ? '100%' : '96%'}>
+            <FileInputLabel htmlFor="images">
+              <FileUploadIcon />
+              <GreyH3>사진을 추가해주세요</GreyH3>
+            </FileInputLabel>
+            <FileInput accept="image/*" id="images" multiple onChange={previewImages} type="file" />
+          </Slide>
+        </Slider>
       </form>
     </PageHead>
   )

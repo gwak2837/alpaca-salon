@@ -148,7 +148,9 @@ export default function EventListPage() {
     setIsDrawerOpen(true)
   }
 
-  function createAnswer(input: AnswerCreationInput) {}
+  function createAnswer(input: AnswerCreationForm) {
+    console.log('👀 - input', input)
+  }
 
   return (
     <PageHead title="톡톡문답 - 알파카살롱" description={description}>
@@ -201,7 +203,7 @@ export default function EventListPage() {
             {...register('contents', { required: '글 내용을 작성한 후 완료를 눌러주세요' })}
           />
           <Button>사진 넣기</Button>
-          <Button>공유하기</Button>
+          <Button type="submit">공유하기</Button>
         </GridForm>
       </Padding>
     </PageHead>
