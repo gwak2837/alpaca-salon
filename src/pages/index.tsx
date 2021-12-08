@@ -28,9 +28,10 @@ const Background = styled.div`
 const Sticky = styled.div`
   position: sticky;
   top: 0;
+  z-index: 0;
 `
 
-const FlexContainer = styled.div`
+const FlexBetweenCenter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -61,8 +62,8 @@ const BorderRadius = styled.div`
   background: #fafafa;
   border-radius: 1.2rem 1.2rem 0px 0px;
   padding: 1rem 0.65rem;
-
-  position: relative;
+  /* position: relative;
+  z-index: 1; */
 `
 
 export const PrimaryH3 = styled.h3`
@@ -172,25 +173,23 @@ export default function HomePage() {
   return (
     <PageHead>
       <Background>
-        <Sticky>
-          <FlexContainer>
-            <H2>알파카살롱</H2>
-            {nickname ? (
-              <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
-            ) : (
-              <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
-            )}
-          </FlexContainer>
+        <FlexBetweenCenter>
+          <H2>알파카살롱</H2>
+          {nickname ? (
+            <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
+          ) : (
+            <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
+          )}
+        </FlexBetweenCenter>
 
-          <Carousel autoplay>
-            <Frame16to11>
-              <Image src="/images/banner.png" alt="banner" layout="fill" objectFit="contain" />
-            </Frame16to11>
-            <Frame16to11>
-              <Image src="/images/banner2.png" alt="banner" layout="fill" objectFit="contain" />
-            </Frame16to11>
-          </Carousel>
-        </Sticky>
+        <Carousel autoplay>
+          <Frame16to11>
+            <Image src="/images/banner.png" alt="banner" layout="fill" objectFit="contain" />
+          </Frame16to11>
+          <Frame16to11>
+            <Image src="/images/banner2.png" alt="banner" layout="fill" objectFit="contain" />
+          </Frame16to11>
+        </Carousel>
 
         <BorderRadius>
           <PrimaryH3>이번 달 핫한 이야기</PrimaryH3>

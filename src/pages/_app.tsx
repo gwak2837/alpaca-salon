@@ -25,10 +25,9 @@ const fade = cssTransition({
   exit: 'animate_fadeOut',
 })
 
-const MaxWidth = styled.main`
+const Main = styled.main`
   max-width: ${TABLET_MIN_WIDTH};
   margin: 0 auto;
-  overflow: scroll;
 `
 
 type AppPropsWithLayout = AppProps & {
@@ -55,7 +54,7 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppPropsWithLay
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
-      <MaxWidth>
+      <Main>
         <ApolloProvider client={client}>
           <RecoilRoot>
             <Authentication>
@@ -63,7 +62,7 @@ export default function AlpacaSalonApp({ Component, pageProps }: AppPropsWithLay
             </Authentication>
           </RecoilRoot>
         </ApolloProvider>
-      </MaxWidth>
+      </Main>
       <ToastContainer autoClose={2000} hideProgressBar position="top-center" transition={fade} />
     </>
   )
