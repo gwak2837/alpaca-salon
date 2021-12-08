@@ -10,6 +10,7 @@ import {
   useUnregisterMutation,
   useUserByNicknameQuery,
 } from 'src/graphql/generated/types-and-hooks'
+import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import BackIcon from 'src/svgs/back-icon.svg'
@@ -144,6 +145,8 @@ export default function UserPage() {
   function unregister() {
     unregisterMutation()
   }
+
+  useNeedToLogin()
 
   return (
     <PageHead title={`@${userNickname} - 알파카살롱`} description={description}>

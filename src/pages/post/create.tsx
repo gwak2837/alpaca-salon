@@ -10,6 +10,7 @@ import {
   useCreatePostMutation,
   usePostsQuery,
 } from 'src/graphql/generated/types-and-hooks'
+import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import {
   ALPACA_SALON_COLOR,
   ALPACA_SALON_GREY_COLOR,
@@ -256,17 +257,12 @@ export default function PostCreationPage() {
   }
 
   useEffect(() => {
-    if (!window.sessionStorage.getItem('jwt')) {
-      toast.info('로그인이 필요합니다')
-      router.push('/login')
-    }
-  }, [router])
-
-  useEffect(() => {
     if (errors.title || errors.contents) {
       toast.warn(errors.title?.message ?? errors.contents?.message)
     }
   }, [errors.contents, errors.title])
+
+  useNeedToLogin()
 
   return (
     <PageHead title="글쓰기 - 알파카살롱" description={description}>
