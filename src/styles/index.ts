@@ -1,9 +1,5 @@
 import styled, { keyframes } from 'styled-components'
 
-export const Padding = styled.div`
-  padding: 1rem;
-`
-
 export const FlexContainerCenterCenter = styled.div`
   display: flex;
   justify-content: center;
@@ -65,24 +61,6 @@ export const focusInExpandFwd = keyframes`
     transform: translateZ(0);
     filter: blur(0);
     opacity: 1;
-  }
-`
-
-export const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`
-
-export const fadeOut = keyframes`
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
   }
 `
 

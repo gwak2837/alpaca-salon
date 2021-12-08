@@ -5,7 +5,11 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import PageHead from 'src/components/PageHead'
-import { useCreatePostMutation, usePostsQuery } from 'src/graphql/generated/types-and-hooks'
+import {
+  CreatePostMutationVariables,
+  useCreatePostMutation,
+  usePostsQuery,
+} from 'src/graphql/generated/types-and-hooks'
 import {
   ALPACA_SALON_COLOR,
   ALPACA_SALON_GREY_COLOR,
@@ -87,9 +91,6 @@ const Textarea = styled.textarea<{ height: number }>`
   max-height: 50vh;
   padding: 0.5rem 0;
 
-  border: none;
-  line-height: 1.6rem;
-
   :focus {
     outline: none;
   }
@@ -139,6 +140,15 @@ const Slide = styled.li<{ flexBasis?: string }>`
   border-radius: 10px;
   flex: 0 0 ${(p) => p.flexBasis ?? '100%'};
 `
+
+export function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
+  if (e.code === 'Enter' && e.shiftKey) {
+    e.preventDefault() // To prevent adding line break when shift+enter pressed
+    const submitEvent = new Event('submit', { bubbles: true })
+    const parentForm = (e.target as any).form as HTMLFormElement
+    parentForm.dispatchEvent(submitEvent)
+  }
+}
 
 const description = '알파카살롱에 글을 작성해보세요'
 
@@ -204,15 +214,6 @@ export default function PostCreationPage() {
     }
   }
 
-  function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.code === 'Enter' && e.shiftKey) {
-      e.preventDefault() // To prevent adding line break when shift+enter pressed
-      const submitEvent = new Event('submit', { bubbles: true })
-      const parentForm = (e.target as any).form as HTMLFormElement
-      parentForm.dispatchEvent(submitEvent)
-    }
-  }
-
   async function uploadImageFiles() {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
       method: 'POST',
@@ -223,8 +224,14 @@ export default function PostCreationPage() {
 
   async function createPost(input: PostCreationInput) {
     setPostCreationLoading(true)
-    const { imageUrls } = await uploadImageFiles()
-    await createPostMutation({ variables: { input: { ...input, imageUrls } } })
+
+    const variables: CreatePostMutationVariables = { input: { ...input } }
+    if (formData.current?.has('images')) {
+      const { imageUrls } = await uploadImageFiles()
+      variables.input.imageUrls = imageUrls
+    }
+
+    await createPostMutation({ variables })
     setPostCreationLoading(false)
   }
 

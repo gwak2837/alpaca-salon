@@ -62,15 +62,18 @@ const KakaoButton = styled.div`
   }
 `
 
-const FlexContainerGrow = styled.div`
+export const FlexContainerGrow = styled.div`
   display: flex;
   flex-flow: column;
-  height: 100vh;
-  padding: 2rem 1rem 0;
+  height: 100%;
 
   > :last-child {
     flex-grow: 1;
   }
+`
+
+const FlexGrowPadding = styled(FlexContainerGrow)`
+  padding: 2rem 1rem 0;
 `
 
 const PrimaryColorText = styled.span`
@@ -93,7 +96,7 @@ export default function LoginPage() {
 
   return (
     <PageHead title="로그인 - 알파카살롱" description={description}>
-      <FlexContainerGrow>
+      <FlexGrowPadding>
         <H4>당당하게 더 멋진 인생을 살고 싶은</H4>
         <br />
         <H2>멋쟁이 알파카님, 안녕하세요</H2>
@@ -128,7 +131,7 @@ export default function LoginPage() {
             카카오로 3초 만에 시작하기
           </KakaoButton>
         </FlexContainerColumnEnd>
-      </FlexContainerGrow>
+      </FlexGrowPadding>
     </PageHead>
   )
 }

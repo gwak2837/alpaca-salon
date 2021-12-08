@@ -25,6 +25,11 @@ const Background = styled.div`
   background: #e2d7ec;
 `
 
+const Sticky = styled.div`
+  position: sticky;
+  top: 0;
+`
+
 const FlexContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -56,6 +61,8 @@ const BorderRadius = styled.div`
   background: #fafafa;
   border-radius: 1.2rem 1.2rem 0px 0px;
   padding: 1rem 0.65rem;
+
+  position: relative;
 `
 
 export const PrimaryH3 = styled.h3`
@@ -165,23 +172,25 @@ export default function HomePage() {
   return (
     <PageHead>
       <Background>
-        <FlexContainer>
-          <H2>알파카살롱</H2>
-          {nickname ? (
-            <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
-          ) : (
-            <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
-          )}
-        </FlexContainer>
+        <Sticky>
+          <FlexContainer>
+            <H2>알파카살롱</H2>
+            {nickname ? (
+              <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
+            ) : (
+              <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
+            )}
+          </FlexContainer>
 
-        <Carousel autoplay>
-          <Frame16to11>
-            <Image src="/images/banner.png" alt="banner" layout="fill" objectFit="contain" />
-          </Frame16to11>
-          <Frame16to11>
-            <Image src="/images/banner2.png" alt="banner" layout="fill" objectFit="contain" />
-          </Frame16to11>
-        </Carousel>
+          <Carousel autoplay>
+            <Frame16to11>
+              <Image src="/images/banner.png" alt="banner" layout="fill" objectFit="contain" />
+            </Frame16to11>
+            <Frame16to11>
+              <Image src="/images/banner2.png" alt="banner" layout="fill" objectFit="contain" />
+            </Frame16to11>
+          </Carousel>
+        </Sticky>
 
         <BorderRadius>
           <PrimaryH3>이번 달 핫한 이야기</PrimaryH3>

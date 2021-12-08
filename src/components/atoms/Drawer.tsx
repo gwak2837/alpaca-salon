@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { TABLET_MIN_WIDTH } from 'src/models/constants'
 import styled from 'styled-components'
 
@@ -44,7 +44,10 @@ const DrawerSection = styled.section`
   max-width: ${TABLET_MIN_WIDTH};
   transform: translateX(-50%);
   height: 33vh;
-  overflow: hidden scroll;
+
+  padding: 20px 1rem 1rem;
+  background: #fff;
+  border-radius: 20px 20px 0px 0px;
 `
 
 type Props = {
@@ -54,30 +57,35 @@ type Props = {
 }
 
 function Drawer({ children, open, setOpen }: Props) {
-  const closeOnEscapeKey = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.code === 'Escape') {
-        setOpen(false)
-      }
-    },
-    [setOpen]
-  )
-
   function closeDrawer() {
     setOpen(false)
   }
 
   useEffect(() => {
+    function closeOnEscapeKey(e: KeyboardEvent) {
+      if (e.code === 'Escape') {
+        setOpen(false)
+      }
+    }
+
+    const bodyStyle = document.body.style
+    const scrollY = window.scrollY
+
     if (open) {
       document.addEventListener('keydown', closeOnEscapeKey, false)
-      document.body.style.overflow = 'hidden'
+      bodyStyle.overflow = 'hidden'
+      bodyStyle.position = 'fixed'
+      bodyStyle.top = `-${scrollY}px`
     }
 
     return () => {
       document.removeEventListener('keydown', closeOnEscapeKey, false)
-      document.body.style.overflow = ''
+      bodyStyle.overflow = ''
+      bodyStyle.position = ''
+      bodyStyle.top = ''
+      window.scrollTo(0, scrollY)
     }
-  }, [closeOnEscapeKey, open, setOpen])
+  }, [open, setOpen])
 
   return (
     <Transition>

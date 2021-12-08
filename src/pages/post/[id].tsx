@@ -20,6 +20,9 @@ import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import Submit from 'src/svgs/submit.svg'
 import styled from 'styled-components'
 
+import { FlexContainerColumnEnd } from '../[userNickname]'
+import { FlexContainerGrow } from '../login'
+
 const Padding = styled.div`
   padding: 1rem 0.6rem;
 `
@@ -258,93 +261,97 @@ export default function PostDetailPage() {
 
   return (
     <PageHead title={`${post?.title ?? '건강문답'} - 알파카살롱`} description={description}>
-      <Padding>
-        <FlexContainerBetweenCenter>
-          <Width onClick={goBack}>
-            <BackIcon />
-          </Width>
-          <ModificationButton>
-            <GreyWriteIcon />
-            수정하기
-          </ModificationButton>
-        </FlexContainerBetweenCenter>
+      <FlexContainerGrow>
+        <Padding>
+          <FlexContainerBetweenCenter>
+            <Width onClick={goBack}>
+              <BackIcon />
+            </Width>
+            <ModificationButton>
+              <GreyWriteIcon />
+              수정하기
+            </ModificationButton>
+          </FlexContainerBetweenCenter>
 
-        <GridContainer>
-          <Image
-            src={/* author?.imageUrl ??  */ '/images/default-profile-image.webp'}
-            alt="profile"
-            width="40"
-            height="40"
-            onClick={goToUserDetailPage}
-          />
-          <div>
-            <Link href={`/@${author?.nickname}`} passHref>
-              <a>
-                <H5>{author?.nickname ?? 'loading'}</H5>
-              </a>
-            </Link>
-            <GreyH5>{new Date(post?.creationTime).toLocaleTimeString()}</GreyH5>
-          </div>
-        </GridContainer>
+          <GridContainer>
+            <Image
+              src={/* author?.imageUrl ??  */ '/images/default-profile-image.webp'}
+              alt="profile"
+              width="40"
+              height="40"
+              onClick={goToUserDetailPage}
+            />
+            <div>
+              <Link href={`/@${author?.nickname}`} passHref>
+                <a>
+                  <H5>{author?.nickname ?? 'loading'}</H5>
+                </a>
+              </Link>
+              <GreyH5>{new Date(post?.creationTime).toLocaleTimeString()}</GreyH5>
+            </div>
+          </GridContainer>
 
-        {postLoading || !post ? (
-          <>
-            <div>글을 불러오는 중입니다</div>
-            <Frame16to11 />
-          </>
-        ) : (
-          <>
-            <H3>{post.title}</H3>
-            <P>
-              {(post.contents as string).split(/\n/).map((content, i) => (
-                <>
-                  <Fragment key={i}>{content}</Fragment>
-                  <br />
-                </>
+          {postLoading || !post ? (
+            <>
+              <div>글을 불러오는 중입니다</div>
+              <Frame16to11 />
+            </>
+          ) : (
+            <>
+              <H3>{post.title}</H3>
+              <P>
+                {(post.contents as string).split(/\n/).map((content, i) => (
+                  <>
+                    <Fragment key={i}>{content}</Fragment>
+                    <br />
+                  </>
+                ))}
+              </P>
+              {post.imageUrls?.map((imageUrl, i) => (
+                <Frame16to11DefaultImage key={i}>
+                  <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
+                </Frame16to11DefaultImage>
               ))}
-            </P>
-            {post.imageUrls?.map((imageUrl, i) => (
-              <Frame16to11DefaultImage key={i}>
-                <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
-              </Frame16to11DefaultImage>
-            ))}
-          </>
-        )}
-      </Padding>
-
-      <HorizontalBorder />
-      <GreyButton onClick={focusInput}>댓글 달기</GreyButton>
-      <HorizontalBorder />
-
-      <GridContainerUl>
-        {commentsLoading && <div>댓글을 불러오는 중입니다.</div>}
-        {comments?.map((comment) => (
-          <CommentCard
-            key={comment.id}
-            comment={comment as Comment}
-            parentCommentIdRef={parentCommentId}
-            commentInputRef={commentInputRef}
-          />
-        ))}
-
-        <StickyForm onSubmit={handleSubmit(createComment)}>
-          <CommentInput
-            disabled={loading}
-            onClick={needLogin}
-            placeholder="Enter키 또는 오른쪽 보라색 버튼으로 댓글을 작성할 수 있어요"
-            ref={(input) => {
-              ref(input)
-              commentInputRef.current = input as HTMLInputElement
-            }}
-            {...registerCommentCreationForm}
-          />
-          {contentsLength > 0 && (
-            <CommentSubmitButton type="submit">
-              <Submit />
-            </CommentSubmitButton>
+            </>
           )}
-        </StickyForm>
-      </GridContainerUl>
+        </Padding>
+
+        <HorizontalBorder />
+        <GreyButton onClick={focusInput}>댓글 달기</GreyButton>
+        <HorizontalBorder />
+
+        <FlexContainerColumnEnd>
+          <GridContainerUl>
+            {commentsLoading && <div>댓글을 불러오는 중입니다.</div>}
+            {comments?.map((comment) => (
+              <CommentCard
+                key={comment.id}
+                comment={comment as Comment}
+                parentCommentIdRef={parentCommentId}
+                commentInputRef={commentInputRef}
+              />
+            ))}
+
+            <StickyForm onSubmit={handleSubmit(createComment)}>
+              <CommentInput
+                disabled={loading}
+                onClick={needLogin}
+                placeholder="Enter키 또는 오른쪽 보라색 버튼으로 댓글을 작성할 수 있어요"
+                ref={(input) => {
+                  ref(input)
+                  commentInputRef.current = input as HTMLInputElement
+                }}
+                {...registerCommentCreationForm}
+              />
+              {contentsLength > 0 && (
+                <CommentSubmitButton type="submit">
+                  <Submit />
+                </CommentSubmitButton>
+              )}
+            </StickyForm>
+          </GridContainerUl>
+        </FlexContainerColumnEnd>
+      </FlexContainerGrow>
     </PageHead>
   )
 }

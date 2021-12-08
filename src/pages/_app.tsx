@@ -28,7 +28,7 @@ const fade = cssTransition({
 const MaxWidth = styled.main`
   max-width: ${TABLET_MIN_WIDTH};
   margin: 0 auto;
-  overflow: hidden;
+  overflow: scroll;
 `
 
 type AppPropsWithLayout = AppProps & {
