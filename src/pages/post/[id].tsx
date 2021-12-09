@@ -15,7 +15,7 @@ import {
   usePostQuery,
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
-import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import Submit from 'src/svgs/submit.svg'
@@ -141,17 +141,36 @@ const GreyButton = styled.button`
   transition: color 0.3s ease-out;
 `
 
-const GridContainerUl = styled.ul`
+const GridUl = styled.ul`
   display: grid;
   gap: 2rem;
+
   padding: 0.75rem 0.6rem;
 `
 
 const StickyForm = styled.form`
   position: sticky;
   bottom: 0;
-  width: 100%;
+
   background: #fff;
+  border-top: 1px solid #f3f3f3;
+  width: 100%;
+`
+
+const FlexBetween = styled.div`
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+`
+
+const FlexColumnGrow = styled.div`
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+
+  > :last-child {
+    flex-grow: 1;
+  }
 `
 
 const CommentTextarea = styled.textarea`
@@ -160,11 +179,12 @@ const CommentTextarea = styled.textarea`
   min-height: 2.8rem;
   max-height: 6rem;
   margin: 0.6rem;
-  padding: 0.6rem 2.2rem 0.6rem 1.2rem;
+  padding: 0.6rem 2.6rem 0.6rem 1.2rem;
 
   background: #f4f4f4;
   border: none;
   border-radius: 1.25rem;
+  resize: none;
 `
 
 const CommentSubmitButton = styled.button`
@@ -194,6 +214,7 @@ type ParentComment = {
 const description = ''
 
 export default function PostDetailPage() {
+  const [commentInputHeight, setCommentInputHeight] = useState(75)
   const [parentComment, setParentComment] = useState<ParentComment>()
   const commentTextareaRef = useRef<HTMLTextAreaElement>()
   const router = useRouter()
@@ -260,6 +281,7 @@ export default function PostDetailPage() {
     const eventTarget = e.target as HTMLTextAreaElement
     eventTarget.style.height = ''
     eventTarget.style.height = `${eventTarget.scrollHeight}px`
+    setCommentInputHeight(eventTarget.scrollHeight)
   }
 
   function registerTextareaRef(textarea: HTMLTextAreaElement) {
@@ -271,7 +293,7 @@ export default function PostDetailPage() {
 
   return (
     <PageHead title={`${post?.title ?? '건강문답'} - 알파카살롱`} description={description}>
-      <FlexContainerGrow>
+      <FlexColumnGrow>
         <Padding>
           <FlexContainerBetweenCenter>
             <Width onClick={goBack}>
@@ -330,36 +352,39 @@ export default function PostDetailPage() {
         <GreyButton onClick={writeComment}>댓글 달기</GreyButton>
         <HorizontalBorder />
 
-        <FlexContainerColumnEnd>
-          <GridContainerUl>
+        <FlexBetween>
+          <GridUl>
             {commentsLoading && <div>댓글을 불러오는 중입니다.</div>}
-            {comments?.map((comment) => (
-              <CommentCard
-                key={comment.id}
-                comment={comment as Comment}
-                setParentComment={setParentComment}
-                commentInputRef={commentTextareaRef}
-              />
-            ))}
+            {comments
+              ? comments.map((comment) => (
+                  <CommentCard
+                    key={comment.id}
+                    comment={comment as Comment}
+                    setParentComment={setParentComment}
+                    commentInputRef={commentTextareaRef}
+                  />
+                ))
+              : !commentsLoading && <div>댓글이 없어요</div>}
+          </GridUl>
 
-            <StickyForm onSubmit={handleSubmit(createComment)}>
-              <CommentTextarea
-                disabled={loading}
-                onKeyDown={submitWhenShiftEnter}
-                onKeyUp={resizeTextareaHeight}
-                placeholder="Shift+Enter"
-                ref={registerTextareaRef}
-                {...registerCommentCreationForm}
-              />
-              {contentsLineCount > 0 && (
-                <CommentSubmitButton type="submit">
-                  <Submit />
-                </CommentSubmitButton>
-              )}
-            </StickyForm>
-          </GridContainerUl>
-        </FlexContainerColumnEnd>
-      </FlexContainerGrow>
+          <StickyForm onSubmit={handleSubmit(createComment)}>
+            <pre>{JSON.stringify(parentComment, null, 2)}</pre>
+            <CommentTextarea
+              disabled={loading}
+              onKeyDown={submitWhenShiftEnter}
+              onKeyUp={resizeTextareaHeight}
+              placeholder="Shift+Enter"
+              ref={registerTextareaRef}
+              {...registerCommentCreationForm}
+            />
+            {contentsLineCount > 0 && (
+              <CommentSubmitButton type="submit">
+                <Submit />
+              </CommentSubmitButton>
+            )}
+          </StickyForm>
+        </FlexBetween>
+      </FlexColumnGrow>
     </PageHead>
   )
 }
