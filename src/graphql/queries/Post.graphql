@@ -5,6 +5,7 @@ query Post($id: ID!) {
     title
     contents
     imageUrls
+    commentCount
     user {
       id
       nickname

@@ -15,14 +15,13 @@ import {
   usePostQuery,
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
-import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import Submit from 'src/svgs/submit.svg'
-import styled from 'styled-components'
+import XIcon from 'src/svgs/x.svg'
+import styled, { css } from 'styled-components'
 
-import { FlexContainerColumnEnd } from '../[userNickname]'
-import { FlexContainerGrow } from '../login'
 import { submitWhenShiftEnter } from './create'
 
 const Padding = styled.div`
@@ -187,6 +186,12 @@ const CommentTextarea = styled.textarea`
   resize: none;
 `
 
+const fillGrey = css`
+  > svg > rect {
+    fill: ${ALPACA_SALON_GREY_COLOR};
+  }
+`
+
 const CommentSubmitButton = styled.button`
   position: absolute;
   bottom: 0.8rem;
@@ -199,6 +204,49 @@ const CommentSubmitButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
+
+  ${(p) => p.disabled && fillGrey}
+`
+
+const GreyDiv = styled.div`
+  line-height: 19px;
+  color: ${ALPACA_SALON_GREY_COLOR};
+  text-align: center;
+  margin: 5rem auto;
+`
+
+const Relative = styled.div`
+  position: relative;
+
+  color: #787878;
+  padding: 0.6rem;
+
+  > svg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2.2rem;
+    padding: 0.6rem;
+  }
+`
+
+const H4 = styled.h4`
+  color: #787878;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+`
+
+const PrimarySpan = styled.span`
+  color: ${ALPACA_SALON_COLOR};
+`
+
+const EllipsisText = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  width: 100%;
+  height: 1.2rem;
+  white-space: nowrap;
 `
 
 type CommentCreationForm = {
@@ -214,7 +262,6 @@ type ParentComment = {
 const description = ''
 
 export default function PostDetailPage() {
-  const [commentInputHeight, setCommentInputHeight] = useState(75)
   const [parentComment, setParentComment] = useState<ParentComment>()
   const commentTextareaRef = useRef<HTMLTextAreaElement>()
   const router = useRouter()
@@ -227,6 +274,7 @@ export default function PostDetailPage() {
   })
 
   const post = data?.post
+  const commentCount = post?.commentCount
   const author = data?.post?.user
 
   const { data: data2, loading: commentsLoading } = useCommentsByPostQuery({
@@ -242,6 +290,7 @@ export default function PostDetailPage() {
       if (createComment) {
         toast.success('댓글을 작성했어요')
         setParentComment(undefined)
+        if (commentTextareaRef.current) commentTextareaRef.current.style.height = '2.8rem'
       }
     },
     onError: toastApolloError,
@@ -268,6 +317,10 @@ export default function PostDetailPage() {
     router.back()
   }
 
+  function resetParentComment() {
+    setParentComment(undefined)
+  }
+
   function goToUserDetailPage() {
     router.push(`/@${author?.nickname}`)
   }
@@ -281,7 +334,6 @@ export default function PostDetailPage() {
     const eventTarget = e.target as HTMLTextAreaElement
     eventTarget.style.height = ''
     eventTarget.style.height = `${eventTarget.scrollHeight}px`
-    setCommentInputHeight(eventTarget.scrollHeight)
   }
 
   function registerTextareaRef(textarea: HTMLTextAreaElement) {
@@ -333,10 +385,10 @@ export default function PostDetailPage() {
               <H3>{post.title}</H3>
               <P>
                 {(post.contents as string).split(/\n/).map((content, i) => (
-                  <>
-                    <Fragment key={i}>{content}</Fragment>
+                  <Fragment key={i}>
+                    <>{content}</>
                     <br />
-                  </>
+                  </Fragment>
                 ))}
               </P>
               {post.imageUrls?.map((imageUrl, i) => (
@@ -349,7 +401,9 @@ export default function PostDetailPage() {
         </Padding>
 
         <HorizontalBorder />
-        <GreyButton onClick={writeComment}>댓글 달기</GreyButton>
+        <GreyButton onClick={writeComment}>
+          댓글 {commentCount ? `${commentCount}개` : '달기'}
+        </GreyButton>
         <HorizontalBorder />
 
         <FlexBetween>
@@ -364,21 +418,32 @@ export default function PostDetailPage() {
                     commentInputRef={commentTextareaRef}
                   />
                 ))
-              : !commentsLoading && <div>댓글이 없어요</div>}
+              : !commentsLoading && <GreyDiv>첫 번째로 댓글을 달아보세요</GreyDiv>}
           </GridUl>
 
           <StickyForm onSubmit={handleSubmit(createComment)}>
-            <pre>{JSON.stringify(parentComment, null, 2)}</pre>
+            {parentComment && (
+              <Relative>
+                <H4>
+                  <PrimarySpan>{parentComment.nickname}</PrimarySpan>님에게 답글 다는 중
+                </H4>
+                <EllipsisText>{parentComment.contents}</EllipsisText>
+                <XIcon onClick={resetParentComment} />
+              </Relative>
+            )}
+
             <CommentTextarea
               disabled={loading}
               onKeyDown={submitWhenShiftEnter}
               onKeyUp={resizeTextareaHeight}
-              placeholder="Shift+Enter"
+              placeholder={
+                parentComment ? 'Shift+Enter로 답글 작성하기' : 'Shift+Enter로 댓글 작성하기'
+              }
               ref={registerTextareaRef}
               {...registerCommentCreationForm}
             />
             {contentsLineCount > 0 && (
-              <CommentSubmitButton type="submit">
+              <CommentSubmitButton disabled={loading} type="submit">
                 <Submit />
               </CommentSubmitButton>
             )}

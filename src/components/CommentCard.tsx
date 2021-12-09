@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import { Comment, useToggleLikingCommentMutation } from 'src/graphql/generated/types-and-hooks'
@@ -83,6 +83,7 @@ type Props2 = {
 
 function SubcommentCard({ subcomment }: Props2) {
   const author = subcomment.user
+  const contents = (subcomment.contents as string).split('\n')
   const router = useRouter()
 
   const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
@@ -124,7 +125,14 @@ function SubcommentCard({ subcomment }: Props2) {
         <GreyH5>{new Date(subcomment.creationTime).toLocaleTimeString()}</GreyH5>
       </div>
 
-      <GridItemP>{subcomment.contents}</GridItemP>
+      <GridItemP>
+        {contents.map((content, i) => (
+          <Fragment key={i}>
+            <>{content}</>
+            <br />
+          </Fragment>
+        ))}
+      </GridItemP>
 
       <GridItemDiv>
         <LikingButton onClick={toggleLikingComment}>
@@ -139,13 +147,13 @@ function SubcommentCard({ subcomment }: Props2) {
 
 type Props = {
   comment: Comment
-
   setParentComment: any
   commentInputRef: any
 }
 
 function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
   const author = comment.user
+  const contents = (comment.contents as string).split('\n')
   const router = useRouter()
 
   const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
@@ -187,7 +195,14 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
           <GreyH5>{new Date(comment.creationTime).toLocaleTimeString()}</GreyH5>
         </div>
 
-        <GridItemP>{comment.contents}</GridItemP>
+        <GridItemP>
+          {contents.map((content, i) => (
+            <Fragment key={i}>
+              <>{content}</>
+              <br />
+            </Fragment>
+          ))}
+        </GridItemP>
 
         <GridItemDiv>
           <LikingButton onClick={toggleLikingComment}>

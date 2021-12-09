@@ -417,6 +417,7 @@ export type PostQuery = {
         title: any
         contents: any
         imageUrls?: Array<any> | null | undefined
+        commentCount: any
         user: {
           __typename?: 'User'
           id: any
@@ -967,6 +968,7 @@ export const PostDocument = gql`
       title
       contents
       imageUrls
+      commentCount
       user {
         id
         nickname
