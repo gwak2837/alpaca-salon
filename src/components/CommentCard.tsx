@@ -6,7 +6,7 @@ import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
 import { Comment, useToggleLikingCommentMutation } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
-import { GreyH5, H5 } from 'src/pages/post/[id]'
+import { GreyH5, GridGap, H5 } from 'src/pages/post/[id]'
 import HeartIcon from 'src/svgs/HeartIcon'
 import styled, { css } from 'styled-components'
 
@@ -30,6 +30,7 @@ const GridContainerLi = styled.li`
 const GridItemP = styled.p`
   grid-column: 2 / 3;
   grid-row: 2 / 3;
+  word-break: break-all;
 `
 
 const GridItemDiv = styled.div`
@@ -116,14 +117,14 @@ function SubcommentCard({ subcomment }: Props2) {
         height="40"
         onClick={goToUserDetailPage}
       />
-      <div>
+      <GridGap>
         <Link href={`/@${author?.nickname}`} passHref>
           <a>
             <H5>{author.nickname}</H5>
           </a>
         </Link>
         <GreyH5>{new Date(subcomment.creationTime).toLocaleTimeString()}</GreyH5>
-      </div>
+      </GridGap>
 
       <GridItemP>
         {contents.map((content, i) => (
@@ -186,14 +187,14 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
           height="40"
           onClick={goToUserDetailPage}
         />
-        <div>
+        <GridGap>
           <Link href={`/@${author?.nickname}`} passHref>
             <a>
               <H5>{author.nickname}</H5>
             </a>
           </Link>
           <GreyH5>{new Date(comment.creationTime).toLocaleTimeString()}</GreyH5>
-        </div>
+        </GridGap>
 
         <GridItemP>
           {contents.map((content, i) => (

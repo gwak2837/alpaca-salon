@@ -68,28 +68,28 @@ function Drawer({ children, open, setOpen }: Props) {
       }
     }
 
-    const bodyStyle = document.body.style
-    const scrollY = window.scrollY
-
     if (open) {
+      const bodyStyle = document.body.style
+      const scrollY = window.scrollY
+
       document.addEventListener('keydown', closeOnEscapeKey, false)
       bodyStyle.overflow = 'hidden'
-      bodyStyle.position = 'fixed'
-      bodyStyle.top = `-${scrollY}px`
-    }
+      bodyStyle.position = 'fixed' // For Safari 15
+      bodyStyle.top = `-${scrollY}px` // For Safari 15
 
-    return () => {
-      document.removeEventListener('keydown', closeOnEscapeKey, false)
-      bodyStyle.overflow = ''
-      bodyStyle.position = ''
-      bodyStyle.top = ''
-      window.scrollTo(0, scrollY)
+      return () => {
+        document.removeEventListener('keydown', closeOnEscapeKey, false)
+        bodyStyle.overflow = ''
+        bodyStyle.position = '' // For Safari 15
+        bodyStyle.top = '' // For Safari 15
+        window.scrollTo(0, scrollY) // For Safari 15
+      }
     }
   }, [open, setOpen])
 
   return (
     <Transition>
-      <DrawerInput checked={open} type="checkbox" />
+      <DrawerInput checked={open} readOnly type="checkbox" />
       <DrawerBackground onClick={closeDrawer} />
       <DrawerSection>{children}</DrawerSection>
     </Transition>

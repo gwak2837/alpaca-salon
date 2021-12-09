@@ -152,14 +152,22 @@ export default function EventListPage() {
     console.log('👀 - input', input)
   }
 
+  function goToMyPage() {
+    router.push(`/@${nickname}`)
+  }
+
+  function goToLoginPage() {
+    router.push('/login')
+  }
+
   return (
     <PageHead title="톡톡문답 - 알파카살롱" description={description}>
       <FlexContainer>
         <Title>알파카살롱</Title>
         {nickname ? (
-          <WhiteButton onClick={() => router.push(`/@${nickname}`)}>마이페이지</WhiteButton>
+          <WhiteButton onClick={goToMyPage}>마이페이지</WhiteButton>
         ) : (
-          <WhiteButton onClick={() => router.push('/login')}>로그인</WhiteButton>
+          <WhiteButton onClick={goToLoginPage}>로그인</WhiteButton>
         )}
       </FlexContainer>
 

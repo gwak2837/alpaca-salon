@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import React, { Fragment, KeyboardEvent, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
+import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import CommentCard from 'src/components/CommentCard'
 import PageHead from 'src/components/PageHead'
@@ -16,6 +17,8 @@ import {
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
 import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
+import { currentUser } from 'src/models/recoil'
+import { Skeleton } from 'src/styles'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import Submit from 'src/svgs/submit.svg'
@@ -33,7 +36,7 @@ const FlexContainerBetweenCenter = styled.div`
   justify-content: space-between;
   align-items: center;
 
-  padding-bottom: 1rem;
+  padding: 1rem;
 `
 
 const Width = styled.div`
@@ -45,7 +48,7 @@ const Width = styled.div`
   align-items: center;
 `
 
-const ModificationButton = styled.button`
+const ModificationButton = styled.button<{ visibility: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,6 +59,7 @@ const ModificationButton = styled.button`
   border: 1px solid #eee;
   border-radius: 5px;
   color: ${ALPACA_SALON_GREY_COLOR};
+  visibility: ${(p) => (p.visibility ? 'visible' : 'hidden')};
 
   :hover,
   :focus,
@@ -81,14 +85,20 @@ const GridContainer = styled.div`
   gap: 0.9rem;
   align-items: center;
 
+  padding: 0.6rem;
+
   > span {
     cursor: pointer;
   }
 `
 
+export const GridGap = styled.div`
+  display: grid;
+  gap: 0.4rem;
+`
+
 export const H5 = styled.h5`
   font-weight: 600;
-  margin-bottom: 0.4rem;
   cursor: pointer;
 `
 
@@ -97,10 +107,15 @@ export const GreyH5 = styled.h5`
   font-weight: normal;
 `
 
+const GridGap2 = styled.div`
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem 0.6rem;
+`
+
 const H3 = styled.h3`
   font-weight: 600;
   font-size: 1.1rem;
-  margin: 2rem 0 1rem;
 `
 
 const P = styled.p`
@@ -249,6 +264,15 @@ const EllipsisText = styled.div`
   white-space: nowrap;
 `
 
+const disabledAnchor = css`
+  pointer-events: none;
+  cursor: default;
+`
+
+const A = styled.a<{ disabled?: boolean }>`
+  ${(p) => p.disabled && disabledAnchor}
+`
+
 type CommentCreationForm = {
   contents: string
 }
@@ -264,6 +288,7 @@ const description = ''
 export default function PostDetailPage() {
   const [parentComment, setParentComment] = useState<ParentComment>()
   const commentTextareaRef = useRef<HTMLTextAreaElement>()
+  const { nickname } = useRecoilValue(currentUser)
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
 
@@ -332,7 +357,7 @@ export default function PostDetailPage() {
 
   function resizeTextareaHeight(e: KeyboardEvent<HTMLTextAreaElement>) {
     const eventTarget = e.target as HTMLTextAreaElement
-    eventTarget.style.height = ''
+    // eventTarget.style.height = 'auto' // mobile 스크롤 위치 이슈
     eventTarget.style.height = `${eventTarget.scrollHeight}px`
   }
 
@@ -346,59 +371,77 @@ export default function PostDetailPage() {
   return (
     <PageHead title={`${post?.title ?? '건강문답'} - 알파카살롱`} description={description}>
       <FlexColumnGrow>
-        <Padding>
-          <FlexContainerBetweenCenter>
-            <Width onClick={goBack}>
-              <BackIcon />
-            </Width>
-            <ModificationButton>
-              <GreyWriteIcon />
-              수정하기
-            </ModificationButton>
-          </FlexContainerBetweenCenter>
+        <FlexContainerBetweenCenter>
+          <Width onClick={goBack}>
+            <BackIcon />
+          </Width>
+          <ModificationButton visibility={nickname === author?.nickname}>
+            <GreyWriteIcon />
+            수정하기
+          </ModificationButton>
+        </FlexContainerBetweenCenter>
 
+        {postLoading ? (
+          <GridContainer>
+            <Skeleton width="2.5rem" height="2.5rem" borderRadius="50%" />
+            <GridGap>
+              <Skeleton width="3.5rem" height="1rem" />
+              <Skeleton width="5.5rem" height="1rem" />
+            </GridGap>
+          </GridContainer>
+        ) : post ? (
           <GridContainer>
             <Image
-              src={/* author?.imageUrl ??  */ '/images/default-profile-image.webp'}
+              src={/* author.imageUrl ??  */ '/images/default-profile-image.webp'}
               alt="profile"
               width="40"
               height="40"
               onClick={goToUserDetailPage}
             />
-            <div>
+            <GridGap>
               <Link href={`/@${author?.nickname}`} passHref>
-                <a>
-                  <H5>{author?.nickname ?? 'loading'}</H5>
-                </a>
+                <A disabled={!author}>
+                  <H5>{author?.nickname ?? '탈퇴한 사용자'}</H5>
+                </A>
               </Link>
-              <GreyH5>{new Date(post?.creationTime).toLocaleTimeString()}</GreyH5>
-            </div>
+              <GreyH5>{new Date(post.creationTime).toLocaleTimeString()}</GreyH5>
+            </GridGap>
           </GridContainer>
+        ) : (
+          '게시글 없음'
+        )}
 
-          {postLoading || !post ? (
-            <>
-              <div>글을 불러오는 중입니다</div>
-              <Frame16to11 />
-            </>
-          ) : (
-            <>
-              <H3>{post.title}</H3>
-              <P>
-                {(post.contents as string).split(/\n/).map((content, i) => (
-                  <Fragment key={i}>
-                    <>{content}</>
-                    <br />
-                  </Fragment>
-                ))}
-              </P>
-              {post.imageUrls?.map((imageUrl, i) => (
-                <Frame16to11DefaultImage key={i}>
-                  <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
-                </Frame16to11DefaultImage>
+        {postLoading ? (
+          <GridGap2>
+            <Skeleton width="60%" height="1.5rem" />
+            <GridGap>
+              <Skeleton />
+              <Skeleton width="90%" />
+            </GridGap>
+            <Frame16to11>
+              <Skeleton height="100%" />
+            </Frame16to11>
+          </GridGap2>
+        ) : post ? (
+          <GridGap2>
+            <H3>{post.title}</H3>
+            <P>
+              {(post.contents as string).split(/\n/).map((content, i) => (
+                <Fragment key={i}>
+                  <>{content}</>
+                  <br />
+                </Fragment>
               ))}
-            </>
-          )}
-        </Padding>
+            </P>
+            {post.imageUrls?.map((imageUrl, i) => (
+              <Frame16to11DefaultImage key={i}>
+                <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
+              </Frame16to11DefaultImage>
+            ))}
+          </GridGap2>
+        ) : (
+          '게시글 없음'
+        )}
 
         <HorizontalBorder />
         <GreyButton onClick={writeComment}>
@@ -425,7 +468,7 @@ export default function PostDetailPage() {
             {parentComment && (
               <Relative>
                 <H4>
-                  <PrimarySpan>{parentComment.nickname}</PrimarySpan>님에게 답글 다는 중
+                  <PrimarySpan>{parentComment.nickname}</PrimarySpan>님에게 답글다는 중
                 </H4>
                 <EllipsisText>{parentComment.contents}</EllipsisText>
                 <XIcon onClick={resetParentComment} />
@@ -435,7 +478,7 @@ export default function PostDetailPage() {
             <CommentTextarea
               disabled={loading}
               onKeyDown={submitWhenShiftEnter}
-              onKeyUp={resizeTextareaHeight}
+              onInput={resizeTextareaHeight}
               placeholder={
                 parentComment ? 'Shift+Enter로 답글 작성하기' : 'Shift+Enter로 댓글 작성하기'
               }
