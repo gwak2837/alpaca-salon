@@ -24,14 +24,9 @@ import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import Submit from 'src/svgs/submit.svg'
 import XIcon from 'src/svgs/x.svg'
-import { stopPropagation } from 'src/utils'
 import styled, { css } from 'styled-components'
 
 import { Slider, submitWhenShiftEnter } from './create'
-
-const Padding = styled.div`
-  padding: 1rem 0.6rem;
-`
 
 const FlexContainerBetweenCenter = styled.div`
   display: flex;
