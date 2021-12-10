@@ -274,7 +274,7 @@ const Slide = styled.li`
   width: 100%;
   scroll-snap-align: center;
   aspect-ratio: 16 / 11;
-  flex: 0 0 50%;
+  flex: 0 0 100%;
   position: relative;
 `
 
