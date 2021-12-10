@@ -125,13 +125,7 @@ const GreyH3 = styled.h3`
   text-align: center;
 `
 
-const XIconWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-`
-
-const Slider = styled.ul`
+export const Slider = styled.ul`
   overflow-x: scroll;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;

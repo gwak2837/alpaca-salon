@@ -1,11 +1,11 @@
 import { ReactNode, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import XIcon from 'src/svgs/x.svg'
+import XIcon from 'src/svgs/x-white.svg'
 import styled from 'styled-components'
 
-const Background = styled.div`
+const Background = styled.div<{ display: boolean }>`
   background: #000;
-
+  display: ${(p) => (p.display ? 'block' : 'none')};
   position: fixed;
   inset: 0 0 0 0;
 
@@ -60,15 +60,13 @@ function Modal({ children, open, setOpen }: Props) {
     }
   }, [open, setOpen])
 
-  return open
-    ? createPortal(
-        <Background onClick={closeModal}>
-          <XIcon />
-          {children}
-        </Background>,
-        document.body
-      )
-    : null
+  return createPortal(
+    <Background display={open} onClick={closeModal}>
+      <XIcon onClick={closeModal} />
+      {children}
+    </Background>,
+    document.body
+  )
 }
 
 export default Modal

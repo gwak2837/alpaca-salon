@@ -23,10 +23,11 @@ import { Skeleton } from 'src/styles'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import Submit from 'src/svgs/submit.svg'
-import XIcon from 'src/svgs/x-white.svg'
+import XIcon from 'src/svgs/x.svg'
+import { stopPropagation } from 'src/utils'
 import styled, { css } from 'styled-components'
 
-import { submitWhenShiftEnter } from './create'
+import { Slider, submitWhenShiftEnter } from './create'
 
 const Padding = styled.div`
   padding: 1rem 0.6rem;
@@ -274,6 +275,38 @@ const A = styled.a<{ disabled?: boolean }>`
   ${(p) => p.disabled && disabledAnchor}
 `
 
+const Slide = styled.li`
+  width: 100%;
+  scroll-snap-align: center;
+  aspect-ratio: 16 / 11;
+  flex: 0 0 50%;
+  position: relative;
+`
+
+function stopPropagationWhenImageClick(e: React.MouseEvent<HTMLImageElement, MouseEvent>) {
+  const img = e.target as HTMLImageElement
+  const ratio = img.naturalWidth / img.naturalHeight
+  const width = Math.floor(img.height * ratio)
+  if (width > img.width) {
+    const height = img.width / ratio
+    const top = (img.height - height) / 2
+    const bottom = (img.height + height) / 2
+    const clientY = e.clientY
+
+    if (clientY > top && clientY < bottom) {
+      e.stopPropagation()
+    }
+  } else {
+    const left = (img.width - width) / 2
+    const right = (img.width + width) / 2
+    const clientX = e.clientX
+
+    if (clientX > left && clientX < right) {
+      e.stopPropagation()
+    }
+  }
+}
+
 type CommentCreationForm = {
   contents: string
 }
@@ -447,16 +480,19 @@ export default function PostDetailPage() {
               </Frame16to11DefaultImage>
             ))}
             <Modal open={isImageDetailOpen} setOpen={setIsImageDetailOpen}>
-              <Frame16to11>
-                <Image
-                  src={post.imageUrls?.[0]}
-                  alt="post image"
-                  layout="fill"
-                  objectFit="contain"
-                  onClick={() => setIsImageDetailOpen(true)}
-                />
-              </Frame16to11>
-              <XIcon />
+              <Slider>
+                {post.imageUrls?.map((imageUrl, i) => (
+                  <Slide key={i}>
+                    <Image
+                      src={imageUrl}
+                      alt="post image"
+                      layout="fill"
+                      objectFit="contain"
+                      onClick={stopPropagationWhenImageClick}
+                    />
+                  </Slide>
+                ))}
+              </Slider>
             </Modal>
           </GridGap2>
         ) : (

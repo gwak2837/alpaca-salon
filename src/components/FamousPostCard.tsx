@@ -8,6 +8,7 @@ import {
 } from 'src/models/constants'
 import { FlexContainerBetween, Skeleton } from 'src/styles'
 import FlowerIcon from 'src/svgs/FlowerIcon'
+import { stopPropagation } from 'src/utils'
 import styled from 'styled-components'
 
 const Li = styled.li`
@@ -109,10 +110,6 @@ function FamousPostCard({ famousPost, index }: Props) {
 
   function goToPostDetailPage() {
     router.push(`/post/${famousPost.id}`)
-  }
-
-  function stopPropagation(e: any) {
-    e.stopPropagation()
   }
 
   return (

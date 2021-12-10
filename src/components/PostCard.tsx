@@ -4,6 +4,7 @@ import React, { Fragment } from 'react'
 import { Post } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
 import { FlexContainerBetween, Skeleton } from 'src/styles'
+import { stopPropagation } from 'src/utils'
 import styled from 'styled-components'
 
 import { BoldGreySpan, GreySpan, HorizontalBorder } from './FamousPostCard'
@@ -80,10 +81,6 @@ function PostCard({ post }: Props) {
 
   function goToPostDetailPage() {
     router.push(`/post/${post.id}`)
-  }
-
-  function stopPropagation(e: any) {
-    e.stopPropagation()
   }
 
   return (
