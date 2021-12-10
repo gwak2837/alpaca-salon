@@ -6,7 +6,8 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
-import CommentCard from 'src/components/CommentCard'
+import Modal from 'src/components/atoms/Modal'
+import CommentCard, { CommentLoadingCard } from 'src/components/CommentCard'
 import PageHead from 'src/components/PageHead'
 import {
   Comment,
@@ -22,7 +23,7 @@ import { Skeleton } from 'src/styles'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import Submit from 'src/svgs/submit.svg'
-import XIcon from 'src/svgs/x.svg'
+import XIcon from 'src/svgs/x-white.svg'
 import styled, { css } from 'styled-components'
 
 import { submitWhenShiftEnter } from './create'
@@ -287,6 +288,7 @@ const description = ''
 
 export default function PostDetailPage() {
   const [parentComment, setParentComment] = useState<ParentComment>()
+  const [isImageDetailOpen, setIsImageDetailOpen] = useState(false)
   const commentTextareaRef = useRef<HTMLTextAreaElement>()
   const { nickname } = useRecoilValue(currentUser)
   const router = useRouter()
@@ -294,7 +296,7 @@ export default function PostDetailPage() {
 
   const { data, loading: postLoading } = usePostQuery({
     onError: toastApolloError,
-    skip: !postId,
+    skip: !postId || !nickname,
     variables: { id: postId },
   })
 
@@ -304,7 +306,7 @@ export default function PostDetailPage() {
 
   const { data: data2, loading: commentsLoading } = useCommentsByPostQuery({
     onError: toastApolloError,
-    skip: !postId,
+    skip: !postId || !nickname,
     variables: { postId },
   })
 
@@ -435,9 +437,27 @@ export default function PostDetailPage() {
             </P>
             {post.imageUrls?.map((imageUrl, i) => (
               <Frame16to11DefaultImage key={i}>
-                <Image src={imageUrl} alt="post image" layout="fill" objectFit="cover" />
+                <Image
+                  src={imageUrl}
+                  alt="post image"
+                  layout="fill"
+                  objectFit="cover"
+                  onClick={() => setIsImageDetailOpen(true)}
+                />
               </Frame16to11DefaultImage>
             ))}
+            <Modal open={isImageDetailOpen} setOpen={setIsImageDetailOpen}>
+              <Frame16to11>
+                <Image
+                  src={post.imageUrls?.[0]}
+                  alt="post image"
+                  layout="fill"
+                  objectFit="contain"
+                  onClick={() => setIsImageDetailOpen(true)}
+                />
+              </Frame16to11>
+              <XIcon />
+            </Modal>
           </GridGap2>
         ) : (
           '게시글 없음'
@@ -451,7 +471,7 @@ export default function PostDetailPage() {
 
         <FlexBetween>
           <GridUl>
-            {commentsLoading && <div>댓글을 불러오는 중입니다.</div>}
+            {commentsLoading && <CommentLoadingCard />}
             {comments
               ? comments.map((comment) => (
                   <CommentCard

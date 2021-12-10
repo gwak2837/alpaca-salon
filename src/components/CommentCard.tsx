@@ -7,6 +7,7 @@ import { toastApolloError } from 'src/apollo/error'
 import { Comment, useToggleLikingCommentMutation } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
 import { GreyH5, GridGap, H5 } from 'src/pages/post/[id]'
+import { Skeleton } from 'src/styles'
 import HeartIcon from 'src/svgs/HeartIcon'
 import styled, { css } from 'styled-components'
 
@@ -30,7 +31,16 @@ const GridContainerLi = styled.li`
 const GridItemP = styled.p`
   grid-column: 2 / 3;
   grid-row: 2 / 3;
+
+  line-height: 1.3rem;
   word-break: break-all;
+`
+
+const GridItemGap = styled.div`
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  display: grid;
+  gap: 0.4rem;
 `
 
 const GridItemDiv = styled.div`
@@ -49,19 +59,19 @@ const GridContainerSubcomments = styled.ul`
 
 const ButtonCSS = css`
   border: none;
-  border-radius: 9999px;
-  cursor: pointer;
+  border-radius: 99px;
   font-size: 0.75rem;
   padding: 0.4rem 0.75rem;
 `
 
 const LikingButton = styled.button`
   ${ButtonCSS}
-  background: ${ALPACA_SALON_BACKGROUND_COLOR};
-
   display: flex;
   align-items: center;
   gap: 0.4rem;
+
+  background: ${(p) => (p.disabled ? '#eee' : ALPACA_SALON_BACKGROUND_COLOR)};
+  cursor: ${(p) => (p.disabled ? 'default' : 'pointer')};
 
   > svg {
     width: 0.8rem;
@@ -70,13 +80,76 @@ const LikingButton = styled.button`
 
 const SubcommentButton = styled.button`
   ${ButtonCSS}
-  background: #F4F4F4;
+  background: ${(p) => (p.disabled ? '#eee' : ALPACA_SALON_BACKGROUND_COLOR)};
+  cursor: ${(p) => (p.disabled ? 'default' : 'pointer')};
 `
 
-const SelectableSpan = styled.span<{ selected: boolean }>`
+const SelectableSpan = styled.span<{ selected?: boolean }>`
   color: ${(p) => (p.selected ? ALPACA_SALON_COLOR : '#626262')};
   font-weight: 600;
 `
+
+function SubcommentLoadingCard() {
+  return (
+    <GridContainerComment>
+      <GridContainerLi>
+        <Skeleton width="2.5rem" height="2.5rem" borderRadius="50%" />
+        <GridGap>
+          <Skeleton width="3.5rem" height="1rem" />
+          <Skeleton width="5.5rem" height="1rem" />
+        </GridGap>
+
+        <GridItemGap>
+          <Skeleton height="1rem" />
+          <Skeleton height="1rem" />
+          <Skeleton width="80%" height="1rem" />
+        </GridItemGap>
+
+        <GridItemDiv>
+          <LikingButton disabled>
+            <HeartIcon />
+            공감해요
+            <SelectableSpan>-</SelectableSpan>
+          </LikingButton>
+        </GridItemDiv>
+      </GridContainerLi>
+    </GridContainerComment>
+  )
+}
+
+export function CommentLoadingCard() {
+  return (
+    <GridContainerComment>
+      <GridContainerLi>
+        <Skeleton width="2.5rem" height="2.5rem" borderRadius="50%" />
+        <GridGap>
+          <Skeleton width="3.5rem" height="1rem" />
+          <Skeleton width="5.5rem" height="1rem" />
+        </GridGap>
+
+        <GridItemGap>
+          <Skeleton height="1rem" />
+          <Skeleton height="1rem" />
+          <Skeleton width="80%" height="1rem" />
+        </GridItemGap>
+
+        <GridItemDiv>
+          <LikingButton disabled>
+            <HeartIcon />
+            공감해요
+            <SelectableSpan>-</SelectableSpan>
+          </LikingButton>
+          <SubcommentButton disabled>답글쓰기</SubcommentButton>
+        </GridItemDiv>
+      </GridContainerLi>
+
+      <GridContainerSubcomments>
+        <SubcommentLoadingCard />
+        <SubcommentLoadingCard />
+      </GridContainerSubcomments>
+    </GridContainerComment>
+  )
+}
 
 type Props2 = {
   subcomment: Comment

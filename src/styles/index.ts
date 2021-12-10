@@ -1,3 +1,4 @@
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
 import styled, { keyframes } from 'styled-components'
 
 export const FlexContainerCenterCenter = styled.div`
@@ -91,12 +92,7 @@ export const Skeleton = styled.div<{
 }>`
   width: ${(p) => p.width ?? '100%'};
   height: ${(p) => p.height ?? '1.25rem'};
-  background: linear-gradient(
-    90deg,
-    rgba(207, 216, 220, 0.3),
-    rgba(207, 216, 220, 0.6),
-    rgba(207, 216, 220, 0.3)
-  );
+  background: linear-gradient(90deg, #cfd8dc50, #cfd8dca0, #cfd8dc50);
   background-size: 600% 600%;
   border-radius: ${(p) => p.borderRadius ?? '4px'};
   animation: ${skeletonLoading} 3s ease infinite;
