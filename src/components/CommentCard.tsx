@@ -9,6 +9,7 @@ import {
   Comment,
   useDeleteCommentMutation,
   useToggleLikingCommentMutation,
+  useUserByNicknameQuery,
 } from 'src/graphql/generated/types-and-hooks'
 import {
   ALPACA_SALON_BACKGROUND_COLOR,
@@ -258,7 +259,7 @@ function SubcommentCard({ subcomment, scrollTo, newCommentId }: Props2) {
             <>{content}</>
             <br />
           </Fragment>
-        )) ?? <h6>삭제된 댓글입니다</h6>}
+        )) ?? <h6>삭제된 답글입니다</h6>}
       </GridItemComment>
 
       <GridItemDiv>
@@ -294,13 +295,22 @@ function CommentCard({
   const router = useRouter()
   const { nickname } = useRecoilValue(currentUser)
 
+  // https://github.com/apollographql/apollo-client/issues/5419#issuecomment-973154976 해결되면 삭제하기
+  useUserByNicknameQuery({
+    onError: toastApolloError,
+    skip: true,
+    variables: { nickname: 'a' },
+  })
+
   const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
     onError: toastApolloError,
+    refetchQueries: ['UserByNickname'],
     variables: { id: comment.id },
   })
 
   const [deleteCommentMutation, { loading: isCommentDeletionLoading }] = useDeleteCommentMutation({
     onError: toastApolloError,
+    refetchQueries: ['CommentsByPost'],
     variables: { id: comment.id },
   })
 
