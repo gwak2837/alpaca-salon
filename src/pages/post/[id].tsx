@@ -248,8 +248,8 @@ const H4 = styled.h4`
   margin: 0 0 0.3rem;
 `
 
-const PrimarySpan = styled.span`
-  color: ${ALPACA_SALON_COLOR};
+const PrimarySpan = styled.span<{ disabled?: boolean }>`
+  color: ${(p) => (p.disabled ? ALPACA_SALON_GREY_COLOR : ALPACA_SALON_COLOR)};
 `
 
 const EllipsisText = styled.div`
@@ -266,8 +266,9 @@ const disabledAnchor = css`
   cursor: default;
 `
 
-const A = styled.a<{ disabled?: boolean }>`
+export const A = styled.a<{ disabled?: boolean }>`
   ${(p) => p.disabled && disabledAnchor}
+  width: fit-content;
 `
 
 const Slide = styled.li`
@@ -519,7 +520,10 @@ export default function PostDetailPage() {
             {parentComment && (
               <Relative>
                 <H4>
-                  <PrimarySpan>{parentComment.nickname}</PrimarySpan>님에게 답글다는 중
+                  <PrimarySpan disabled={!parentComment.nickname}>
+                    {parentComment.nickname}
+                  </PrimarySpan>
+                  님에게 답글다는 중
                 </H4>
                 <EllipsisText>{parentComment.contents}</EllipsisText>
                 <XIcon onClick={resetParentComment} />

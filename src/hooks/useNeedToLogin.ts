@@ -9,7 +9,7 @@ export default function useNeedToLogin() {
     if (!window.sessionStorage.getItem('jwt')) {
       sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
       toast.info('로그인이 필요합니다')
-      router.push('/login')
+      router.replace('/login')
     }
   }, [router])
 }

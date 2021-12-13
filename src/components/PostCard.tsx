@@ -75,7 +75,7 @@ type Props = {
 }
 
 function PostCard({ post }: Props) {
-  const authorNickname = post.user.nickname ?? ''
+  const authorNickname = post.user?.nickname ?? ''
   const router = useRouter()
   const contents = post.contents.split(/\n/) as string[]
 

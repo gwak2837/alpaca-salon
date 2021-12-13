@@ -54,11 +54,11 @@ export type Comment = {
   /** 이 댓글의 상위 댓글 */
   parentComment?: Maybe<Comment>
   /** 이 댓글이 달린 피드 */
-  post: Post
+  post?: Maybe<Post>
   /** 대댓글 */
   subcomments?: Maybe<Array<Comment>>
   /** 댓글을 작성한 사용자 */
-  user: User
+  user?: Maybe<User>
 }
 
 export enum Gender {
@@ -72,6 +72,7 @@ export type Mutation = {
   __typename?: 'Mutation'
   createComment?: Maybe<Comment>
   createPost?: Maybe<Post>
+  deleteComment?: Maybe<Comment>
   deletePost?: Maybe<Post>
   /** JWT 인증 토큰과 같이 요청하면 로그아웃 성공 여부를 반환함 */
   logout: Scalars['Boolean']
@@ -91,6 +92,10 @@ export type MutationCreateCommentArgs = {
 
 export type MutationCreatePostArgs = {
   input: PostCreationInput
+}
+
+export type MutationDeleteCommentArgs = {
+  id: Scalars['ID']
 }
 
 export type MutationDeletePostArgs = {
@@ -140,7 +145,7 @@ export type Post = {
   modificationTime: Scalars['DateTime']
   title: Scalars['NonEmptyString']
   /** 글쓴이 */
-  user: User
+  user?: Maybe<User>
 }
 
 export enum PostCategory {
@@ -244,12 +249,6 @@ export type User = {
   providers: Array<Provider>
 }
 
-export type UserAuthentication = {
-  __typename?: 'UserAuthentication'
-  jwt: Scalars['JWT']
-  nickname: Scalars['NonEmptyString']
-}
-
 export type UserModificationInput = {
   ageRange?: InputMaybe<Scalars['NonEmptyString']>
   bio?: InputMaybe<Scalars['String']>
@@ -269,7 +268,7 @@ export type PostCardFragment = {
   title: any
   contents: any
   category: PostCategory
-  user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
+  user?: { __typename?: 'User'; id: any; nickname?: any | null | undefined } | null | undefined
 }
 
 export type CreateCommentMutationVariables = Exact<{
@@ -342,12 +341,15 @@ export type CommentsByPostQuery = {
         isLiked: boolean
         isModified: boolean
         likedCount: any
-        user: {
-          __typename?: 'User'
-          id: any
-          nickname?: any | null | undefined
-          imageUrl?: any | null | undefined
-        }
+        user?:
+          | {
+              __typename?: 'User'
+              id: any
+              nickname?: any | null | undefined
+              imageUrl?: any | null | undefined
+            }
+          | null
+          | undefined
         subcomments?:
           | Array<{
               __typename?: 'Comment'
@@ -357,12 +359,15 @@ export type CommentsByPostQuery = {
               isLiked: boolean
               isModified: boolean
               likedCount: any
-              user: {
-                __typename?: 'User'
-                id: any
-                nickname?: any | null | undefined
-                imageUrl?: any | null | undefined
-              }
+              user?:
+                | {
+                    __typename?: 'User'
+                    id: any
+                    nickname?: any | null | undefined
+                    imageUrl?: any | null | undefined
+                  }
+                | null
+                | undefined
             }>
           | null
           | undefined
@@ -384,7 +389,10 @@ export type FamousPostsQuery = {
         contents: any
         category: PostCategory
         commentCount: any
-        user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
+        user?:
+          | { __typename?: 'User'; id: any; nickname?: any | null | undefined }
+          | null
+          | undefined
       }>
     | null
     | undefined
@@ -418,12 +426,15 @@ export type PostQuery = {
         contents: any
         imageUrls?: Array<any> | null | undefined
         commentCount: any
-        user: {
-          __typename?: 'User'
-          id: any
-          nickname?: any | null | undefined
-          imageUrl?: any | null | undefined
-        }
+        user?:
+          | {
+              __typename?: 'User'
+              id: any
+              nickname?: any | null | undefined
+              imageUrl?: any | null | undefined
+            }
+          | null
+          | undefined
       }
     | null
     | undefined
@@ -444,7 +455,10 @@ export type PostsQuery = {
         contents: any
         category: PostCategory
         commentCount: any
-        user: { __typename?: 'User'; id: any; nickname?: any | null | undefined }
+        user?:
+          | { __typename?: 'User'; id: any; nickname?: any | null | undefined }
+          | null
+          | undefined
       }>
     | null
     | undefined
@@ -1178,6 +1192,7 @@ export type CommentFieldPolicy = {
 export type MutationKeySpecifier = (
   | 'createComment'
   | 'createPost'
+  | 'deleteComment'
   | 'deletePost'
   | 'logout'
   | 'toggleLikingComment'
@@ -1190,6 +1205,7 @@ export type MutationKeySpecifier = (
 export type MutationFieldPolicy = {
   createComment?: FieldPolicy<any> | FieldReadFunction<any>
   createPost?: FieldPolicy<any> | FieldReadFunction<any>
+  deleteComment?: FieldPolicy<any> | FieldReadFunction<any>
   deletePost?: FieldPolicy<any> | FieldReadFunction<any>
   logout?: FieldPolicy<any> | FieldReadFunction<any>
   toggleLikingComment?: FieldPolicy<any> | FieldReadFunction<any>
@@ -1296,11 +1312,6 @@ export type UserFieldPolicy = {
   phoneNumber?: FieldPolicy<any> | FieldReadFunction<any>
   providers?: FieldPolicy<any> | FieldReadFunction<any>
 }
-export type UserAuthenticationKeySpecifier = ('jwt' | 'nickname' | UserAuthenticationKeySpecifier)[]
-export type UserAuthenticationFieldPolicy = {
-  jwt?: FieldPolicy<any> | FieldReadFunction<any>
-  nickname?: FieldPolicy<any> | FieldReadFunction<any>
-}
 export type StrictTypedTypePolicies = {
   Comment?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | CommentKeySpecifier | (() => undefined | CommentKeySpecifier)
@@ -1325,13 +1336,6 @@ export type StrictTypedTypePolicies = {
   User?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
     keyFields?: false | UserKeySpecifier | (() => undefined | UserKeySpecifier)
     fields?: UserFieldPolicy
-  }
-  UserAuthentication?: Omit<TypePolicy, 'fields' | 'keyFields'> & {
-    keyFields?:
-      | false
-      | UserAuthenticationKeySpecifier
-      | (() => undefined | UserAuthenticationKeySpecifier)
-    fields?: UserAuthenticationFieldPolicy
   }
 }
 export type TypedTypePolicies = StrictTypedTypePolicies & TypePolicies

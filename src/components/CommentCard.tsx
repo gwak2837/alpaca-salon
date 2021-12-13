@@ -3,10 +3,16 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { Fragment } from 'react'
 import { toast } from 'react-toastify'
+import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
 import { Comment, useToggleLikingCommentMutation } from 'src/graphql/generated/types-and-hooks'
-import { ALPACA_SALON_BACKGROUND_COLOR, ALPACA_SALON_COLOR } from 'src/models/constants'
-import { GreyH5, GridGap, H5 } from 'src/pages/post/[id]'
+import {
+  ALPACA_SALON_BACKGROUND_COLOR,
+  ALPACA_SALON_COLOR,
+  ALPACA_SALON_GREY_COLOR,
+} from 'src/models/constants'
+import { currentUser } from 'src/models/recoil'
+import { A, GreyH5, GridGap, H5 } from 'src/pages/post/[id]'
 import { Skeleton } from 'src/styles'
 import HeartIcon from 'src/svgs/HeartIcon'
 import styled, { css } from 'styled-components'
@@ -16,16 +22,32 @@ const GridContainerComment = styled.ul`
   gap: 1rem;
 `
 
-const GridContainerLi = styled.li`
+const GridLi = styled.li`
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto 1fr auto;
   gap: 0.9rem;
   align-items: center;
 
+  position: relative;
+
   > span {
     cursor: pointer;
   }
+`
+
+const Absolute = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  background: none;
+  border: none;
+  color: ${ALPACA_SALON_GREY_COLOR};
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.3rem 0.3rem 0.5rem 0.5rem;
 `
 
 const GridItemP = styled.p`
@@ -92,7 +114,7 @@ const SelectableSpan = styled.span<{ selected?: boolean }>`
 function SubcommentLoadingCard() {
   return (
     <GridContainerComment>
-      <GridContainerLi>
+      <GridLi>
         <Skeleton width="2.5rem" height="2.5rem" borderRadius="50%" />
         <GridGap>
           <Skeleton width="3.5rem" height="1rem" />
@@ -112,7 +134,7 @@ function SubcommentLoadingCard() {
             <SelectableSpan>-</SelectableSpan>
           </LikingButton>
         </GridItemDiv>
-      </GridContainerLi>
+      </GridLi>
     </GridContainerComment>
   )
 }
@@ -120,7 +142,7 @@ function SubcommentLoadingCard() {
 export function CommentLoadingCard() {
   return (
     <GridContainerComment>
-      <GridContainerLi>
+      <GridLi>
         <Skeleton width="2.5rem" height="2.5rem" borderRadius="50%" />
         <GridGap>
           <Skeleton width="3.5rem" height="1rem" />
@@ -141,7 +163,7 @@ export function CommentLoadingCard() {
           </LikingButton>
           <SubcommentButton disabled>답글쓰기</SubcommentButton>
         </GridItemDiv>
-      </GridContainerLi>
+      </GridLi>
 
       <GridContainerSubcomments>
         <SubcommentLoadingCard />
@@ -159,6 +181,7 @@ function SubcommentCard({ subcomment }: Props2) {
   const author = subcomment.user
   const contents = (subcomment.contents as string).split('\n')
   const router = useRouter()
+  const { nickname } = useRecoilValue(currentUser)
 
   const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
     onError: toastApolloError,
@@ -166,7 +189,9 @@ function SubcommentCard({ subcomment }: Props2) {
   })
 
   function goToUserDetailPage() {
-    router.push(`/@${author.nickname}`)
+    if (author) {
+      router.push(`/@${author.nickname}`)
+    }
   }
 
   function toggleLikingComment() {
@@ -182,7 +207,7 @@ function SubcommentCard({ subcomment }: Props2) {
   }
 
   return (
-    <GridContainerLi>
+    <GridLi>
       <Image
         src={/* author?.imageUrl  */ '/images/default-profile-image.webp'}
         alt="profile"
@@ -192,12 +217,14 @@ function SubcommentCard({ subcomment }: Props2) {
       />
       <GridGap>
         <Link href={`/@${author?.nickname}`} passHref>
-          <a>
-            <H5>{author.nickname}</H5>
-          </a>
+          <A disabled={!author}>
+            <H5>{author?.nickname ?? '탈퇴한 사용자'}</H5>
+          </A>
         </Link>
         <GreyH5>{new Date(subcomment.creationTime).toLocaleTimeString()}</GreyH5>
       </GridGap>
+
+      {nickname === author?.nickname && <Absolute>삭제</Absolute>}
 
       <GridItemP>
         {contents.map((content, i) => (
@@ -215,7 +242,7 @@ function SubcommentCard({ subcomment }: Props2) {
           <SelectableSpan selected={subcomment.isLiked}>{subcomment.likedCount}</SelectableSpan>
         </LikingButton>
       </GridItemDiv>
-    </GridContainerLi>
+    </GridLi>
   )
 }
 
@@ -229,6 +256,7 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
   const author = comment.user
   const contents = (comment.contents as string).split('\n')
   const router = useRouter()
+  const { nickname } = useRecoilValue(currentUser)
 
   const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
     onError: toastApolloError,
@@ -236,7 +264,9 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
   })
 
   function goToUserDetailPage() {
-    router.push(`/@${author.nickname}`)
+    if (author) {
+      router.push(`/@${author.nickname}`)
+    }
   }
 
   function toggleLikingComment() {
@@ -246,13 +276,17 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
   }
 
   function setParentCommentInfo() {
-    setParentComment({ id: comment.id, nickname: author.nickname, contents: comment.contents })
+    setParentComment({
+      id: comment.id,
+      nickname: author?.nickname ?? '탈퇴한 사용자',
+      contents: comment.contents,
+    })
     commentInputRef.current.focus()
   }
 
   return (
     <GridContainerComment>
-      <GridContainerLi>
+      <GridLi>
         <Image
           src={/* author?.imageUrl */ '/images/default-profile-image.webp'}
           alt="profile"
@@ -262,12 +296,14 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
         />
         <GridGap>
           <Link href={`/@${author?.nickname}`} passHref>
-            <a>
-              <H5>{author.nickname}</H5>
-            </a>
+            <A disabled={!author}>
+              <H5>{author?.nickname ?? '탈퇴한 사용자'}</H5>
+            </A>
           </Link>
           <GreyH5>{new Date(comment.creationTime).toLocaleTimeString()}</GreyH5>
         </GridGap>
+
+        {nickname === author?.nickname && <Absolute>삭제</Absolute>}
 
         <GridItemP>
           {contents.map((content, i) => (
@@ -286,7 +322,7 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
           </LikingButton>
           <SubcommentButton onClick={setParentCommentInfo}>답글쓰기</SubcommentButton>
         </GridItemDiv>
-      </GridContainerLi>
+      </GridLi>
 
       <GridContainerSubcomments>
         {comment.subcomments?.map((subcomment) => (
