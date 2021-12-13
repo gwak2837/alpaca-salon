@@ -516,7 +516,6 @@ export default function PostDetailPage() {
 
         <FlexBetween>
           <GridUl>
-            {commentsLoading && <CommentLoadingCard />}
             {comments
               ? comments.map((comment) => (
                   <CommentCard
@@ -529,6 +528,7 @@ export default function PostDetailPage() {
                   />
                 ))
               : !commentsLoading && <GreyDiv>첫 번째로 댓글을 달아보세요</GreyDiv>}
+            {commentsLoading && <CommentLoadingCard />}
           </GridUl>
 
           <StickyForm onSubmit={handleSubmit(createComment)}>

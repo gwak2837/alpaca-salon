@@ -195,6 +195,11 @@ export default function HomePage() {
           <PrimaryH3>이번 달 핫한 이야기</PrimaryH3>
           <GreyH5>관리자 알파카가 이번 주에 도움이 되는 질문들을 선별해 소개해요.</GreyH5>
           <GridContainerPost>
+            {famousPosts
+              ? famousPosts.map((famousPost, i) => (
+                  <FamousPostCard key={i} famousPost={famousPost} index={i + 1} />
+                ))
+              : !famousPostsLoading && <div>핫한 이야기가 없어요</div>}
             {famousPostsLoading && (
               <>
                 <FamousPostLoadingCard />
@@ -202,24 +207,19 @@ export default function HomePage() {
                 <FamousPostLoadingCard />
               </>
             )}
-            {famousPosts
-              ? famousPosts.map((famousPost, i) => (
-                  <FamousPostCard key={i} famousPost={famousPost} index={i + 1} />
-                ))
-              : !famousPostsLoading && <div>글이 없어요</div>}
           </GridContainerPost>
 
           <PrimaryH3>최신 이야기</PrimaryH3>
           <GridContainerPost>
+            {posts
+              ? posts.map((post, i) => <PostCard key={i} post={post as Post} />)
+              : !loading && <div>최신 이야기가 없어요</div>}
             {loading && (
               <>
                 <PostLoadingCard />
                 <PostLoadingCard />
               </>
             )}
-            {posts
-              ? posts.map((post, i) => <PostCard key={i} post={post as Post} />)
-              : !loading && <div>글이 없어요</div>}
           </GridContainerPost>
           {!loading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
         </BorderRadius>
