@@ -5,7 +5,11 @@ import React, { Fragment } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
-import { Comment, useToggleLikingCommentMutation } from 'src/graphql/generated/types-and-hooks'
+import {
+  Comment,
+  useDeleteCommentMutation,
+  useToggleLikingCommentMutation,
+} from 'src/graphql/generated/types-and-hooks'
 import {
   ALPACA_SALON_BACKGROUND_COLOR,
   ALPACA_SALON_COLOR,
@@ -50,7 +54,7 @@ const Absolute = styled.button`
   padding: 0.3rem 0.3rem 0.5rem 0.5rem;
 `
 
-const GridItemP = styled.p`
+const GridItemComment = styled.div`
   grid-column: 2 / 3;
   grid-row: 2 / 3;
 
@@ -175,16 +179,24 @@ export function CommentLoadingCard() {
 
 type Props2 = {
   subcomment: Comment
+  scrollTo: any
+  newCommentId: any
 }
 
-function SubcommentCard({ subcomment }: Props2) {
+function SubcommentCard({ subcomment, scrollTo, newCommentId }: Props2) {
   const author = subcomment.user
-  const contents = (subcomment.contents as string).split('\n')
+  const contents = (subcomment.contents as string | null)?.split('\n')
   const router = useRouter()
   const { nickname } = useRecoilValue(currentUser)
 
   const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
     onError: toastApolloError,
+    variables: { id: subcomment.id },
+  })
+
+  const [deleteCommentMutation, { loading: isCommentDeletionLoading }] = useDeleteCommentMutation({
+    onError: toastApolloError,
+    refetchQueries: ['CommentsByPost'],
     variables: { id: subcomment.id },
   })
 
@@ -206,8 +218,18 @@ function SubcommentCard({ subcomment }: Props2) {
     }
   }
 
+  function registerNewComment(newComment: HTMLLIElement) {
+    if (newCommentId.current === subcomment.id) {
+      scrollTo.current = newComment
+    }
+  }
+
+  function deleteSubcomment() {
+    deleteCommentMutation()
+  }
+
   return (
-    <GridLi>
+    <GridLi ref={registerNewComment}>
       <Image
         src={/* author?.imageUrl  */ '/images/default-profile-image.webp'}
         alt="profile"
@@ -224,23 +246,29 @@ function SubcommentCard({ subcomment }: Props2) {
         <GreyH5>{new Date(subcomment.creationTime).toLocaleTimeString()}</GreyH5>
       </GridGap>
 
-      {nickname === author?.nickname && <Absolute>삭제</Absolute>}
+      {contents && nickname === author?.nickname && (
+        <Absolute disabled={isCommentDeletionLoading} onClick={deleteSubcomment}>
+          삭제
+        </Absolute>
+      )}
 
-      <GridItemP>
-        {contents.map((content, i) => (
+      <GridItemComment>
+        {contents?.map((content, i) => (
           <Fragment key={i}>
             <>{content}</>
             <br />
           </Fragment>
-        ))}
-      </GridItemP>
+        )) ?? <h6>삭제된 댓글입니다</h6>}
+      </GridItemComment>
 
       <GridItemDiv>
-        <LikingButton onClick={toggleLikingComment}>
-          <HeartIcon selected={subcomment.isLiked} />
-          공감해요
-          <SelectableSpan selected={subcomment.isLiked}>{subcomment.likedCount}</SelectableSpan>
-        </LikingButton>
+        {contents && (
+          <LikingButton onClick={toggleLikingComment}>
+            <HeartIcon selected={subcomment.isLiked} />
+            공감해요
+            <SelectableSpan selected={subcomment.isLiked}>{subcomment.likedCount}</SelectableSpan>
+          </LikingButton>
+        )}
       </GridItemDiv>
     </GridLi>
   )
@@ -250,15 +278,28 @@ type Props = {
   comment: Comment
   setParentComment: any
   commentInputRef: any
+  scrollTo: any
+  newCommentId: any
 }
 
-function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
+function CommentCard({
+  comment,
+  setParentComment,
+  commentInputRef,
+  scrollTo,
+  newCommentId,
+}: Props) {
   const author = comment.user
-  const contents = (comment.contents as string).split('\n')
+  const contents = (comment.contents as string | null)?.split('\n')
   const router = useRouter()
   const { nickname } = useRecoilValue(currentUser)
 
   const [toggleLikingCommentMutation, { loading }] = useToggleLikingCommentMutation({
+    onError: toastApolloError,
+    variables: { id: comment.id },
+  })
+
+  const [deleteCommentMutation, { loading: isCommentDeletionLoading }] = useDeleteCommentMutation({
     onError: toastApolloError,
     variables: { id: comment.id },
   })
@@ -284,9 +325,19 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
     commentInputRef.current.focus()
   }
 
+  function registerNewComment(newComment: HTMLLIElement) {
+    if (newCommentId.current === comment.id) {
+      scrollTo.current = newComment
+    }
+  }
+
+  function deleteComment() {
+    deleteCommentMutation()
+  }
+
   return (
     <GridContainerComment>
-      <GridLi>
+      <GridLi ref={registerNewComment}>
         <Image
           src={/* author?.imageUrl */ '/images/default-profile-image.webp'}
           alt="profile"
@@ -303,30 +354,41 @@ function CommentCard({ comment, setParentComment, commentInputRef }: Props) {
           <GreyH5>{new Date(comment.creationTime).toLocaleTimeString()}</GreyH5>
         </GridGap>
 
-        {nickname === author?.nickname && <Absolute>삭제</Absolute>}
+        {contents && nickname === author?.nickname && (
+          <Absolute disabled={isCommentDeletionLoading} onClick={deleteComment}>
+            삭제
+          </Absolute>
+        )}
 
-        <GridItemP>
-          {contents.map((content, i) => (
+        <GridItemComment>
+          {contents?.map((content, i) => (
             <Fragment key={i}>
               <>{content}</>
               <br />
             </Fragment>
-          ))}
-        </GridItemP>
+          )) ?? <h6>삭제된 댓글입니다</h6>}
+        </GridItemComment>
 
-        <GridItemDiv>
-          <LikingButton onClick={toggleLikingComment}>
-            <HeartIcon selected={comment.isLiked} />
-            공감해요
-            <SelectableSpan selected={comment.isLiked}>{comment.likedCount}</SelectableSpan>
-          </LikingButton>
-          <SubcommentButton onClick={setParentCommentInfo}>답글쓰기</SubcommentButton>
-        </GridItemDiv>
+        {contents && (
+          <GridItemDiv>
+            <LikingButton onClick={toggleLikingComment}>
+              <HeartIcon selected={comment.isLiked} />
+              공감해요
+              <SelectableSpan selected={comment.isLiked}>{comment.likedCount}</SelectableSpan>
+            </LikingButton>
+            <SubcommentButton onClick={setParentCommentInfo}>답글쓰기</SubcommentButton>
+          </GridItemDiv>
+        )}
       </GridLi>
 
       <GridContainerSubcomments>
         {comment.subcomments?.map((subcomment) => (
-          <SubcommentCard key={subcomment.id} subcomment={subcomment} />
+          <SubcommentCard
+            key={subcomment.id}
+            subcomment={subcomment}
+            scrollTo={scrollTo}
+            newCommentId={newCommentId}
+          />
         ))}
       </GridContainerSubcomments>
     </GridContainerComment>

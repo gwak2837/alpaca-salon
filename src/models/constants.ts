@@ -16,7 +16,7 @@ export const SECONDARY_TEXT_COLOR = '#2fccba'
 export const SECONDARY_ACHROMATIC_COLOR = '#2fccba'
 
 export const APPLICATION_SHORT_NAME = '알파카살롱'
-export const APPLICATION_NAME = '알파카살롱 (Alpaca salon)'
+export const APPLICATION_NAME = '알파카살롱 (Alpacasalon)'
 export const CANONICAL_URL =
   process.env.NEXT_PUBLIC_VERCEL_ENV === 'production'
     ? 'https://alpacasalon.vercel.app'

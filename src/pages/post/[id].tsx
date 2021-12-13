@@ -1,7 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { Fragment, KeyboardEvent, useRef, useState } from 'react'
+import React, {
+  Fragment,
+  KeyboardEvent,
+  MutableRefObject,
+  createContext,
+  useRef,
+  useState,
+} from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
@@ -206,7 +213,7 @@ const fillGrey = css`
 
 const CommentSubmitButton = styled.button`
   position: absolute;
-  bottom: 0.8rem;
+  bottom: 0.75rem;
   right: 0.5rem;
 
   width: 3rem;
@@ -319,6 +326,8 @@ export default function PostDetailPage() {
   const [parentComment, setParentComment] = useState<ParentComment>()
   const [isImageDetailOpen, setIsImageDetailOpen] = useState(false)
   const commentTextareaRef = useRef<HTMLTextAreaElement>()
+  const scrollTo = useRef<any>()
+  const newCommentId = useRef('')
   const { nickname } = useRecoilValue(currentUser)
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
@@ -328,22 +337,26 @@ export default function PostDetailPage() {
     skip: !postId || !nickname,
     variables: { id: postId },
   })
-
   const post = data?.post
   const commentCount = post?.commentCount
   const author = data?.post?.user
 
   const { data: data2, loading: commentsLoading } = useCommentsByPostQuery({
+    onCompleted: () => {
+      if (scrollTo.current) {
+        scrollTo.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    },
     onError: toastApolloError,
     skip: !postId || !nickname,
     variables: { postId },
   })
-
   const comments = data2?.commentsByPost
 
   const [createCommentMutation, { loading }] = useCreateCommentMutation({
     onCompleted: ({ createComment }) => {
       if (createComment) {
+        newCommentId.current = createComment.id
         toast.success('댓글을 작성했어요')
         setParentComment(undefined)
         if (commentTextareaRef.current) commentTextareaRef.current.style.height = '2.8rem'
@@ -356,7 +369,7 @@ export default function PostDetailPage() {
   const { handleSubmit, register, reset, watch } = useForm<CommentCreationForm>({
     defaultValues: { contents: '' },
   })
-  const contentsLineCount = watch('contents').split('\n').length
+  const contentsLineCount = watch('contents').length
   const { ref, ...registerCommentCreationForm } = register('contents', {
     required: '댓글을 입력해주세요',
   })
@@ -511,6 +524,8 @@ export default function PostDetailPage() {
                     comment={comment as Comment}
                     setParentComment={setParentComment}
                     commentInputRef={commentTextareaRef}
+                    scrollTo={scrollTo}
+                    newCommentId={newCommentId}
                   />
                 ))
               : !commentsLoading && <GreyDiv>첫 번째로 댓글을 달아보세요</GreyDiv>}

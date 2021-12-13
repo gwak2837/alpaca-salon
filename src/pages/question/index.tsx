@@ -130,6 +130,7 @@ export default function EventListPage() {
 
   const { data } = useQuestionsQuery({ onError: toastApolloError })
   const questions = data?.questions
+  const selectedQuestion = questions?.[selectedQuestionIndex]
 
   const {
     formState: { errors },
@@ -182,7 +183,7 @@ export default function EventListPage() {
 
       <Padding>
         <H3 onClick={openDrawer}>
-          Q. {questions?.[selectedQuestionIndex].title}
+          Q. {selectedQuestion?.title ?? '질문이 없어요'}
           <DownArrowIcon />
         </H3>
 
@@ -207,7 +208,7 @@ export default function EventListPage() {
           <Textarea
             height={contentsLines}
             onKeyDown={submitWhenShiftEnter}
-            placeholder={questions?.[selectedQuestionIndex].contents}
+            placeholder={selectedQuestion?.contents ?? '내용이 없어요'}
             {...register('contents', { required: '글 내용을 작성한 후 완료를 눌러주세요' })}
           />
           <Button>사진 넣기</Button>

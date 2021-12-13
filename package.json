@@ -8,7 +8,7 @@
     "email": "alpacasalon@alpacasalon.com"
   },
   "license": "GPL-3.0-only",
-  "author": "Alpaca Salon <alpacasalon@alpacasalon.com>",
+  "author": "Alpacasalon <alpacasalon@alpacasalon.com>",
   "repository": "https://github.com/rmfpdlxmtidl/alpaca-salon.git",
   "scripts": {
     "clean": "rm -rf .yarn/cache .yarn/unplugged .yarn/install-state.gz dist .pnp.cjs yarn.lock",
