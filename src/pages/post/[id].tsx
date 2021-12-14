@@ -102,7 +102,6 @@ export const GridGap = styled.div`
 `
 
 export const H5 = styled.h5`
-  font-weight: 600;
   cursor: pointer;
 `
 
@@ -118,7 +117,6 @@ const GridGap2 = styled.div`
 `
 
 const H3 = styled.h3`
-  font-weight: 600;
   font-size: 1.1rem;
 `
 
@@ -222,7 +220,6 @@ const CommentSubmitButton = styled.button`
 
   background: none;
   border: none;
-  cursor: pointer;
 
   ${(p) => p.disabled && fillGrey}
 `
@@ -251,7 +248,6 @@ const Relative = styled.div`
 
 const H4 = styled.h4`
   color: #787878;
-  font-weight: 600;
   margin: 0 0 0.3rem;
 `
 

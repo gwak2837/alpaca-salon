@@ -9,14 +9,6 @@ import styled from 'styled-components'
 import KakaoIcon from '../svgs/kakao-icon.svg'
 import { FlexContainerColumnEnd } from './[userNickname]'
 
-const H2 = styled.h2`
-  font-weight: 600;
-`
-
-const H4 = styled.h4`
-  font-weight: 600;
-`
-
 const H5 = styled.h5`
   color: #676767;
   padding: 1.5rem 0;
@@ -97,9 +89,9 @@ export default function LoginPage() {
   return (
     <PageHead title="로그인 - 알파카살롱" description={description}>
       <FlexGrowPadding>
-        <H4>당당하게 더 멋진 인생을 살고 싶은</H4>
+        <h4>당당하게 더 멋진 인생을 살고 싶은</h4>
         <br />
-        <H2>멋쟁이 알파카님, 안녕하세요</H2>
+        <h2>멋쟁이 알파카님, 안녕하세요</h2>
 
         <GridContainerTemplate>
           <SquareFrame>

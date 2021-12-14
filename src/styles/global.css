@@ -30,6 +30,21 @@ h2,
 h3,
 h4,
 h5,
+h6 {
+  font-weight: 600;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
 h6,
 p {
   margin: 0;

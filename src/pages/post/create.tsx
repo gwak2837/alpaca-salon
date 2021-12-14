@@ -38,7 +38,6 @@ const AbsoluteH3 = styled.h3`
 
   cursor: pointer;
   font-size: 1.1rem;
-  font-weight: 600;
 `
 
 const FixedHeader = styled.header`
@@ -120,7 +119,6 @@ const FileInputLabel = styled.label`
 
 const GreyH3 = styled.h3`
   font-size: 1.1rem;
-  font-weight: 600;
   color: ${ALPACA_SALON_GREY_COLOR};
   text-align: center;
 `

@@ -33,7 +33,6 @@ const Relative = styled.div`
 const WhiteNumber = styled.h3`
   color: #fff;
   font-size: 1.25rem;
-  font-weight: 600;
 
   position: absolute;
   top: 45%;

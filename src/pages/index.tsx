@@ -108,7 +108,6 @@ const PrimaryButton = styled.button`
   border: none;
   border-radius: 10px;
   color: #fff;
-  cursor: pointer;
   padding: 0.7rem 1rem;
 `
 

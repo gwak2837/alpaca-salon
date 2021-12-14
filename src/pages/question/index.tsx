@@ -52,7 +52,6 @@ const Padding = styled.div`
 
 const H3 = styled.h3`
   font-size: 1.25rem;
-  font-weight: 600;
   padding: 0.7rem 0.5rem;
   position: relative;
 
