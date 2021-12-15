@@ -12,9 +12,8 @@ import NavigationLayout from 'src/layouts/NavigationLayout'
 import { ALPACA_SALON_COLOR } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import DownArrowIcon from 'src/svgs/down-arrow.svg'
+import { submitWhenShiftEnter } from 'src/utils'
 import styled from 'styled-components'
-
-import { submitWhenShiftEnter } from '../post/create'
 
 const FlexContainer = styled.div`
   display: flex;

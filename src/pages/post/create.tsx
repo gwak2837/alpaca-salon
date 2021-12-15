@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -20,7 +20,7 @@ import {
 import FileUploadIcon from 'src/svgs/file-upload.svg'
 import XButtonIcon from 'src/svgs/x-button.svg'
 import XIcon from 'src/svgs/x.svg'
-import { isEmpty } from 'src/utils'
+import { isEmpty, submitWhenShiftEnter, uploadImageFiles } from 'src/utils'
 import styled from 'styled-components'
 
 import { Frame16to11 } from './[id]'
@@ -28,6 +28,11 @@ import { Frame16to11 } from './[id]'
 type PostCreationInput = {
   title: string
   contents: string
+}
+
+export type ImageInfo = {
+  id: number
+  url: string
 }
 
 export const AbsoluteH3 = styled.h3`
@@ -125,21 +130,22 @@ export const GreyH3 = styled.h3`
   text-align: center;
 `
 
-export const Slider = styled.ul`
+export const Slider = styled.ul<{ padding: string }>`
   overflow-x: scroll;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
 
   display: flex;
+  padding: ${(p) => p.padding};
 `
 
-export const Slide = styled.li<{ flexBasis?: string }>`
+export const Slide = styled.li<{ flexBasis: string }>`
   scroll-snap-align: center;
 
   aspect-ratio: 16 / 11;
   border: 1px solid #e2e2e2;
   border-radius: 10px;
-  flex: 0 0 ${(p) => p.flexBasis ?? '95%'};
+  flex: 0 0 ${(p) => p.flexBasis};
   position: relative;
 `
 
@@ -156,21 +162,13 @@ export const PreviewSlide = styled(Slide)`
   }
 `
 
-export function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
-  if (e.code === 'Enter' && e.shiftKey) {
-    e.preventDefault() // To prevent adding line break when shift+enter pressed
-    const submitEvent = new Event('submit', { bubbles: true })
-    const parentForm = (e.target as any).form as HTMLFormElement
-    parentForm.dispatchEvent(submitEvent)
-  }
-}
-
 const description = '알파카살롱에 글을 작성해보세요'
 
 export default function PostCreationPage() {
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [imageInfos, setImageInfos] = useState<ImageInfo[]>([])
   const [postCreationLoading, setPostCreationLoading] = useState(false)
   const formData = useRef(globalThis.FormData ? new FormData() : null)
+  const imageId = useRef(0)
   const router = useRouter()
 
   const {
@@ -211,35 +209,45 @@ export default function PostCreationPage() {
     router.back()
   }
 
-  function previewImages(e: ChangeEvent<HTMLInputElement>) {
+  function createPreviewImages(e: ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
     if (files && files.length > 0 && formData.current) {
-      const newImageUrls: string[] = []
+      const newImageInfos: ImageInfo[] = []
+
       for (const file of files) {
         if (file.type.startsWith('image/')) {
-          newImageUrls.push(URL.createObjectURL(file))
-          formData.current.append('images', file)
+          newImageInfos.push({ id: imageId.current, url: URL.createObjectURL(file) })
+          formData.current.append(`image${imageId.current}`, file)
+          imageId.current++
         }
       }
-      setImageUrls((prev) => [...prev, ...newImageUrls])
+
+      setImageInfos((prev) => [...prev, ...newImageInfos])
     }
   }
 
-  async function uploadImageFiles() {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
-      method: 'POST',
-      body: formData.current,
-    })
-    return response.json()
+  function deletePreviewImage(imageId: number) {
+    if (formData.current) {
+      formData.current.delete(`image${imageId}`)
+      setImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
+    }
   }
 
   async function createPost(input: PostCreationInput) {
     setPostCreationLoading(true)
-
     const variables: CreatePostMutationVariables = { input: { ...input } }
-    if (formData.current?.has('images')) {
-      const { imageUrls } = await uploadImageFiles()
-      variables.input.imageUrls = imageUrls
+    if (formData.current) {
+      const files = [...formData.current.values()]
+
+      if (files.length > 0) {
+        const newFormData = new FormData()
+        for (const file of files) {
+          newFormData.append('images', file)
+        }
+
+        const { imageUrls } = await uploadImageFiles(newFormData)
+        variables.input.imageUrls = imageUrls
+      }
     }
 
     await createPostMutation({ variables })
@@ -281,16 +289,16 @@ export default function PostCreationPage() {
           />
         </GridContainer>
 
-        <Slider>
-          {imageUrls.map((file, i) => (
-            <PreviewSlide key={i}>
+        <Slider padding={imageInfos.length === 0 ? '0 1rem' : '0'}>
+          {imageInfos.map((imageInfo) => (
+            <PreviewSlide key={imageInfo.id} flexBasis="96%">
               <Frame16to11>
-                <Image src={file} alt={file} layout="fill" objectFit="cover" />
+                <Image src={imageInfo.url} alt={imageInfo.url} layout="fill" objectFit="cover" />
               </Frame16to11>
-              <XButtonIcon onClick={() => console.log(i)} />
+              <XButtonIcon onClick={() => deletePreviewImage(imageInfo.id)} />
             </PreviewSlide>
           ))}
-          <Slide flexBasis={imageUrls.length === 0 ? '100%' : '96%'}>
+          <Slide flexBasis={imageInfos.length === 0 ? '100%' : '96%'}>
             <FileInputLabel disabled={postCreationLoading} htmlFor="images">
               <FileUploadIcon />
               <GreyH3>사진을 추가해주세요</GreyH3>
@@ -300,7 +308,7 @@ export default function PostCreationPage() {
               disabled={postCreationLoading}
               id="images"
               multiple
-              onChange={previewImages}
+              onChange={createPreviewImages}
               type="file"
             />
           </Slide>

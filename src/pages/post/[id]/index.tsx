@@ -31,9 +31,10 @@ import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
 import Submit from 'src/svgs/submit.svg'
 import XIcon from 'src/svgs/x.svg'
+import { submitWhenShiftEnter } from 'src/utils'
 import styled, { css } from 'styled-components'
 
-import { Slider, submitWhenShiftEnter } from '../create'
+import { Slider } from '../create'
 
 const FlexContainerBetweenCenter = styled.div`
   display: flex;
@@ -499,7 +500,7 @@ export default function PostDetailPage() {
               </Frame16to11DefaultImage>
             ))}
             <Modal open={isImageDetailOpen} setOpen={setIsImageDetailOpen}>
-              <Slider>
+              <Slider padding="0">
                 {post.imageUrls?.map((imageUrl, i) => (
                   <Slide key={i}>
                     <Image

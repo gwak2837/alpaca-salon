@@ -16,7 +16,7 @@ import { currentUser } from 'src/models/recoil'
 import FileUploadIcon from 'src/svgs/file-upload.svg'
 import XButtonIcon from 'src/svgs/x-button.svg'
 import XIcon from 'src/svgs/x.svg'
-import { isEmpty } from 'src/utils'
+import { isEmpty, submitWhenShiftEnter, uploadImageFiles } from 'src/utils'
 
 import {
   AbsoluteH3,
@@ -25,13 +25,13 @@ import {
   FixedHeader,
   GreyH3,
   GridContainer,
+  ImageInfo,
   Input,
   PreviewSlide,
   Slide,
   Slider,
   Textarea,
   TransparentButton,
-  submitWhenShiftEnter,
 } from '../create'
 import { Frame16to11 } from '.'
 
@@ -43,9 +43,10 @@ type PostUpdateInput = {
 const description = '알파카살롱에 글을 작성해보세요'
 
 export default function PostUpdatePage() {
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [imageInfos, setImageInfos] = useState<ImageInfo[]>([])
   const [isPostUpdateLoading, setIsPostUpdateLoading] = useState(false)
   const formData = useRef(globalThis.FormData ? new FormData() : null)
+  const imageId = useRef(0)
   const { nickname } = useRecoilValue(currentUser)
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
@@ -71,7 +72,7 @@ export default function PostUpdatePage() {
       if (post) {
         setValue('title', post.title)
         setValue('contents', post.contents)
-        if (post.imageUrls) setImageUrls(post.imageUrls)
+        if (post.imageUrls) setImageInfos(post.imageUrls)
       }
     },
     onError: toastApolloError,
@@ -93,26 +94,28 @@ export default function PostUpdatePage() {
     router.back()
   }
 
-  function previewImages(e: ChangeEvent<HTMLInputElement>) {
+  function createPreviewImages(e: ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
     if (files && files.length > 0 && formData.current) {
-      const newImageUrls: string[] = []
+      const newImageUrls: ImageInfo[] = []
+
       for (const file of files) {
         if (file.type.startsWith('image/')) {
-          newImageUrls.push(URL.createObjectURL(file))
-          formData.current.append('images', file)
+          newImageUrls.push({ id: imageId.current, url: URL.createObjectURL(file) })
+          formData.current.append(`image${imageId.current++}`, file)
+          imageId.current++
         }
       }
-      setImageUrls((prev) => [...prev, ...newImageUrls])
+
+      setImageInfos((prev) => [...prev, ...newImageUrls])
     }
   }
 
-  async function uploadImageFiles() {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
-      method: 'POST',
-      body: formData.current,
-    })
-    return response.json()
+  function deletePreviewImage(imageId: number) {
+    if (formData.current) {
+      formData.current.delete(`image${imageId}`)
+      setImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
+    }
   }
 
   async function updatePost(input: PostUpdateInput) {
@@ -120,7 +123,7 @@ export default function PostUpdatePage() {
 
     const variables: UpdatePostMutationVariables = { input: { id: postId, ...input } }
     if (formData.current?.has('images')) {
-      const { imageUrls } = await uploadImageFiles()
+      const { imageUrls } = await uploadImageFiles(formData.current)
       variables.input.imageUrls = imageUrls
     }
 
@@ -166,17 +169,17 @@ export default function PostUpdatePage() {
           />
         </GridContainer>
 
-        <Slider>
-          {imageUrls.map((file, i) => (
-            <PreviewSlide key={i}>
+        <Slider padding={imageInfos.length === 0 ? '0 1rem' : '0'}>
+          {imageInfos.map((imageInfo) => (
+            <PreviewSlide key={imageInfo.id} flexBasis="96%">
               <Frame16to11>
-                <Image src={file} alt={file} layout="fill" objectFit="cover" />
+                <Image src={imageInfo.url} alt={imageInfo.url} layout="fill" objectFit="cover" />
               </Frame16to11>
-              <XButtonIcon onClick={() => console.log(i)} />
+              <XButtonIcon onClick={() => deletePreviewImage(imageInfo.id)} />
             </PreviewSlide>
           ))}
-          <Slide flexBasis={imageUrls.length === 0 ? '100%' : '96%'}>
-            <FileInputLabel htmlFor="images">
+          <Slide flexBasis={imageInfos.length === 0 ? '100%' : '96%'}>
+            <FileInputLabel disabled={loading || isPostUpdateLoading} htmlFor="images">
               <FileUploadIcon />
               <GreyH3>사진을 추가해주세요</GreyH3>
             </FileInputLabel>
@@ -185,7 +188,7 @@ export default function PostUpdatePage() {
               disabled={loading || isPostUpdateLoading}
               id="images"
               multiple
-              onChange={previewImages}
+              onChange={createPreviewImages}
               type="file"
             />
           </Slide>
