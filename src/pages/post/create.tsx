@@ -30,7 +30,7 @@ type PostCreationInput = {
   contents: string
 }
 
-const AbsoluteH3 = styled.h3`
+export const AbsoluteH3 = styled.h3`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -40,7 +40,7 @@ const AbsoluteH3 = styled.h3`
   font-size: 1.1rem;
 `
 
-const FixedHeader = styled.header`
+export const FixedHeader = styled.header`
   position: fixed;
   top: 0;
   z-index: 1;
@@ -60,7 +60,7 @@ const FixedHeader = styled.header`
   }
 `
 
-const TransparentButton = styled.button<{ disabled?: boolean }>`
+export const TransparentButton = styled.button<{ disabled?: boolean }>`
   border: none;
   background: none;
   font-size: 1.1rem;
@@ -70,10 +70,11 @@ const TransparentButton = styled.button<{ disabled?: boolean }>`
   padding: 1rem;
 `
 
-const Input = styled.input<{ erred?: boolean }>`
+export const Input = styled.input<{ erred?: boolean }>`
   border: none;
   border-bottom: 2px solid ${(p) => (p.erred ? ALPACA_SALON_RED_COLOR : ALPACA_SALON_COLOR)};
   border-radius: 0;
+  color: ${(p) => (p.disabled ? '#888' : '#000')};
   padding: 0.5rem 0;
   width: 100%;
 
@@ -82,32 +83,33 @@ const Input = styled.input<{ erred?: boolean }>`
   }
 `
 
-const GridContainer = styled.div`
+export const GridContainer = styled.div`
   display: grid;
   gap: 1.5rem;
 
   padding: 4.4rem 0.5rem 2rem;
 `
 
-const Textarea = styled.textarea<{ height: number }>`
+export const Textarea = styled.textarea<{ height: number }>`
   width: 100%;
   height: ${(p) => p.height}rem;
   min-height: 20vh;
   max-height: 50vh;
   padding: 0.5rem 0;
+  color: ${(p) => (p.disabled ? '#888' : '#000')};
 
   :focus {
     outline: none;
   }
 `
 
-const FileInput = styled.input`
+export const FileInput = styled.input`
   display: none;
 `
 
-const FileInputLabel = styled.label`
+export const FileInputLabel = styled.label<{ disabled?: boolean }>`
   position: relative;
-  cursor: pointer;
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   height: 100%;
 
   display: flex;
@@ -117,7 +119,7 @@ const FileInputLabel = styled.label`
   gap: 1rem;
 `
 
-const GreyH3 = styled.h3`
+export const GreyH3 = styled.h3`
   font-size: 1.1rem;
   color: ${ALPACA_SALON_GREY_COLOR};
   text-align: center;
@@ -131,7 +133,7 @@ export const Slider = styled.ul`
   display: flex;
 `
 
-const Slide = styled.li<{ flexBasis?: string }>`
+export const Slide = styled.li<{ flexBasis?: string }>`
   scroll-snap-align: center;
 
   aspect-ratio: 16 / 11;
@@ -141,7 +143,7 @@ const Slide = styled.li<{ flexBasis?: string }>`
   position: relative;
 `
 
-const PreviewSlide = styled(Slide)`
+export const PreviewSlide = styled(Slide)`
   flex: 0 0 96%;
   padding: 0;
 
@@ -205,12 +207,8 @@ export default function PostCreationPage() {
     refetchQueries: ['Posts'],
   })
 
-  function replaceToHomePage() {
-    router.replace('/')
-  }
-
-  function goToHomePage() {
-    router.push('/')
+  function goBack() {
+    router.back()
   }
 
   function previewImages(e: ChangeEvent<HTMLInputElement>) {
@@ -260,8 +258,8 @@ export default function PostCreationPage() {
     <PageHead title="글쓰기 - 알파카살롱" description={description}>
       <form onSubmit={handleSubmit(createPost)}>
         <FixedHeader>
-          <XIcon onClick={replaceToHomePage} />
-          <AbsoluteH3 onClick={goToHomePage}>글쓰기</AbsoluteH3>
+          <XIcon onClick={goBack} />
+          <AbsoluteH3>글쓰기</AbsoluteH3>
           <TransparentButton disabled={!isEmpty(errors) || postCreationLoading} type="submit">
             완료
           </TransparentButton>
@@ -289,15 +287,22 @@ export default function PostCreationPage() {
               <Frame16to11>
                 <Image src={file} alt={file} layout="fill" objectFit="cover" />
               </Frame16to11>
-              <XButtonIcon />
+              <XButtonIcon onClick={() => console.log(i)} />
             </PreviewSlide>
           ))}
           <Slide flexBasis={imageUrls.length === 0 ? '100%' : '96%'}>
-            <FileInputLabel htmlFor="images">
+            <FileInputLabel disabled={postCreationLoading} htmlFor="images">
               <FileUploadIcon />
               <GreyH3>사진을 추가해주세요</GreyH3>
             </FileInputLabel>
-            <FileInput accept="image/*" id="images" multiple onChange={previewImages} type="file" />
+            <FileInput
+              accept="image/*"
+              disabled={postCreationLoading}
+              id="images"
+              multiple
+              onChange={previewImages}
+              type="file"
+            />
           </Slide>
         </Slider>
       </form>

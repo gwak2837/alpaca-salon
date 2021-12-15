@@ -24,7 +24,7 @@ import {
   usePostQuery,
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
-import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import { Skeleton } from 'src/styles'
 import BackIcon from 'src/svgs/back-icon.svg'
@@ -33,23 +33,30 @@ import Submit from 'src/svgs/submit.svg'
 import XIcon from 'src/svgs/x.svg'
 import styled, { css } from 'styled-components'
 
-import { Slider, submitWhenShiftEnter } from './create'
+import { Slider, submitWhenShiftEnter } from '../create'
 
 const FlexContainerBetweenCenter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  padding: 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  max-width: ${TABLET_MIN_WIDTH};
+  z-index: 1;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 0.75rem 0.6rem;
+
+  > svg {
+    width: 1.5rem;
+    cursor: pointer;
+  }
 `
 
-const Width = styled.div`
-  width: 1.5rem;
-  cursor: pointer;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
+const Padding = styled.div`
+  padding-top: 4.35rem;
 `
 
 const ModificationButton = styled.button<{ visibility: boolean }>`
@@ -362,7 +369,7 @@ export default function PostDetailPage() {
     refetchQueries: ['CommentsByPost', 'Posts'],
   })
 
-  const { handleSubmit, register, reset, watch } = useForm<CommentCreationForm>({
+  const { handleSubmit, register, reset, setFocus, watch } = useForm<CommentCreationForm>({
     defaultValues: { contents: '' },
   })
   const contentsLineCount = watch('contents').length
@@ -382,6 +389,10 @@ export default function PostDetailPage() {
     router.back()
   }
 
+  function goToPostUpdatePage() {
+    router.push(router.asPath + '/update')
+  }
+
   function resetParentComment() {
     setParentComment(undefined)
   }
@@ -392,7 +403,7 @@ export default function PostDetailPage() {
 
   function writeComment() {
     setParentComment(undefined)
-    commentTextareaRef.current?.focus()
+    setFocus('contents')
   }
 
   function resizeTextareaHeight(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -411,11 +422,14 @@ export default function PostDetailPage() {
   return (
     <PageHead title={`${post?.title ?? '건강문답'} - 알파카살롱`} description={description}>
       <FlexColumnGrow>
+        <Padding />
         <FlexContainerBetweenCenter>
-          <Width onClick={goBack}>
-            <BackIcon />
-          </Width>
-          <ModificationButton visibility={nickname === author?.nickname}>
+          <BackIcon onClick={goBack} />
+
+          <ModificationButton
+            onClick={goToPostUpdatePage}
+            visibility={nickname === author?.nickname}
+          >
             <GreyWriteIcon />
             수정하기
           </ModificationButton>
