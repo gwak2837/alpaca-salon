@@ -86,6 +86,13 @@ const description = '알파카살롱에 로그인하세요'
 export default function LoginPage() {
   const router = useRouter()
 
+  function goToKakaoLoginPage() {
+    router.back()
+    router.push(
+      `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`
+    )
+  }
+
   return (
     <PageHead title="로그인 - 알파카살롱" description={description}>
       <FlexGrowPadding>
@@ -112,13 +119,7 @@ export default function LoginPage() {
         <FlexContainerColumnEnd>
           <H5>카카오 로그인으로 40대 이상 여성임을 확인해 주세요</H5>
 
-          <KakaoButton
-            onClick={() =>
-              router.replace(
-                `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`
-              )
-            }
-          >
+          <KakaoButton onClick={goToKakaoLoginPage}>
             <KakaoIcon />
             카카오로 3초 만에 시작하기
           </KakaoButton>
