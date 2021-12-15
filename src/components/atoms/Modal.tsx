@@ -8,6 +8,7 @@ const Background = styled.div<{ display: boolean }>`
   display: ${(p) => (p.display ? 'block' : 'none')};
   position: fixed;
   inset: 0 0 0 0;
+  z-index: 2;
 
   > *:not(svg) {
     width: 100%;

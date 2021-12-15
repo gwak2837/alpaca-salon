@@ -31,10 +31,14 @@ const FlexContainerHeight100 = styled.div`
 const TitleIconWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 
   margin: 1rem;
   cursor: pointer;
+
+  > svg {
+    width: 1.5rem;
+  }
 `
 
 const GridContainerTemplate = styled.div`
@@ -173,7 +177,7 @@ export default function UserPage() {
               <HeartIcon selected />
             </Wrapper>
             받은 공감 개수
-            <PrimaryColorText>{user?.likedCount}</PrimaryColorText>
+            <PrimaryColorText>{user?.likedCount ?? '-'}</PrimaryColorText>
           </FlexContainer>
         </div>
 
