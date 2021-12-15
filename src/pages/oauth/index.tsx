@@ -22,6 +22,7 @@ export default function EventDetailPage() {
 
     setUrl(sessionStorage.getItem('redirectionUrlAfterLogin') ?? '/')
     sessionStorage.removeItem('redirectionUrlAfterLogin')
+    sessionStorage.setItem('justLoggedIn', '1')
   }, [setCurrentUser])
 
   useEffect(() => {

@@ -387,7 +387,11 @@ export default function PostDetailPage() {
   }
 
   function goBack() {
-    router.back()
+    if (sessionStorage.getItem('justLoggedIn')) {
+      router.replace('/')
+    } else {
+      router.back()
+    }
   }
 
   function goToPostUpdatePage() {
