@@ -154,9 +154,7 @@ export default function PostUpdatePage() {
       }
     }
 
-    console.log('variables', variables)
-
-    // await updatePostMutation({ variables })
+    await updatePostMutation({ variables })
     setIsPostUpdateLoading(false)
   }
 
