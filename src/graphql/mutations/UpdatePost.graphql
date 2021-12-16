@@ -4,5 +4,6 @@ mutation UpdatePost($input: PostModificationInput!) {
     category
     title
     contents
+    imageUrls
   }
 }

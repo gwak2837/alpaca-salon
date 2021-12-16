@@ -331,7 +331,14 @@ export type UpdatePostMutationVariables = Exact<{
 export type UpdatePostMutation = {
   __typename?: 'Mutation'
   updatePost?:
-    | { __typename?: 'Post'; id: string; category: PostCategory; title: any; contents: any }
+    | {
+        __typename?: 'Post'
+        id: string
+        category: PostCategory
+        title: any
+        contents: any
+        imageUrl?: any | null | undefined
+      }
     | null
     | undefined
 }
@@ -798,6 +805,7 @@ export const UpdatePostDocument = gql`
       category
       title
       contents
+      imageUrls
     }
   }
 `
