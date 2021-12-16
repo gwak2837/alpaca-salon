@@ -21,6 +21,7 @@ const Background = styled.div<{ displayBlock: boolean }>`
     right: 0;
     width: 2.2rem;
     padding: 0.6rem;
+    z-index: 3;
   }
 `
 
