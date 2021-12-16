@@ -16,7 +16,7 @@ import { currentUser } from 'src/models/recoil'
 import FileUploadIcon from 'src/svgs/file-upload.svg'
 import XButtonIcon from 'src/svgs/x-button.svg'
 import XIcon from 'src/svgs/x.svg'
-import { isEmpty, submitWhenShiftEnter, uploadImageFiles } from 'src/utils'
+import { isArrayEqual, isEmpty, submitWhenShiftEnter, uploadImageFiles } from 'src/utils'
 
 import {
   AbsoluteH3,
@@ -40,6 +40,12 @@ type PostUpdateInput = {
   contents: string
 }
 
+type PreviousPostData = {
+  title: string
+  contents: string
+  imageUrls?: string[] | null
+}
+
 const description = '알파카살롱에 글을 작성해보세요'
 
 export default function PostUpdatePage() {
@@ -48,6 +54,7 @@ export default function PostUpdatePage() {
   const [isPostUpdateLoading, setIsPostUpdateLoading] = useState(false)
   const formData = useRef(globalThis.FormData ? new FormData() : null)
   const imageId = useRef(0)
+  const prevPostData = useRef<PreviousPostData>()
   const { nickname } = useRecoilValue(currentUser)
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
@@ -71,6 +78,12 @@ export default function PostUpdatePage() {
   const { loading } = usePostQuery({
     onCompleted: ({ post }) => {
       if (post) {
+        prevPostData.current = {
+          title: post.title,
+          contents: post.contents,
+          imageUrls: post.imageUrls,
+        }
+
         setValue('title', post.title)
         setValue('contents', post.contents)
 
@@ -133,9 +146,28 @@ export default function PostUpdatePage() {
     }
   }
 
-  async function updatePost(input: PostUpdateInput) {
+  async function updatePost(postUpdateInput: PostUpdateInput) {
     setIsPostUpdateLoading(true)
-    const variables: UpdatePostMutationVariables = { input: { id: postId, ...input } }
+    const variables: UpdatePostMutationVariables = {
+      input: {
+        id: postId,
+      },
+    }
+
+    const input = variables.input
+
+    if (prevPostData.current?.title !== postUpdateInput.title) {
+      input.title = postUpdateInput.title
+    }
+
+    if (prevPostData.current?.contents !== postUpdateInput.contents) {
+      input.contents = postUpdateInput.contents
+    }
+
+    if (!isArrayEqual(prevPostData.current?.imageUrls, oldImageInfos)) {
+      input.imageUrls = []
+      input.imageUrls.push(...oldImageInfos.map((imageInfo) => imageInfo.url))
+    }
 
     if (formData.current) {
       const files = [...formData.current.values()]
@@ -147,13 +179,12 @@ export default function PostUpdatePage() {
         }
 
         const { imageUrls } = await uploadImageFiles(newFormData)
-        variables.input.imageUrls = [
-          ...oldImageInfos.map((imageInfo) => imageInfo.url),
-          ...imageUrls,
-        ]
+        if (!input.imageUrls) input.imageUrls = []
+        input.imageUrls.push(...imageUrls)
       }
     }
 
+    // console.log(variables)
     await updatePostMutation({ variables })
     setIsPostUpdateLoading(false)
   }
