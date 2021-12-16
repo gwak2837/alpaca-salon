@@ -43,7 +43,8 @@ type PostUpdateInput = {
 const description = '알파카살롱에 글을 작성해보세요'
 
 export default function PostUpdatePage() {
-  const [imageInfos, setImageInfos] = useState<ImageInfo[]>([])
+  const [oldImageInfos, setOldImageInfos] = useState<ImageInfo[]>([])
+  const [newImageInfos, setNewImageInfos] = useState<ImageInfo[]>([])
   const [isPostUpdateLoading, setIsPostUpdateLoading] = useState(false)
   const formData = useRef(globalThis.FormData ? new FormData() : null)
   const imageId = useRef(0)
@@ -72,7 +73,15 @@ export default function PostUpdatePage() {
       if (post) {
         setValue('title', post.title)
         setValue('contents', post.contents)
-        if (post.imageUrls) setImageInfos(post.imageUrls)
+
+        if (post.imageUrls) {
+          const oldImageUrls = []
+          for (const imageUrl of post.imageUrls) {
+            oldImageUrls.push({ id: imageId.current, url: imageUrl })
+            imageId.current++
+          }
+          setOldImageInfos(oldImageUrls)
+        }
       }
     },
     onError: toastApolloError,
@@ -107,24 +116,42 @@ export default function PostUpdatePage() {
         }
       }
 
-      setImageInfos((prev) => [...prev, ...newImageUrls])
+      setNewImageInfos((prev) => [...prev, ...newImageUrls])
     }
   }
 
-  function deletePreviewImage(imageId: number) {
+  function deleteOldPreviewImage(imageId: number) {
+    if (formData.current) {
+      setOldImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
+    }
+  }
+
+  function deleteNewPreviewImage(imageId: number) {
     if (formData.current) {
       formData.current.delete(`image${imageId}`)
-      setImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
+      setNewImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
     }
   }
 
   async function updatePost(input: PostUpdateInput) {
     setIsPostUpdateLoading(true)
-
     const variables: UpdatePostMutationVariables = { input: { id: postId, ...input } }
-    if (formData.current?.has('images')) {
-      const { imageUrls } = await uploadImageFiles(formData.current)
-      variables.input.imageUrls = imageUrls
+
+    if (formData.current) {
+      const files = [...formData.current.values()]
+
+      if (files.length > 0) {
+        const newFormData = new FormData()
+        for (const file of files) {
+          newFormData.append('images', file)
+        }
+
+        const { imageUrls } = await uploadImageFiles(newFormData)
+        variables.input.imageUrls = [
+          ...oldImageInfos.map((imageInfo) => imageInfo.url),
+          ...imageUrls,
+        ]
+      }
     }
 
     await updatePostMutation({ variables })
@@ -169,16 +196,26 @@ export default function PostUpdatePage() {
           />
         </GridContainer>
 
-        <Slider padding={imageInfos.length === 0 ? '0 1rem' : '0'}>
-          {imageInfos.map((imageInfo) => (
+        <Slider padding={oldImageInfos.length === 0 && newImageInfos.length === 0 ? '0 1rem' : '0'}>
+          {oldImageInfos.map((imageInfo) => (
             <PreviewSlide key={imageInfo.id} flexBasis="96%">
               <Frame16to11>
                 <Image src={imageInfo.url} alt={imageInfo.url} layout="fill" objectFit="cover" />
               </Frame16to11>
-              <XButtonIcon onClick={() => deletePreviewImage(imageInfo.id)} />
+              <XButtonIcon onClick={() => deleteOldPreviewImage(imageInfo.id)} />
             </PreviewSlide>
           ))}
-          <Slide flexBasis={imageInfos.length === 0 ? '100%' : '96%'}>
+          {newImageInfos.map((imageInfo) => (
+            <PreviewSlide key={imageInfo.id} flexBasis="96%">
+              <Frame16to11>
+                <Image src={imageInfo.url} alt={imageInfo.url} layout="fill" objectFit="cover" />
+              </Frame16to11>
+              <XButtonIcon onClick={() => deleteNewPreviewImage(imageInfo.id)} />
+            </PreviewSlide>
+          ))}
+          <Slide
+            flexBasis={oldImageInfos.length === 0 && newImageInfos.length === 0 ? '100%' : '96%'}
+          >
             <FileInputLabel disabled={loading || isPostUpdateLoading} htmlFor="images">
               <FileUploadIcon />
               <GreyH3>사진을 추가해주세요</GreyH3>

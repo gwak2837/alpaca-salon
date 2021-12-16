@@ -236,6 +236,7 @@ export default function PostCreationPage() {
   async function createPost(input: PostCreationInput) {
     setPostCreationLoading(true)
     const variables: CreatePostMutationVariables = { input: { ...input } }
+
     if (formData.current) {
       const files = [...formData.current.values()]
 
