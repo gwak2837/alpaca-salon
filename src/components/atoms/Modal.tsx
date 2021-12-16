@@ -3,9 +3,9 @@ import { createPortal } from 'react-dom'
 import XIcon from 'src/svgs/x-white.svg'
 import styled from 'styled-components'
 
-const Background = styled.div<{ display: boolean }>`
+const Background = styled.div<{ displayBlock: boolean }>`
   background: #000;
-  display: ${(p) => (p.display ? 'block' : 'none')};
+  display: ${(p) => (p.displayBlock ? 'block' : 'none')};
   position: fixed;
   inset: 0 0 0 0;
   z-index: 2;
@@ -62,7 +62,7 @@ function Modal({ children, open, setOpen }: Props) {
   }, [open, setOpen])
 
   return createPortal(
-    <Background display={open} onClick={closeModal}>
+    <Background displayBlock={open} onClick={closeModal}>
       <XIcon onClick={closeModal} />
       {children}
     </Background>,

@@ -75,12 +75,12 @@ export default function PostUpdatePage() {
         setValue('contents', post.contents)
 
         if (post.imageUrls) {
-          const oldImageUrls = []
+          const imageInfos = []
           for (const imageUrl of post.imageUrls) {
-            oldImageUrls.push({ id: imageId.current, url: imageUrl })
+            imageInfos.push({ id: imageId.current, url: imageUrl })
             imageId.current++
           }
-          setOldImageInfos(oldImageUrls)
+          setOldImageInfos(imageInfos)
         }
       }
     },
@@ -154,7 +154,9 @@ export default function PostUpdatePage() {
       }
     }
 
-    await updatePostMutation({ variables })
+    console.log('variables', variables)
+
+    // await updatePostMutation({ variables })
     setIsPostUpdateLoading(false)
   }
 

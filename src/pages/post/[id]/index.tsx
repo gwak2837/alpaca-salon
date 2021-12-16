@@ -1,14 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, {
-  Fragment,
-  KeyboardEvent,
-  MutableRefObject,
-  createContext,
-  useRef,
-  useState,
-} from 'react'
+import React, { Fragment, KeyboardEvent, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
@@ -60,7 +53,7 @@ const Padding = styled.div`
   padding-top: 4.35rem;
 `
 
-const ModificationButton = styled.button<{ visibility: boolean }>`
+const ModificationButton = styled.button<{ visible: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -71,7 +64,7 @@ const ModificationButton = styled.button<{ visibility: boolean }>`
   border: 1px solid #eee;
   border-radius: 5px;
   color: ${ALPACA_SALON_GREY_COLOR};
-  visibility: ${(p) => (p.visibility ? 'visible' : 'hidden')};
+  visibility: ${(p) => (p.visible ? 'visible' : 'hidden')};
 
   :hover,
   :focus,
@@ -431,10 +424,7 @@ export default function PostDetailPage() {
         <FlexContainerBetweenCenter>
           <BackIcon onClick={goBack} />
 
-          <ModificationButton
-            onClick={goToPostUpdatePage}
-            visibility={nickname === author?.nickname}
-          >
+          <ModificationButton onClick={goToPostUpdatePage} visible={nickname === author?.nickname}>
             <GreyWriteIcon />
             수정하기
           </ModificationButton>
