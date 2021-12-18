@@ -372,8 +372,6 @@ export default function PostDetailPage() {
     refetchQueries: ['CommentsByPost', 'Posts'],
   })
 
-  console.log(loading)
-
   const { handleSubmit, register, reset, setFocus, watch } = useForm<CommentCreationForm>({
     defaultValues: { contents: '' },
   })
