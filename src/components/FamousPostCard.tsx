@@ -1,11 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
-import {
-  ALPACA_SALON_COLOR,
-  ALPACA_SALON_DARK_GREY_COLOR,
-  ALPACA_SALON_GREY_COLOR,
-} from 'src/models/constants'
+import { ALPACA_SALON_DARK_GREY_COLOR } from 'src/models/constants'
 import { FlexContainerBetween, Skeleton } from 'src/styles'
 import FlowerIcon from 'src/svgs/FlowerIcon'
 import { stopPropagation } from 'src/utils'

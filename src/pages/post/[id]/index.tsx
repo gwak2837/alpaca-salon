@@ -391,11 +391,7 @@ export default function PostDetailPage() {
   }
 
   function goBack() {
-    if (sessionStorage.getItem('justLoggedIn')) {
-      router.replace('/')
-    } else {
-      router.back()
-    }
+    router.back()
   }
 
   function goToPostUpdatePage() {

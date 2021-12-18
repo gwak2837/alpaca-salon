@@ -22,7 +22,6 @@ export default function EventDetailPage() {
 
     setUrl(sessionStorage.getItem('redirectionUrlAfterLogin') ?? '/')
     sessionStorage.removeItem('redirectionUrlAfterLogin')
-    sessionStorage.setItem('justLoggedIn', '1')
   }, [setCurrentUser])
 
   useEffect(() => {
@@ -31,8 +30,7 @@ export default function EventDetailPage() {
 
   return (
     <PageHead title="소셜 로그인 - 알파카살롱" description={description}>
-      <div>소셜 로그인 성공</div>
-      <div>잠시만 기다려주세요...</div>
+      <div>소셜 로그인에 성공했어요. 잠시만 기다려주세요...</div>
     </PageHead>
   )
 }
