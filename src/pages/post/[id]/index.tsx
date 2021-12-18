@@ -22,6 +22,7 @@ import { currentUser } from 'src/models/recoil'
 import { Skeleton } from 'src/styles'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
+import LoadingSpinner from 'src/svgs/LoadingSpinner'
 import Submit from 'src/svgs/submit.svg'
 import XIcon from 'src/svgs/x.svg'
 import { submitWhenShiftEnter } from 'src/utils'
@@ -210,7 +211,7 @@ const fillGrey = css`
   }
 `
 
-const CommentSubmitButton = styled.button`
+const AbsoluteCSS = css`
   position: absolute;
   bottom: 0.75rem;
   right: 0.5rem;
@@ -219,9 +220,17 @@ const CommentSubmitButton = styled.button`
   height: 3rem;
   padding: 0.5rem;
 
-  background: none;
-  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
 
+const Absolute = styled.div`
+  ${AbsoluteCSS};
+`
+
+const CommentSubmitButton = styled.button`
+  ${AbsoluteCSS};
   ${(p) => p.disabled && fillGrey}
 `
 
@@ -362,6 +371,8 @@ export default function PostDetailPage() {
     onError: toastApolloError,
     refetchQueries: ['CommentsByPost', 'Posts'],
   })
+
+  console.log(loading)
 
   const { handleSubmit, register, reset, setFocus, watch } = useForm<CommentCreationForm>({
     defaultValues: { contents: '' },
@@ -560,6 +571,11 @@ export default function PostDetailPage() {
               ref={registerTextareaRef}
               {...registerCommentCreationForm}
             />
+            {loading && (
+              <Absolute>
+                <LoadingSpinner />
+              </Absolute>
+            )}
             {contentsLineCount > 0 && (
               <CommentSubmitButton disabled={loading} type="submit">
                 <Submit />
