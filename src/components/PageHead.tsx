@@ -30,7 +30,7 @@ export default function PageHead({
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ko_KR" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image:alt" content="Sobok Logo" />
+        <meta name="twitter:image:alt" content="Alpaca Logo" />
       </Head>
       {children}
     </>
