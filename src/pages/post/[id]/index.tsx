@@ -231,7 +231,12 @@ const Absolute = styled.div`
 
 const CommentSubmitButton = styled.button`
   ${AbsoluteCSS};
-  ${(p) => p.disabled && fillGrey}
+  ${(p) => p.disabled && fillGrey};
+
+  > svg {
+    width: 3rem;
+    height: 3rem;
+  }
 `
 
 const GreyDiv = styled.div`
