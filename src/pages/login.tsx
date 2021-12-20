@@ -116,6 +116,22 @@ export default function LoginPage() {
         <FlexContainerColumnEnd>
           <H5>카카오 로그인으로 40대 이상 여성임을 확인해 주세요</H5>
 
+          <label htmlFor="auto-login">
+            <input
+              id="auto-login"
+              name="auto-login"
+              onChange={(e) => {
+                if (e.target.checked) {
+                  sessionStorage.setItem('autoLogin', 'true')
+                } else {
+                  sessionStorage.removeItem('autoLogin')
+                }
+              }}
+              type="checkbox"
+            />
+            자동로그인
+          </label>
+
           <KakaoButton onClick={goToKakaoLoginPage}>
             <KakaoIcon />
             카카오로 3초 만에 시작하기

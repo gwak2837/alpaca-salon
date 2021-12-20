@@ -20,9 +20,13 @@ function Authentication({ children }: Props) {
     onError: (error) => {
       toastApolloError(error)
       globalThis.sessionStorage?.removeItem('jwt')
+      globalThis.localStorage?.removeItem('jwt')
     },
-    // sessionStorage에 jwt가 존재하는데 nickname이 없을 때만 요청
-    skip: Boolean(nickname || !globalThis.sessionStorage?.getItem('jwt')),
+    // Storage에 jwt가 존재하는데 nickname이 없을 때만 요청
+    skip: Boolean(
+      nickname ||
+        (!globalThis.sessionStorage?.getItem('jwt') && !globalThis.localStorage?.getItem('jwt'))
+    ),
   })
 
   return <>{children}</>

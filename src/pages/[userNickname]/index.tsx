@@ -119,8 +119,9 @@ export default function UserPage() {
       if (logout) {
         toast.success('로그아웃에 성공했어요')
         sessionStorage.removeItem('jwt')
+        localStorage.removeItem('jwt')
         setCurrentUser({ nickname: '' })
-        router.push('/')
+        router.replace('/')
       }
     },
     onError: toastApolloError,
@@ -131,8 +132,9 @@ export default function UserPage() {
       if (unregister) {
         toast.success('회원탈퇴에 성공했어요')
         sessionStorage.removeItem('jwt')
+        localStorage.removeItem('jwt')
         setCurrentUser({ nickname: '' })
-        router.push('/')
+        router.replace('/')
       }
     },
     onError: toastApolloError,

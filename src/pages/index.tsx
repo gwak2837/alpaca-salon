@@ -160,7 +160,7 @@ export default function HomePage() {
   })
 
   function goToPostCreationPage() {
-    if (window.sessionStorage.getItem('jwt')) {
+    if (window.sessionStorage.getItem('jwt') || window.localStorage.getItem('jwt')) {
       router.push('/post/create')
     } else {
       toast.info('로그인이 필요합니다')

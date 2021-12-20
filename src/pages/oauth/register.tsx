@@ -194,8 +194,17 @@ export default function OAuthRegisterPage() {
 
   useEffect(() => {
     const queryString = new URLSearchParams(window.location.search.substr(1))
+    const jwt = queryString.get('jwt')
     setValue('phoneNumber', queryString.get('phoneNumber') ?? '+82 10-')
-    window.sessionStorage.setItem('jwt', queryString.get('jwt') ?? '')
+
+    if (jwt) {
+      if (sessionStorage.getItem('autoLogin')) {
+        localStorage.setItem('jwt', jwt)
+        sessionStorage.removeItem('autoLogin')
+      } else {
+        sessionStorage.setItem('jwt', jwt)
+      }
+    }
   }, [setValue])
 
   return (

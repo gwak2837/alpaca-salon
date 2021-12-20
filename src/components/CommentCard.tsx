@@ -264,15 +264,7 @@ function SubcommentCard({ subcomment, scrollTo, newCommentId }: Props2) {
   }
 
   function toggleLikingComment() {
-    if (window.sessionStorage.getItem('jwt')) {
-      if (!loading) {
-        toggleLikingCommentMutation()
-      }
-    } else {
-      toast.info('로그인이 필요합니다')
-      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
-      router.push('/login')
-    }
+    toggleLikingCommentMutation()
   }
 
   function registerNewComment(newComment: HTMLLIElement) {
@@ -336,7 +328,7 @@ function SubcommentCard({ subcomment, scrollTo, newCommentId }: Props2) {
 
       <GridItemDiv>
         {contents && (
-          <LikingButton onClick={toggleLikingComment}>
+          <LikingButton disabled={loading} onClick={toggleLikingComment}>
             <HeartIcon selected={subcomment.isLiked} />
             공감해요
             <SelectableSpan selected={subcomment.isLiked}>{subcomment.likedCount}</SelectableSpan>
