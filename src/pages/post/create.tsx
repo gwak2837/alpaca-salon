@@ -130,13 +130,13 @@ export const GreyH3 = styled.h3`
   text-align: center;
 `
 
-export const Slider = styled.ul<{ padding: string }>`
+export const Slider = styled.ul<{ padding?: string }>`
   overflow-x: scroll;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
 
   display: flex;
-  padding: ${(p) => p.padding};
+  padding: ${(p) => p.padding ?? 0};
 `
 
 export const Slide = styled.li<{ flexBasis: string }>`
@@ -198,7 +198,7 @@ export default function PostCreationPage() {
     onCompleted: ({ createPost }) => {
       if (createPost) {
         toast.success('글을 작성했어요')
-        router.push('/')
+        router.back()
       }
     },
     onError: toastApolloError,

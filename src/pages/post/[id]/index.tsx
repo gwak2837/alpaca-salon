@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { Fragment, KeyboardEvent, useRef, useState } from 'react'
+import React, { Fragment, KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
@@ -290,11 +290,13 @@ export const A = styled.a<{ disabled?: boolean }>`
 `
 
 const Slide = styled.li`
-  width: 100%;
   scroll-snap-align: center;
-  aspect-ratio: 16 / 11;
   flex: 0 0 100%;
+
+  aspect-ratio: 16 / 11;
   position: relative;
+  width: 100%;
+  height: 100%; // For Safari 15
 `
 
 function stopPropagationWhenImageClick(e: React.MouseEvent<HTMLImageElement, MouseEvent>) {
@@ -339,6 +341,7 @@ export default function PostDetailPage() {
   const commentTextareaRef = useRef<HTMLTextAreaElement>()
   const scrollTo = useRef<any>()
   const newCommentId = useRef('')
+  const clickedImageNumber = useRef(-1)
   const { nickname } = useRecoilValue(currentUser)
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
@@ -425,6 +428,17 @@ export default function PostDetailPage() {
     commentTextareaRef.current = textarea
   }
 
+  function openImageDetailModal(i: number) {
+    clickedImageNumber.current = i
+    setIsImageDetailOpen(true)
+  }
+
+  function scrollIntoView(ref: HTMLElement | null, i: number) {
+    if (clickedImageNumber.current === i) {
+      ref?.scrollIntoView()
+    }
+  }
+
   useNeedToLogin()
 
   return (
@@ -499,14 +513,14 @@ export default function PostDetailPage() {
                   alt="post image"
                   layout="fill"
                   objectFit="cover"
-                  onClick={() => setIsImageDetailOpen(true)}
+                  onClick={() => openImageDetailModal(i)}
                 />
               </Frame16to11DefaultImage>
             ))}
             <Modal open={isImageDetailOpen} setOpen={setIsImageDetailOpen}>
-              <Slider padding="0">
+              <Slider>
                 {post.imageUrls?.map((imageUrl, i) => (
-                  <Slide key={i}>
+                  <Slide key={i} ref={(ref) => scrollIntoView(ref, i)}>
                     <Image
                       src={imageUrl}
                       alt="post image"

@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import XIcon from 'src/svgs/x-white.svg'
 import styled from 'styled-components'
@@ -19,9 +19,11 @@ const Background = styled.div<{ displayBlock: boolean }>`
     position: absolute;
     top: 0;
     right: 0;
+    z-index: 3;
+
     width: 2.2rem;
     padding: 0.6rem;
-    z-index: 3;
+    cursor: pointer;
   }
 `
 
