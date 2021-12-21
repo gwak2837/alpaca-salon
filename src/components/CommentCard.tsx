@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 import { toastApolloError } from 'src/apollo/error'
@@ -15,12 +15,16 @@ import {
   ALPACA_SALON_BACKGROUND_COLOR,
   ALPACA_SALON_COLOR,
   ALPACA_SALON_GREY_COLOR,
+  ALPACA_SALON_RED_COLOR,
 } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import { A, GreyH5, GridGap, H5 } from 'src/pages/post/[id]'
 import { Skeleton } from 'src/styles'
 import HeartIcon from 'src/svgs/HeartIcon'
+import { stopPropagation } from 'src/utils'
 import styled, { css } from 'styled-components'
+
+import LazyModal from './atoms/LazyModal'
 
 const GridContainerComment = styled.ul`
   display: grid;
@@ -41,7 +45,7 @@ const GridLi = styled.li`
   }
 `
 
-const Absolute = styled.button`
+const AbsoluteButton = styled.button`
   position: absolute;
   top: 0;
   right: 0;
@@ -49,10 +53,14 @@ const Absolute = styled.button`
   background: none;
   border: none;
   color: ${ALPACA_SALON_GREY_COLOR};
-  cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
   padding: 0.3rem 0.3rem 0.5rem 0.5rem;
+  transition: color 0.3s ease-out;
+
+  :hover {
+    color: ${ALPACA_SALON_RED_COLOR};
+  }
 `
 
 const GridItemComment = styled.div`
@@ -114,6 +122,53 @@ const SubcommentButton = styled.button`
 const SelectableSpan = styled.span<{ selected?: boolean }>`
   color: ${(p) => (p.selected ? ALPACA_SALON_COLOR : '#626262')};
   font-weight: 600;
+`
+
+const WhiteBackground = styled.div`
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+`
+
+const GridItem = styled.div`
+  display: grid;
+  grid-column: 1 / 3;
+  gap: 0.4rem;
+
+  border-bottom: 1px solid rgba(60, 60, 67, 0.36);
+  text-align: center;
+  padding: 1.25rem 2rem;
+`
+
+const ModalP = styled.p`
+  font-size: 0.9rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.25rem;
+`
+
+const Button = styled.button`
+  padding: 0.7rem;
+
+  transition: background 0.3s ease-out;
+
+  :hover {
+    background: #eee;
+  }
+`
+
+const RedButton = styled(Button)`
+  border-left: 1px solid rgba(60, 60, 67, 0.36);
+  color: ${ALPACA_SALON_RED_COLOR};
+  font-weight: 600;
+  font-size: 1.05rem;
+
+  :hover {
+    background: #fee;
+  }
 `
 
 function SubcommentLoadingCard() {
@@ -187,6 +242,7 @@ type Props2 = {
 function SubcommentCard({ subcomment, scrollTo, newCommentId }: Props2) {
   const author = subcomment.user
   const contents = (subcomment.contents as string | null)?.split('\n')
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const router = useRouter()
   const { nickname } = useRecoilValue(currentUser)
 
@@ -208,21 +264,17 @@ function SubcommentCard({ subcomment, scrollTo, newCommentId }: Props2) {
   }
 
   function toggleLikingComment() {
-    if (window.sessionStorage.getItem('jwt')) {
-      if (!loading) {
-        toggleLikingCommentMutation()
-      }
-    } else {
-      toast.info('로그인이 필요합니다')
-      sessionStorage.setItem('redirectionUrlAfterLogin', router.asPath)
-      router.push('/login')
-    }
+    toggleLikingCommentMutation()
   }
 
   function registerNewComment(newComment: HTMLLIElement) {
     if (newCommentId.current === subcomment.id) {
       scrollTo.current = newComment
     }
+  }
+
+  function openModal() {
+    setIsModalOpen(true)
   }
 
   function deleteSubcomment() {
@@ -248,9 +300,21 @@ function SubcommentCard({ subcomment, scrollTo, newCommentId }: Props2) {
       </GridGap>
 
       {contents && nickname === author?.nickname && (
-        <Absolute disabled={isCommentDeletionLoading} onClick={deleteSubcomment}>
-          삭제
-        </Absolute>
+        <>
+          <AbsoluteButton disabled={isCommentDeletionLoading} onClick={openModal}>
+            삭제
+          </AbsoluteButton>
+          <LazyModal open={isModalOpen} setOpen={setIsModalOpen}>
+            <WhiteBackground>
+              <GridItem onClick={stopPropagation}>
+                <h4>정말 이 답글을 삭제하시겠어요?</h4>
+                <ModalP>삭제한 답글은 다시 복구할 수 없어요</ModalP>
+              </GridItem>
+              <Button>취소</Button>
+              <RedButton onClick={deleteSubcomment}>삭제</RedButton>
+            </WhiteBackground>
+          </LazyModal>
+        </>
       )}
 
       <GridItemComment>
@@ -264,7 +328,7 @@ function SubcommentCard({ subcomment, scrollTo, newCommentId }: Props2) {
 
       <GridItemDiv>
         {contents && (
-          <LikingButton onClick={toggleLikingComment}>
+          <LikingButton disabled={loading} onClick={toggleLikingComment}>
             <HeartIcon selected={subcomment.isLiked} />
             공감해요
             <SelectableSpan selected={subcomment.isLiked}>{subcomment.likedCount}</SelectableSpan>
@@ -292,13 +356,12 @@ function CommentCard({
 }: Props) {
   const author = comment.user
   const contents = (comment.contents as string | null)?.split('\n')
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const router = useRouter()
   const { nickname } = useRecoilValue(currentUser)
 
   // https://github.com/apollographql/apollo-client/issues/5419#issuecomment-973154976 해결되면 삭제하기
   useUserByNicknameQuery({
-    onError: toastApolloError,
-    skip: true,
     variables: { nickname: 'a' },
   })
 
@@ -341,6 +404,10 @@ function CommentCard({
     }
   }
 
+  function openModal() {
+    setIsModalOpen(true)
+  }
+
   function deleteComment() {
     deleteCommentMutation()
   }
@@ -365,9 +432,21 @@ function CommentCard({
         </GridGap>
 
         {contents && nickname === author?.nickname && (
-          <Absolute disabled={isCommentDeletionLoading} onClick={deleteComment}>
-            삭제
-          </Absolute>
+          <>
+            <AbsoluteButton disabled={isCommentDeletionLoading} onClick={openModal}>
+              삭제
+            </AbsoluteButton>
+            <LazyModal open={isModalOpen} setOpen={setIsModalOpen}>
+              <WhiteBackground>
+                <GridItem onClick={stopPropagation}>
+                  <h4>정말 이 댓글을 삭제하시겠어요?</h4>
+                  <ModalP>삭제한 댓글은 다시 복구할 수 없어요</ModalP>
+                </GridItem>
+                <Button>취소</Button>
+                <RedButton onClick={deleteComment}>삭제</RedButton>
+              </WhiteBackground>
+            </LazyModal>
+          </>
         )}
 
         <GridItemComment>

@@ -43,14 +43,14 @@ export type Scalars = {
 
 export type Comment = {
   __typename?: 'Comment'
-  contents: Scalars['NonEmptyString']
-  creationTime: Scalars['DateTime']
+  contents?: Maybe<Scalars['NonEmptyString']>
+  creationTime?: Maybe<Scalars['DateTime']>
   id: Scalars['ID']
-  imageUrl?: Maybe<Scalars['URL']>
+  imageUrls?: Maybe<Array<Scalars['URL']>>
   isLiked: Scalars['Boolean']
   isModified: Scalars['Boolean']
   likedCount: Scalars['NonNegativeInt']
-  modificationTime: Scalars['DateTime']
+  modificationTime?: Maybe<Scalars['DateTime']>
   /** 이 댓글의 상위 댓글 */
   parentComment?: Maybe<Comment>
   /** 이 댓글이 달린 피드 */
@@ -165,6 +165,7 @@ export type PostModificationInput = {
   category?: InputMaybe<PostCategory>
   contents?: InputMaybe<Scalars['String']>
   id: Scalars['ID']
+  imageUrls?: InputMaybe<Array<Scalars['URL']>>
   title?: InputMaybe<Scalars['String']>
 }
 
@@ -323,6 +324,25 @@ export type UnregisterMutation = {
   unregister?: { __typename?: 'User'; id: any } | null | undefined
 }
 
+export type UpdatePostMutationVariables = Exact<{
+  input: PostModificationInput
+}>
+
+export type UpdatePostMutation = {
+  __typename?: 'Mutation'
+  updatePost?:
+    | {
+        __typename?: 'Post'
+        id: string
+        category: PostCategory
+        title: any
+        contents: any
+        imageUrl?: any | null | undefined
+      }
+    | null
+    | undefined
+}
+
 export type UpdateUserMutationVariables = Exact<{
   input: UserModificationInput
 }>
@@ -345,8 +365,8 @@ export type CommentsByPostQuery = {
     | Array<{
         __typename?: 'Comment'
         id: string
-        creationTime: any
-        contents: any
+        creationTime?: any | null | undefined
+        contents?: any | null | undefined
         isLiked: boolean
         isModified: boolean
         likedCount: any
@@ -363,8 +383,8 @@ export type CommentsByPostQuery = {
           | Array<{
               __typename?: 'Comment'
               id: string
-              creationTime: any
-              contents: any
+              creationTime?: any | null | undefined
+              contents?: any | null | undefined
               isLiked: boolean
               isModified: boolean
               likedCount: any
@@ -777,6 +797,54 @@ export type UnregisterMutationResult = Apollo.MutationResult<UnregisterMutation>
 export type UnregisterMutationOptions = Apollo.BaseMutationOptions<
   UnregisterMutation,
   UnregisterMutationVariables
+>
+export const UpdatePostDocument = gql`
+  mutation UpdatePost($input: PostModificationInput!) {
+    updatePost(input: $input) {
+      id
+      category
+      title
+      contents
+      imageUrls
+    }
+  }
+`
+export type UpdatePostMutationFn = Apollo.MutationFunction<
+  UpdatePostMutation,
+  UpdatePostMutationVariables
+>
+
+/**
+ * __useUpdatePostMutation__
+ *
+ * To run a mutation, you first call `useUpdatePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePostMutation, { data, loading, error }] = useUpdatePostMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePostMutation(
+  baseOptions?: Apollo.MutationHookOptions<UpdatePostMutation, UpdatePostMutationVariables>
+) {
+  const options = { ...defaultOptions, ...baseOptions }
+  return Apollo.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(
+    UpdatePostDocument,
+    options
+  )
+}
+export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>
+export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>
+export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<
+  UpdatePostMutation,
+  UpdatePostMutationVariables
 >
 export const UpdateUserDocument = gql`
   mutation UpdateUser($input: UserModificationInput!) {
@@ -1217,7 +1285,7 @@ export type CommentKeySpecifier = (
   | 'contents'
   | 'creationTime'
   | 'id'
-  | 'imageUrl'
+  | 'imageUrls'
   | 'isLiked'
   | 'isModified'
   | 'likedCount'
@@ -1232,7 +1300,7 @@ export type CommentFieldPolicy = {
   contents?: FieldPolicy<any> | FieldReadFunction<any>
   creationTime?: FieldPolicy<any> | FieldReadFunction<any>
   id?: FieldPolicy<any> | FieldReadFunction<any>
-  imageUrl?: FieldPolicy<any> | FieldReadFunction<any>
+  imageUrls?: FieldPolicy<any> | FieldReadFunction<any>
   isLiked?: FieldPolicy<any> | FieldReadFunction<any>
   isModified?: FieldPolicy<any> | FieldReadFunction<any>
   likedCount?: FieldPolicy<any> | FieldReadFunction<any>

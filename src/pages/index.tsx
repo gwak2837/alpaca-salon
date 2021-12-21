@@ -108,7 +108,6 @@ const PrimaryButton = styled.button`
   border: none;
   border-radius: 10px;
   color: #fff;
-  cursor: pointer;
   padding: 0.7rem 1rem;
 `
 
@@ -161,7 +160,7 @@ export default function HomePage() {
   })
 
   function goToPostCreationPage() {
-    if (window.sessionStorage.getItem('jwt')) {
+    if (window.sessionStorage.getItem('jwt') || window.localStorage.getItem('jwt')) {
       router.push('/post/create')
     } else {
       toast.info('로그인이 필요합니다')
@@ -222,6 +221,7 @@ export default function HomePage() {
             )}
           </GridContainerPost>
           {!loading && hasMoreData && <div ref={infiniteScrollRef}>무한 스크롤</div>}
+          {!hasMoreData && <div>모든 게시글을 불러왔어요</div>}
         </BorderRadius>
 
         <FixedPosition>

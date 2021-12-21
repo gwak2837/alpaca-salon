@@ -12,9 +12,8 @@ import NavigationLayout from 'src/layouts/NavigationLayout'
 import { ALPACA_SALON_COLOR } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import DownArrowIcon from 'src/svgs/down-arrow.svg'
+import { submitWhenShiftEnter } from 'src/utils'
 import styled from 'styled-components'
-
-import { submitWhenShiftEnter } from '../post/create'
 
 const FlexContainer = styled.div`
   display: flex;
@@ -52,7 +51,6 @@ const Padding = styled.div`
 
 const H3 = styled.h3`
   font-size: 1.25rem;
-  font-weight: 600;
   padding: 0.7rem 0.5rem;
   position: relative;
 

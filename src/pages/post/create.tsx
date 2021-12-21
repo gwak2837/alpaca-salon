@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { toastApolloError } from 'src/apollo/error'
@@ -20,7 +20,7 @@ import {
 import FileUploadIcon from 'src/svgs/file-upload.svg'
 import XButtonIcon from 'src/svgs/x-button.svg'
 import XIcon from 'src/svgs/x.svg'
-import { isEmpty } from 'src/utils'
+import { isEmpty, submitWhenShiftEnter, uploadImageFiles } from 'src/utils'
 import styled from 'styled-components'
 
 import { Frame16to11 } from './[id]'
@@ -30,7 +30,12 @@ type PostCreationInput = {
   contents: string
 }
 
-const AbsoluteH3 = styled.h3`
+export type ImageInfo = {
+  id: number
+  url: string
+}
+
+export const AbsoluteH3 = styled.h3`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -38,10 +43,9 @@ const AbsoluteH3 = styled.h3`
 
   cursor: pointer;
   font-size: 1.1rem;
-  font-weight: 600;
 `
 
-const FixedHeader = styled.header`
+export const FixedHeader = styled.header`
   position: fixed;
   top: 0;
   z-index: 1;
@@ -61,7 +65,7 @@ const FixedHeader = styled.header`
   }
 `
 
-const TransparentButton = styled.button<{ disabled?: boolean }>`
+export const TransparentButton = styled.button<{ disabled?: boolean }>`
   border: none;
   background: none;
   font-size: 1.1rem;
@@ -71,10 +75,11 @@ const TransparentButton = styled.button<{ disabled?: boolean }>`
   padding: 1rem;
 `
 
-const Input = styled.input<{ erred?: boolean }>`
+export const Input = styled.input<{ erred?: boolean }>`
   border: none;
   border-bottom: 2px solid ${(p) => (p.erred ? ALPACA_SALON_RED_COLOR : ALPACA_SALON_COLOR)};
   border-radius: 0;
+  color: ${(p) => (p.disabled ? '#888' : '#000')};
   padding: 0.5rem 0;
   width: 100%;
 
@@ -83,32 +88,33 @@ const Input = styled.input<{ erred?: boolean }>`
   }
 `
 
-const GridContainer = styled.div`
+export const GridContainer = styled.div`
   display: grid;
   gap: 1.5rem;
 
   padding: 4.4rem 0.5rem 2rem;
 `
 
-const Textarea = styled.textarea<{ height: number }>`
+export const Textarea = styled.textarea<{ height: number }>`
   width: 100%;
   height: ${(p) => p.height}rem;
   min-height: 20vh;
   max-height: 50vh;
   padding: 0.5rem 0;
+  color: ${(p) => (p.disabled ? '#888' : '#000')};
 
   :focus {
     outline: none;
   }
 `
 
-const FileInput = styled.input`
+export const FileInput = styled.input`
   display: none;
 `
 
-const FileInputLabel = styled.label`
+export const FileInputLabel = styled.label<{ disabled?: boolean }>`
   position: relative;
-  cursor: pointer;
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'pointer')};
   height: 100%;
 
   display: flex;
@@ -118,32 +124,32 @@ const FileInputLabel = styled.label`
   gap: 1rem;
 `
 
-const GreyH3 = styled.h3`
+export const GreyH3 = styled.h3`
   font-size: 1.1rem;
-  font-weight: 600;
   color: ${ALPACA_SALON_GREY_COLOR};
   text-align: center;
 `
 
-export const Slider = styled.ul`
+export const Slider = styled.ul<{ padding?: string }>`
   overflow-x: scroll;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
 
   display: flex;
+  padding: ${(p) => p.padding ?? 0};
 `
 
-const Slide = styled.li<{ flexBasis?: string }>`
+export const Slide = styled.li<{ flexBasis: string }>`
   scroll-snap-align: center;
 
   aspect-ratio: 16 / 11;
   border: 1px solid #e2e2e2;
   border-radius: 10px;
-  flex: 0 0 ${(p) => p.flexBasis ?? '95%'};
+  flex: 0 0 ${(p) => p.flexBasis};
   position: relative;
 `
 
-const PreviewSlide = styled(Slide)`
+export const PreviewSlide = styled(Slide)`
   flex: 0 0 96%;
   padding: 0;
 
@@ -156,21 +162,13 @@ const PreviewSlide = styled(Slide)`
   }
 `
 
-export function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
-  if (e.code === 'Enter' && e.shiftKey) {
-    e.preventDefault() // To prevent adding line break when shift+enter pressed
-    const submitEvent = new Event('submit', { bubbles: true })
-    const parentForm = (e.target as any).form as HTMLFormElement
-    parentForm.dispatchEvent(submitEvent)
-  }
-}
-
 const description = '알파카살롱에 글을 작성해보세요'
 
 export default function PostCreationPage() {
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [imageInfos, setImageInfos] = useState<ImageInfo[]>([])
   const [postCreationLoading, setPostCreationLoading] = useState(false)
   const formData = useRef(globalThis.FormData ? new FormData() : null)
+  const imageId = useRef(0)
   const router = useRouter()
 
   const {
@@ -200,50 +198,57 @@ export default function PostCreationPage() {
     onCompleted: ({ createPost }) => {
       if (createPost) {
         toast.success('글을 작성했어요')
-        router.push('/')
+        router.back()
       }
     },
     onError: toastApolloError,
     refetchQueries: ['Posts'],
   })
 
-  function replaceToHomePage() {
-    router.replace('/')
+  function goBack() {
+    router.back()
   }
 
-  function goToHomePage() {
-    router.push('/')
-  }
-
-  function previewImages(e: ChangeEvent<HTMLInputElement>) {
+  function createPreviewImages(e: ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
     if (files && files.length > 0 && formData.current) {
-      const newImageUrls: string[] = []
+      const newImageInfos: ImageInfo[] = []
+
       for (const file of files) {
         if (file.type.startsWith('image/')) {
-          newImageUrls.push(URL.createObjectURL(file))
-          formData.current.append('images', file)
+          newImageInfos.push({ id: imageId.current, url: URL.createObjectURL(file) })
+          formData.current.append(`image${imageId.current}`, file)
+          imageId.current++
         }
       }
-      setImageUrls((prev) => [...prev, ...newImageUrls])
+
+      setImageInfos((prev) => [...prev, ...newImageInfos])
     }
   }
 
-  async function uploadImageFiles() {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
-      method: 'POST',
-      body: formData.current,
-    })
-    return response.json()
+  function deletePreviewImage(imageId: number) {
+    if (formData.current) {
+      formData.current.delete(`image${imageId}`)
+      setImageInfos((prevList) => prevList.filter((prev) => prev.id !== imageId))
+    }
   }
 
   async function createPost(input: PostCreationInput) {
     setPostCreationLoading(true)
-
     const variables: CreatePostMutationVariables = { input: { ...input } }
-    if (formData.current?.has('images')) {
-      const { imageUrls } = await uploadImageFiles()
-      variables.input.imageUrls = imageUrls
+
+    if (formData.current) {
+      const files = [...formData.current.values()]
+
+      if (files.length > 0) {
+        const newFormData = new FormData()
+        for (const file of files) {
+          newFormData.append('images', file)
+        }
+
+        const { imageUrls } = await uploadImageFiles(newFormData)
+        variables.input.imageUrls = imageUrls
+      }
     }
 
     await createPostMutation({ variables })
@@ -262,8 +267,8 @@ export default function PostCreationPage() {
     <PageHead title="글쓰기 - 알파카살롱" description={description}>
       <form onSubmit={handleSubmit(createPost)}>
         <FixedHeader>
-          <XIcon onClick={replaceToHomePage} />
-          <AbsoluteH3 onClick={goToHomePage}>글쓰기</AbsoluteH3>
+          <XIcon onClick={goBack} />
+          <AbsoluteH3>글쓰기</AbsoluteH3>
           <TransparentButton disabled={!isEmpty(errors) || postCreationLoading} type="submit">
             완료
           </TransparentButton>
@@ -285,21 +290,28 @@ export default function PostCreationPage() {
           />
         </GridContainer>
 
-        <Slider>
-          {imageUrls.map((file, i) => (
-            <PreviewSlide key={i}>
+        <Slider padding={imageInfos.length === 0 ? '0 1rem' : '0'}>
+          {imageInfos.map((imageInfo) => (
+            <PreviewSlide key={imageInfo.id} flexBasis="96%">
               <Frame16to11>
-                <Image src={file} alt={file} layout="fill" objectFit="cover" />
+                <Image src={imageInfo.url} alt={imageInfo.url} layout="fill" objectFit="cover" />
               </Frame16to11>
-              <XButtonIcon />
+              <XButtonIcon onClick={() => deletePreviewImage(imageInfo.id)} />
             </PreviewSlide>
           ))}
-          <Slide flexBasis={imageUrls.length === 0 ? '100%' : '96%'}>
-            <FileInputLabel htmlFor="images">
+          <Slide flexBasis={imageInfos.length === 0 ? '100%' : '96%'}>
+            <FileInputLabel disabled={postCreationLoading} htmlFor="images">
               <FileUploadIcon />
               <GreyH3>사진을 추가해주세요</GreyH3>
             </FileInputLabel>
-            <FileInput accept="image/*" id="images" multiple onChange={previewImages} type="file" />
+            <FileInput
+              accept="image/*"
+              disabled={postCreationLoading}
+              id="images"
+              multiple
+              onChange={createPreviewImages}
+              type="file"
+            />
           </Slide>
         </Slider>
       </form>

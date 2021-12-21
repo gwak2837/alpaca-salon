@@ -1,11 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React from 'react'
-import {
-  ALPACA_SALON_COLOR,
-  ALPACA_SALON_DARK_GREY_COLOR,
-  ALPACA_SALON_GREY_COLOR,
-} from 'src/models/constants'
+import { ALPACA_SALON_DARK_GREY_COLOR } from 'src/models/constants'
 import { FlexContainerBetween, Skeleton } from 'src/styles'
 import FlowerIcon from 'src/svgs/FlowerIcon'
 import { stopPropagation } from 'src/utils'
@@ -33,7 +29,6 @@ const Relative = styled.div`
 const WhiteNumber = styled.h3`
   color: #fff;
   font-size: 1.25rem;
-  font-weight: 600;
 
   position: absolute;
   top: 45%;

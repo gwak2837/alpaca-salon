@@ -1,14 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, {
-  Fragment,
-  KeyboardEvent,
-  MutableRefObject,
-  createContext,
-  useRef,
-  useState,
-} from 'react'
+import React, { Fragment, KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
@@ -24,35 +17,44 @@ import {
   usePostQuery,
 } from 'src/graphql/generated/types-and-hooks'
 import useNeedToLogin from 'src/hooks/useNeedToLogin'
-import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR } from 'src/models/constants'
+import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
 import { currentUser } from 'src/models/recoil'
 import { Skeleton } from 'src/styles'
 import BackIcon from 'src/svgs/back-icon.svg'
 import GreyWriteIcon from 'src/svgs/grey-write-icon.svg'
+import LoadingSpinner from 'src/svgs/LoadingSpinner'
 import Submit from 'src/svgs/submit.svg'
 import XIcon from 'src/svgs/x.svg'
+import { submitWhenShiftEnter } from 'src/utils'
 import styled, { css } from 'styled-components'
 
-import { Slider, submitWhenShiftEnter } from './create'
+import { Slider } from '../create'
 
 const FlexContainerBetweenCenter = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  padding: 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  max-width: ${TABLET_MIN_WIDTH};
+  z-index: 1;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 0.75rem 0.6rem;
+
+  > svg {
+    width: 1.5rem;
+    cursor: pointer;
+  }
 `
 
-const Width = styled.div`
-  width: 1.5rem;
-  cursor: pointer;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
+const Padding = styled.div`
+  padding-top: 4.35rem;
 `
 
-const ModificationButton = styled.button<{ visibility: boolean }>`
+const ModificationButton = styled.button<{ visible: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -63,7 +65,7 @@ const ModificationButton = styled.button<{ visibility: boolean }>`
   border: 1px solid #eee;
   border-radius: 5px;
   color: ${ALPACA_SALON_GREY_COLOR};
-  visibility: ${(p) => (p.visibility ? 'visible' : 'hidden')};
+  visibility: ${(p) => (p.visible ? 'visible' : 'hidden')};
 
   :hover,
   :focus,
@@ -102,7 +104,6 @@ export const GridGap = styled.div`
 `
 
 export const H5 = styled.h5`
-  font-weight: 600;
   cursor: pointer;
 `
 
@@ -118,7 +119,6 @@ const GridGap2 = styled.div`
 `
 
 const H3 = styled.h3`
-  font-weight: 600;
   font-size: 1.1rem;
 `
 
@@ -211,7 +211,7 @@ const fillGrey = css`
   }
 `
 
-const CommentSubmitButton = styled.button`
+const AbsoluteCSS = css`
   position: absolute;
   bottom: 0.75rem;
   right: 0.5rem;
@@ -220,11 +220,23 @@ const CommentSubmitButton = styled.button`
   height: 3rem;
   padding: 0.5rem;
 
-  background: none;
-  border: none;
-  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
 
-  ${(p) => p.disabled && fillGrey}
+const Absolute = styled.div`
+  ${AbsoluteCSS};
+`
+
+const CommentSubmitButton = styled.button`
+  ${AbsoluteCSS};
+  ${(p) => p.disabled && fillGrey};
+
+  > svg {
+    width: 3rem;
+    height: 3rem;
+  }
 `
 
 const GreyDiv = styled.div`
@@ -251,7 +263,6 @@ const Relative = styled.div`
 
 const H4 = styled.h4`
   color: #787878;
-  font-weight: 600;
   margin: 0 0 0.3rem;
 `
 
@@ -279,11 +290,13 @@ export const A = styled.a<{ disabled?: boolean }>`
 `
 
 const Slide = styled.li`
-  width: 100%;
   scroll-snap-align: center;
-  aspect-ratio: 16 / 11;
   flex: 0 0 100%;
+
+  aspect-ratio: 16 / 11;
   position: relative;
+  width: 100%;
+  height: 100%; // For Safari 15
 `
 
 function stopPropagationWhenImageClick(e: React.MouseEvent<HTMLImageElement, MouseEvent>) {
@@ -328,6 +341,7 @@ export default function PostDetailPage() {
   const commentTextareaRef = useRef<HTMLTextAreaElement>()
   const scrollTo = useRef<any>()
   const newCommentId = useRef('')
+  const clickedImageNumber = useRef(-1)
   const { nickname } = useRecoilValue(currentUser)
   const router = useRouter()
   const postId = (router.query.id ?? '') as string
@@ -366,7 +380,7 @@ export default function PostDetailPage() {
     refetchQueries: ['CommentsByPost', 'Posts'],
   })
 
-  const { handleSubmit, register, reset, watch } = useForm<CommentCreationForm>({
+  const { handleSubmit, register, reset, setFocus, watch } = useForm<CommentCreationForm>({
     defaultValues: { contents: '' },
   })
   const contentsLineCount = watch('contents').length
@@ -386,6 +400,10 @@ export default function PostDetailPage() {
     router.back()
   }
 
+  function goToPostUpdatePage() {
+    router.push(router.asPath + '/update')
+  }
+
   function resetParentComment() {
     setParentComment(undefined)
   }
@@ -396,7 +414,7 @@ export default function PostDetailPage() {
 
   function writeComment() {
     setParentComment(undefined)
-    commentTextareaRef.current?.focus()
+    setFocus('contents')
   }
 
   function resizeTextareaHeight(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -410,16 +428,27 @@ export default function PostDetailPage() {
     commentTextareaRef.current = textarea
   }
 
+  function openImageDetailModal(i: number) {
+    clickedImageNumber.current = i
+    setIsImageDetailOpen(true)
+  }
+
+  function scrollIntoView(ref: HTMLElement | null, i: number) {
+    if (clickedImageNumber.current === i) {
+      ref?.scrollIntoView()
+    }
+  }
+
   useNeedToLogin()
 
   return (
     <PageHead title={`${post?.title ?? '건강문답'} - 알파카살롱`} description={description}>
       <FlexColumnGrow>
+        <Padding />
         <FlexContainerBetweenCenter>
-          <Width onClick={goBack}>
-            <BackIcon />
-          </Width>
-          <ModificationButton visibility={nickname === author?.nickname}>
+          <BackIcon onClick={goBack} />
+
+          <ModificationButton onClick={goToPostUpdatePage} visible={nickname === author?.nickname}>
             <GreyWriteIcon />
             수정하기
           </ModificationButton>
@@ -484,14 +513,14 @@ export default function PostDetailPage() {
                   alt="post image"
                   layout="fill"
                   objectFit="cover"
-                  onClick={() => setIsImageDetailOpen(true)}
+                  onClick={() => openImageDetailModal(i)}
                 />
               </Frame16to11DefaultImage>
             ))}
             <Modal open={isImageDetailOpen} setOpen={setIsImageDetailOpen}>
               <Slider>
                 {post.imageUrls?.map((imageUrl, i) => (
-                  <Slide key={i}>
+                  <Slide key={i} ref={(ref) => scrollIntoView(ref, i)}>
                     <Image
                       src={imageUrl}
                       alt="post image"
@@ -555,6 +584,11 @@ export default function PostDetailPage() {
               ref={registerTextareaRef}
               {...registerCommentCreationForm}
             />
+            {loading && (
+              <Absolute>
+                <LoadingSpinner />
+              </Absolute>
+            )}
             {contentsLineCount > 0 && (
               <CommentSubmitButton disabled={loading} type="submit">
                 <Submit />

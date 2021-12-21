@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { Fragment } from 'react'
+import React, { memo } from 'react'
 import { Post } from 'src/graphql/generated/types-and-hooks'
 import { ALPACA_SALON_COLOR, ALPACA_SALON_GREY_COLOR, TABLET_MIN_WIDTH } from 'src/models/constants'
 import { FlexContainerBetween, Skeleton } from 'src/styles'
@@ -114,4 +114,4 @@ function PostCard({ post }: Props) {
   )
 }
 
-export default PostCard
+export default memo(PostCard)

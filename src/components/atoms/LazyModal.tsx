@@ -1,30 +1,15 @@
-import { ReactNode, useEffect, useRef } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import XIcon from 'src/svgs/x-white.svg'
 import styled from 'styled-components'
 
-const Background = styled.div<{ displayBlock: boolean }>`
-  background: #000;
-  display: ${(p) => (p.displayBlock ? 'block' : 'none')};
+const Background = styled.div`
+  background: #00000080;
   position: fixed;
   inset: 0 0 0 0;
-  z-index: 2;
 
-  > *:not(svg) {
-    width: 100%;
-    height: 100%;
-  }
-
-  > svg {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 3;
-
-    width: 2.2rem;
-    padding: 0.6rem;
-    cursor: pointer;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `
 
 type Props = {
@@ -33,7 +18,7 @@ type Props = {
   setOpen: (b: boolean) => void
 }
 
-function Modal({ children, open, setOpen }: Props) {
+function LazyModal({ children, open, setOpen }: Props) {
   function closeModal() {
     setOpen(false)
   }
@@ -64,13 +49,9 @@ function Modal({ children, open, setOpen }: Props) {
     }
   }, [open, setOpen])
 
-  return createPortal(
-    <Background displayBlock={open} onClick={closeModal}>
-      <XIcon onClick={closeModal} />
-      {children}
-    </Background>,
-    document.body
-  )
+  return open
+    ? createPortal(<Background onClick={closeModal}>{children}</Background>, document.body)
+    : null
 }
 
-export default Modal
+export default LazyModal

@@ -1,6 +1,6 @@
 import Inko from 'inko'
 import { NextRouter } from 'next/router'
-import { MouseEvent } from 'react'
+import { KeyboardEvent, MouseEvent } from 'react'
 
 export function stopPropagation(e: MouseEvent<HTMLElement>) {
   e.stopPropagation()
@@ -49,6 +49,34 @@ export function formatPhoneNumber(phoneNumber: string) {
 export function isEmpty(object: Record<string, unknown>) {
   for (const key in object) {
     return false
+  }
+  return true
+}
+
+export async function uploadImageFiles(formData: FormData) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/upload`, {
+    method: 'POST',
+    body: formData,
+  })
+  return response.json()
+}
+
+export function submitWhenShiftEnter(e: KeyboardEvent<HTMLTextAreaElement>) {
+  if (e.code === 'Enter' && e.shiftKey) {
+    e.preventDefault() // To prevent adding line break when shift+enter pressed
+    const submitEvent = new Event('submit', { bubbles: true })
+    const parentForm = (e.target as any).form as HTMLFormElement
+    parentForm.dispatchEvent(submitEvent)
+  }
+}
+
+export function isArrayEqual(a?: unknown[] | null, b?: unknown[] | null) {
+  if (a === b) return true
+  if (a == null || b == null) return false
+  if (a.length !== b.length) return false
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
   }
   return true
 }

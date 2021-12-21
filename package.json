@@ -4,12 +4,12 @@
   "description": "alpacasalon",
   "homepage": "https://alpacasalon.fun",
   "bugs": {
-    "url": "https://github.com/rmfpdlxmtidl/alpaca-salon/issues",
+    "url": "https://github.com/rmfpdlxmtidl/alpacasalon/issues",
     "email": "alpacasalon@alpacasalon.com"
   },
   "license": "GPL-3.0-only",
   "author": "Alpacasalon <alpacasalon@alpacasalon.com>",
-  "repository": "https://github.com/rmfpdlxmtidl/alpaca-salon.git",
+  "repository": "https://github.com/rmfpdlxmtidl/alpacasalon.git",
   "scripts": {
     "clean": "rm -rf .yarn/cache .yarn/unplugged .yarn/install-state.gz dist .pnp.cjs yarn.lock",
     "dev": "next dev",

@@ -9,14 +9,6 @@ import styled from 'styled-components'
 import KakaoIcon from '../svgs/kakao-icon.svg'
 import { FlexContainerColumnEnd } from './[userNickname]'
 
-const H2 = styled.h2`
-  font-weight: 600;
-`
-
-const H4 = styled.h4`
-  font-weight: 600;
-`
-
 const H5 = styled.h5`
   color: #676767;
   padding: 1.5rem 0;
@@ -92,14 +84,18 @@ const Text = styled.div`
 const description = '알파카살롱에 로그인하세요'
 
 export default function LoginPage() {
-  const router = useRouter()
+  function goToKakaoLoginPage() {
+    window.location.replace(
+      `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`
+    )
+  }
 
   return (
     <PageHead title="로그인 - 알파카살롱" description={description}>
       <FlexGrowPadding>
-        <H4>당당하게 더 멋진 인생을 살고 싶은</H4>
+        <h4>당당하게 더 멋진 인생을 살고 싶은</h4>
         <br />
-        <H2>멋쟁이 알파카님, 안녕하세요</H2>
+        <h2>멋쟁이 알파카님, 안녕하세요</h2>
 
         <GridContainerTemplate>
           <SquareFrame>
@@ -120,13 +116,23 @@ export default function LoginPage() {
         <FlexContainerColumnEnd>
           <H5>카카오 로그인으로 40대 이상 여성임을 확인해 주세요</H5>
 
-          <KakaoButton
-            onClick={() =>
-              router.replace(
-                `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY}&redirect_uri=${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth/kakao`
-              )
-            }
-          >
+          <label htmlFor="auto-login">
+            <input
+              id="auto-login"
+              name="auto-login"
+              onChange={(e) => {
+                if (e.target.checked) {
+                  sessionStorage.setItem('autoLogin', 'true')
+                } else {
+                  sessionStorage.removeItem('autoLogin')
+                }
+              }}
+              type="checkbox"
+            />
+            자동로그인
+          </label>
+
+          <KakaoButton onClick={goToKakaoLoginPage}>
             <KakaoIcon />
             카카오로 3초 만에 시작하기
           </KakaoButton>

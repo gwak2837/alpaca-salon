@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import React, { useEffect, useRef } from 'react'
+import React, { KeyboardEvent, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useSetRecoilState } from 'recoil'
@@ -187,10 +187,24 @@ export default function OAuthRegisterPage() {
     })
   }
 
+  function formatPhoneNumberInput(e: KeyboardEvent<HTMLInputElement>) {
+    const input = e.target as HTMLInputElement
+    input.value = formatPhoneNumber(input.value)
+  }
+
   useEffect(() => {
     const queryString = new URLSearchParams(window.location.search.substr(1))
+    const jwt = queryString.get('jwt')
     setValue('phoneNumber', queryString.get('phoneNumber') ?? '+82 10-')
-    window.sessionStorage.setItem('jwt', queryString.get('jwt') ?? '')
+
+    if (jwt) {
+      if (sessionStorage.getItem('autoLogin')) {
+        localStorage.setItem('jwt', jwt)
+        sessionStorage.removeItem('autoLogin')
+      } else {
+        sessionStorage.setItem('jwt', jwt)
+      }
+    }
   }, [setValue])
 
   return (
@@ -204,6 +218,7 @@ export default function OAuthRegisterPage() {
             <Label htmlFor="nickname">닉네임</Label>
             <Relative>
               <Input
+                disabled={updateUserLoading}
                 erred={Boolean(errors.nickname)}
                 loading={IsNicknameUniqueLoading}
                 placeholder="세련된 알파카"
@@ -241,10 +256,9 @@ export default function OAuthRegisterPage() {
             <Label htmlFor="phoneNumver">휴대폰 번호</Label>
             <Relative>
               <Input
+                disabled={updateUserLoading}
                 erred={Boolean(errors.phoneNumber)}
-                onKeyUp={(e) => {
-                  ;(e.target as any).value = formatPhoneNumber((e.target as any).value)
-                }}
+                onKeyUp={formatPhoneNumberInput}
                 placeholder="+82 10-1234-1234"
                 type="tel"
                 {...register('phoneNumber', {
@@ -268,10 +282,9 @@ export default function OAuthRegisterPage() {
             <Label htmlFor="phoneNumberConfirm">휴대폰 번호 확인</Label>
             <Relative>
               <Input
+                disabled={updateUserLoading}
                 erred={Boolean(errors.phoneNumberConfirm)}
-                onKeyUp={(e) => {
-                  ;(e.target as any).value = formatPhoneNumber((e.target as any).value)
-                }}
+                onKeyUp={formatPhoneNumberInput}
                 placeholder="+82 10-1234-1234"
                 type="tel"
                 {...register('phoneNumberConfirm', {
@@ -292,7 +305,10 @@ export default function OAuthRegisterPage() {
           <FlexContainerColumnEnd>
             <BigPrimaryText>따뜻하고 행복하게</BigPrimaryText>
             <PrimaryText>일상을 채울 준비가 되셨나요?</PrimaryText>
-            <PrimaryButton disabled={Object.keys(errors).length !== 0} type="submit">
+            <PrimaryButton
+              disabled={Object.keys(errors).length !== 0 || updateUserLoading}
+              type="submit"
+            >
               네, 그럼요!
             </PrimaryButton>
           </FlexContainerColumnEnd>
